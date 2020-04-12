@@ -5,7 +5,7 @@ AIO Prometheus Exporter for Sonarr, Radarr or Lidarr(TBD)
 [![Docker Pulls](https://img.shields.io/docker/pulls/onedr0p/exportarr)](https://hub.docker.com/r/onedr0p/exportarr)
 [![Go Report Card](https://goreportcard.com/badge/github.com/onedr0p/exportarr)](https://goreportcard.com/report/github.com/onedr0p/exportarr)
 
-This is Prometheus Exporter will export metrics gathered from Sonarr, Radarr, or Lidarr. It will not gather metrics from all 3 at once, and instead you need to tell the exporter what metrics you want. Be sure to see the examples below for more information.
+This is Prometheus Exporter will export metrics gathered from Sonarr, Radarr, or Lidarr. This only supports v3 APIs for Sonarr and Radarr. It will not gather metrics from all 3 at once, and instead you need to tell the exporter what metrics you want. Be sure to see the examples below for more information.
 
 ## Usage
 
