@@ -67,6 +67,8 @@ spec:
       - name: radarr-exporter
         image: onedr0p/exportarr:v0.1.0
         imagePullPolicy: IfNotPresent
+        command: ["exportarr"]
+        args: ["radarr"]
         env:
         - name: LISTEN_PORT
           value: "9708"
