@@ -26,7 +26,7 @@ jobs:
       - name: Build Container Image
         run: |
           docker buildx build \
-            -t onedr0p/radarr-exporter:${GITHUB_REF##*/} \
+            -t onedr0p/exportarr:${GITHUB_REF##*/} \
             --platform linux/amd64,linux/arm/v7,linux/arm64 \
             -f ./build/package/Dockerfile \
             --push .

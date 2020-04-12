@@ -12,14 +12,13 @@ RUN apk --no-cache add ca-certificates \
     && export GOARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
     && GOARM=$(echo ${TARGETPLATFORM} | cut -d / -f3); export GOARM=${GOARM:1} \
     && go mod download \
-    && go build -a -tags netgo -ldflags '-w -extldflags "-static"' -o radarr-exporter /build/cmd/radarr-exporter/. \
-    && chmod +x radarr-exporter
+    && go build -a -tags netgo -ldflags '-w -extldflags "-static"' -o exportarr /build/cmd/exportarr/. \
+    && chmod +x exportarr
 
-FROM scratch
+FROM gcr.io/distroless/static:nonroot
 
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=build /build/exportarr /usr/local/bin/exportarr
 
-COPY --from=build /build/radarr-exporter /
-
-ENTRYPOINT ["/radarr-exporter"]
-CMD ["start"]
+USER nonroot:nonroot
+ENTRYPOINT ["exportarr"]

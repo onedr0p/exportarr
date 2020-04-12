@@ -1,6 +1,8 @@
 package collector
 
 import (
+	"fmt"
+
 	"github.com/onedr0p/exportarr/internal/client"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
@@ -17,8 +19,8 @@ func NewSystemHealthCollector(c *cli.Context) *systemHealthCollector {
 	return &systemHealthCollector{
 		config: c,
 		systemHealthMetric: prometheus.NewDesc(
-			"radarr_system_health_issues",
-			"Total number of movies in the queue by status",
+			fmt.Sprintf("%s_system_health_issues", c.Command.Name),
+			"Total number of health issues by source, type, message and wikiurl",
 			[]string{"source", "type", "message", "wikiurl"},
 			prometheus.Labels{"url": c.String("url")},
 		),

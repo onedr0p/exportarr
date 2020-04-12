@@ -1,6 +1,8 @@
 package collector
 
 import (
+	"fmt"
+
 	"github.com/onedr0p/exportarr/internal/client"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
@@ -17,8 +19,8 @@ func NewHistoryCollector(c *cli.Context) *historyCollector {
 	return &historyCollector{
 		config: c,
 		historyMetric: prometheus.NewDesc(
-			"radarr_history_total",
-			"Total number of records in history",
+			fmt.Sprintf("%s_history_total", c.Command.Name),
+			"Total number of item in the history",
 			nil,
 			prometheus.Labels{"url": c.String("url")},
 		),

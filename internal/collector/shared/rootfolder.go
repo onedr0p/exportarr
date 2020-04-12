@@ -1,6 +1,8 @@
 package collector
 
 import (
+	"fmt"
+
 	"github.com/onedr0p/exportarr/internal/client"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
@@ -17,8 +19,8 @@ func NewRootFolderCollector(c *cli.Context) *rootFolderCollector {
 	return &rootFolderCollector{
 		config: c,
 		rootFolderMetric: prometheus.NewDesc(
-			"radarr_rootfolder_freespace_bytes",
-			"Root folder space in bytes",
+			fmt.Sprintf("%s_rootfolder_freespace_bytes", c.Command.Name),
+			"Root folder space in bytes by path",
 			[]string{"path"},
 			prometheus.Labels{"url": c.String("url")},
 		),
