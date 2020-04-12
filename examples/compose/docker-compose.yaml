@@ -43,7 +43,7 @@ services:
       DISABLE_SSL_VERIFY: false
       LISTEN_IP: "0.0.0.0"
       LISTEN_PORT: 9709
-      RADARR_URL: "http://192.168.1.100:8686"
-      RADARR_APIKEY: "amlmndfb503rfqaa5ln5hj5qkmu3hy18"
+      LIDARR_URL: "http://192.168.1.100:8686"
+      LIDARR_APIKEY: "amlmndfb503rfqaa5ln5hj5qkmu3hy18"
     ports:
       - "9709:9709"
