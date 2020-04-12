@@ -44,7 +44,7 @@ See examples in the [examples/compose](./examples/compose/) directory
 
 ## Run with Kubernetes
 
-See examples in the [examples/compose](./examples/kubernetes/) directory
+See examples in the [examples/kubernetes](./examples/kubernetes/) directory
 
 ## Run with the command line
 
