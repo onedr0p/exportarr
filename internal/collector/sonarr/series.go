@@ -131,7 +131,7 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 				seasonsMonitored++
 			}
 		}
-		if !collector.config.Bool("disable-episode-quality-metrics") {
+		if collector.config.Bool("enable-episode-quality-metrics") {
 			episodeFile := model.EpisodeFile{}
 			if err := c.DoRequest(fmt.Sprintf("%s?seriesId=%d", "episodefile", s.Id), &episodeFile); err != nil {
 				log.Fatal(err)
@@ -157,7 +157,7 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(collector.episodeMetric, prometheus.GaugeValue, float64(episodes))
 	ch <- prometheus.MustNewConstMetric(collector.episodeDownloadedMetric, prometheus.GaugeValue, float64(episodesDownloaded))
 
-	if !collector.config.Bool("disable-episode-quality-metrics") {
+	if collector.config.Bool("enable-episode-quality-metrics") {
 		if len(episodesQualities) > 0 {
 			for qualityName, count := range episodesQualities {
 				ch <- prometheus.MustNewConstMetric(collector.episodeQualitiesMetric, prometheus.GaugeValue, float64(count),

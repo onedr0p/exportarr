@@ -33,7 +33,7 @@ See examples in the [examples/kubernetes](./examples/kubernetes/) directory
    sonarr \
    --url http://127.0.0.1:8989 \
    --apikey amlmndfb503rfqaa5ln5hj5qkmu3hy18
-   --disable-episode-quality-metrics
+   --enable-episode-quality-metrics
 ```
 
 Visit http://127.0.0.1:9707/metrics to see Sonarr metrics
@@ -53,7 +53,7 @@ Visit http://127.0.0.1:9708/metrics to see Radarr metrics
 
 ```cmd
 ./exportarr --listen-port 9709 \
-   radarr \
+   lidarr \
    --url http://127.0.0.1:8686 \
    --apikey amlmndfb503rfqaa5ln5hj5qkmu3hy18
 ```
@@ -76,11 +76,11 @@ Visit http://127.0.0.1:9709/metrics to see Lidarr metrics
 
 ### Sonarr specific
 
-|Name                                    |Description                                                  |Default                |
-|----------------------------------------|-------------------------------------------------------------|-----------------------|
-|`SONARR_URL`                            |Your Sonarr URL                                              |`http://127.0.0.1:8989`|
-|`SONARR_APIKEY`                         |Your Sonarr API Key                                          |                       |
-|`SONARR_DISABLE_EPISODE_QUALITY_METRICS`|Disable getting Episode qualities                            |`true`                 |
+|Name                                    |Description                             |Default                |
+|----------------------------------------|----------------------------------------|-----------------------|
+|`SONARR_URL`                            |Your Sonarr URL                         |`http://127.0.0.1:8989`|
+|`SONARR_APIKEY`                         |Your Sonarr API Key                     |                       |
+|`SONARR_ENABLE_EPISODE_QUALITY_METRICS` |Enable getting episode qualities (slow) |`true`                 |
 
 ### Radarr specific
 
@@ -89,6 +89,6 @@ Visit http://127.0.0.1:9709/metrics to see Lidarr metrics
 |`RADARR_URL`                |Your Radarr URL                                              |`http://127.0.0.1:7878`|
 |`RADARR_APIKEY`             |Your Radarr API Key                                          |                       |
 
-### Usage With Lidarr
+### Lidarr specific
 
 TBD
