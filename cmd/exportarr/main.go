@@ -20,7 +20,7 @@ import (
 func main() {
 	app := cli.NewApp()
 	app.Name = "Exportarr"
-	app.Usage = "A Prometheus Exporter for Sonarr, Radarr and Lidarr"
+	app.Usage = "AIO Prometheus Exporter for Sonarr, Radarr or Lidarr"
 	app.EnableBashCompletion = true
 	app.HideVersion = true
 	app.Authors = []*cli.Author{

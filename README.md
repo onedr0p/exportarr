@@ -1,9 +1,64 @@
 # exportarr
 
-AIO Prometheus Exporter for Sonarr, Radarr and Lidarr(TBD)
+AIO Prometheus Exporter for Sonarr, Radarr or Lidarr(TBD)
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/onedr0p/exportarr)](https://hub.docker.com/r/onedr0p/exportarr)
 [![Go Report Card](https://goreportcard.com/badge/github.com/onedr0p/exportarr)](https://goreportcard.com/report/github.com/onedr0p/exportarr)
+
+This is Prometheus Exporter will export metrics gathered from Sonarr, Radarr, or Lidarr. It will not gather metrics from all 3 at once, and instead you need to tell the exporter what metrics you want. Be sure to see the examples below for more information.
+
+## Usage
+
+### Run with Docker Compose
+
+See examples in the [examples/compose](./examples/compose/) directory
+
+### Run with Kubernetes
+
+See examples in the [examples/kubernetes](./examples/kubernetes/) directory
+
+### Run from the CLI
+
+```cmd
+./exportarr --help
+./exportarr sonarr --help
+./exportarr radarr --help
+./exportarr lidarr --help
+```
+
+#### Sonarr
+
+```cmd
+./exportarr --listen-port 9707 \
+   sonarr \
+   --url http://127.0.0.1:8989 \
+   --apikey amlmndfb503rfqaa5ln5hj5qkmu3hy18
+   --disable-episode-quality-metrics
+```
+
+Visit http://127.0.0.1:9707/metrics to see Sonarr metrics
+
+#### Radarr
+
+```cmd
+./exportarr --listen-port 9708 \
+   radarr \
+   --url http://127.0.0.1:7878 \
+   --apikey amlmndfb503rfqaa5ln5hj5qkmu3hy18
+```
+
+Visit http://127.0.0.1:9708/metrics to see Radarr metrics
+
+#### Lidarr
+
+```cmd
+./exportarr --listen-port 9709 \
+   radarr \
+   --url http://127.0.0.1:8686 \
+   --apikey amlmndfb503rfqaa5ln5hj5qkmu3hy18
+```
+
+Visit http://127.0.0.1:9709/metrics to see Lidarr metrics
 
 ## Environment Variables
 
@@ -19,7 +74,7 @@ AIO Prometheus Exporter for Sonarr, Radarr and Lidarr(TBD)
 |`LISTEN_IP`                 |The IP the exporter will listen on                           |`0.0.0.0`              |
 |`LOG_LEVEL`                 |Set the default Log Level                                    |`INFO`                 |
 
-## Sonarr specific
+### Sonarr specific
 
 |Name                                    |Description                                                  |Default                |
 |----------------------------------------|-------------------------------------------------------------|-----------------------|
@@ -27,77 +82,13 @@ AIO Prometheus Exporter for Sonarr, Radarr and Lidarr(TBD)
 |`SONARR_APIKEY`                         |Your Sonarr API Key                                          |                       |
 |`SONARR_DISABLE_EPISODE_QUALITY_METRICS`|Disable getting Episode qualities                            |`true`                 |
 
-## Radarr specific
+### Radarr specific
 
 |Name                        |Description                                                  |Default                |
 |----------------------------|-------------------------------------------------------------|-----------------------|
 |`RADARR_URL`                |Your Radarr URL                                              |`http://127.0.0.1:7878`|
 |`RADARR_APIKEY`             |Your Radarr API Key                                          |                       |
 
-## Usage With Lidarr
-
-TBD
-
-## Run with Docker Compose
-
-See examples in the [examples/compose](./examples/compose/) directory
-
-## Run with Kubernetes
-
-See examples in the [examples/kubernetes](./examples/kubernetes/) directory
-
-## Run with the command line
-
-```cmd
-./exportarr --help
-
-NAME:
-   Exportarr - A Prometheus Exporter for Sonarr, Radarr and Lidarr
-
-USAGE:
-   exportarr [global options] command [command options] [arguments...]
-
-AUTHOR:
-   onedr0p <onedr0p@users.noreply.github.com>
-
-COMMANDS:
-   radarr, r  Use the exporter for Radarr
-   sonarr, s  Use the exporter for Sonarr
-   help, h    Shows a list of commands or help for one command
-
-GLOBAL OPTIONS:
-   --log-level value            Set the default Log Level (default: "INFO") [$LOG_LEVEL]
-   --listen-port value          Port the exporter will listen on (default: 9707) [$LISTEN_PORT]
-   --listen-ip value            IP the exporter will listen on (default: "0.0.0.0") [$LISTEN_IP]
-   --disable-ssl-verify         Disable SSL Verifications (use with caution) (default: false) [$DISABLE_SSL_VERIFY]
-   --basic-auth-enabled         Enable Basic Auth (default: false) [$BASIC_AUTH_ENABLED]
-   --basic-auth-username value  If Basic Auth is enabled, provide the username (default: "") [$BASIC_AUTH_USERNAME]
-   --basic-auth-password value  If Basic Auth is enabled, provide the password (default: "") [$BASIC_AUTH_PASSWORD]
-   --help, -h                   show help (default: false)
-```
-
-### Sonarr
-
-```cmd
-./exportarr --listen-port 9707 \
-   sonarr \
-   --url http://127.0.0.1:8989 \
-   --apikey amlmndfb503rfqaa5ln5hj5qkmu3hy18
-   --disable-episode-quality-metrics
-```
-Visit http://127.0.0.1:9707/metrics to see Sonarr metrics
-
-### Radarr
-
-```cmd
-./exportarr --listen-port 9708 \
-   radarr \
-   --url http://127.0.0.1:7878 \
-   --apikey amlmndfb503rfqaa5ln5hj5qkmu3hy18
-```
-
-Visit http://127.0.0.1:9708/metrics to see Radarr metrics
-
-### Lidarr
+### Usage With Lidarr
 
 TBD
