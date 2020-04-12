@@ -80,7 +80,7 @@ Visit http://127.0.0.1:9709/metrics to see Lidarr metrics
 |----------------------------------------|----------------------------------------|-----------------------|
 |`SONARR_URL`                            |Your Sonarr URL                         |`http://127.0.0.1:8989`|
 |`SONARR_APIKEY`                         |Your Sonarr API Key                     |                       |
-|`SONARR_ENABLE_EPISODE_QUALITY_METRICS` |Enable getting episode qualities (slow) |`true`                 |
+|`SONARR_ENABLE_EPISODE_QUALITY_METRICS` |Enable getting episode qualities (slow) |`false`                |
 
 ### Radarr specific
 
