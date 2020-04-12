@@ -14,7 +14,7 @@ services:
       LISTEN_PORT: 9707
       SONARR_URL: "http://192.168.1.100:8989"
       SONARR_APIKEY: "amlmndfb503rfqaa5ln5hj5qkmu3hy18"
-      SONARR_DISABLE_EPISODE_QUALITY_METRICS: true
+      SONARR_ENABLE_EPISODE_QUALITY_METRICS: false
     ports:
       - "9707:9707"
   radarr-exporter:
