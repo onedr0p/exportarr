@@ -32,7 +32,7 @@ spec:
   endpoints:
   - port: monitoring
     interval: 4m
-    scrapeTimeout: 1m
+    scrapeTimeout: 90s
     path: /metrics
 ---
 kind: Deployment
@@ -46,7 +46,7 @@ metadata:
   annotations:
     fluxcd.io/ignore: "false"
     fluxcd.io/automated: "true"
-    fluxcd.io/tag.radarr-exporter: semver:~v2.2
+    fluxcd.io/tag.radarr-exporter: semver:~v0.1
 spec:
   replicas: 1
   revisionHistoryLimit: 3

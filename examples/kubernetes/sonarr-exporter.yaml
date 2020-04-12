@@ -32,7 +32,7 @@ spec:
   endpoints:
   - port: monitoring
     interval: 4m
-    scrapeTimeout: 1m
+    scrapeTimeout: 90s
     path: /metrics
 ---
 kind: Deployment
@@ -46,7 +46,7 @@ metadata:
   annotations:
     fluxcd.io/ignore: "false"
     fluxcd.io/automated: "true"
-    fluxcd.io/tag.sonarr-exporter: semver:~v2.2
+    fluxcd.io/tag.sonarr-exporter: semver:~v0.1
 spec:
   replicas: 1
   revisionHistoryLimit: 3
@@ -73,7 +73,7 @@ spec:
         - name: LISTEN_PORT
           value: "9707"
         - name: SONARR_URL
-          value: "http://sonarr.default.svc.cluster.local:7878"
+          value: "http://sonarr.default.svc.cluster.local:8989"
         - name: SONARR_APIKEY
           valueFrom:
             secretKeyRef:
