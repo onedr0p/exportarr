@@ -1,6 +1,6 @@
 # exportarr
 
-Prometheus Exporter for Sonarr, Radarr and Lidarr(TBD)
+AIO Prometheus Exporter for Sonarr, Radarr and Lidarr(TBD)
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/onedr0p/exportarr)](https://hub.docker.com/r/onedr0p/exportarr)
 [![Go Report Card](https://goreportcard.com/badge/github.com/onedr0p/exportarr)](https://goreportcard.com/report/github.com/onedr0p/exportarr)

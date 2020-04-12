@@ -175,7 +175,6 @@ func main() {
 }
 
 func radarr(c *cli.Context) (err error) {
-	// Register the Collectors
 	r := prometheus.NewRegistry()
 	r.MustRegister(
 		radarrCollector.NewRadarrCollector(c),
@@ -185,25 +184,10 @@ func radarr(c *cli.Context) (err error) {
 		sharedCollector.NewSystemStatusCollector(c),
 		sharedCollector.NewSystemHealthCollector(c),
 	)
-	// Set up the handlers
-	handler := promhttp.HandlerFor(r, promhttp.HandlerOpts{})
-	http.HandleFunc("/", handlers.IndexHandler)
-	http.HandleFunc("/healthz", handlers.HealthzHandler)
-	http.Handle("/metrics", handler)
-	// Serve up the metrics
-	log.Infof("Listening on %s:%d", c.String("listen-ip"), c.Int("listen-port"))
-	httpErr := http.ListenAndServe(
-		fmt.Sprintf("%s:%d", c.String("listen-ip"), c.Int("listen-port")),
-		logRequest(http.DefaultServeMux),
-	)
-	if httpErr != nil {
-		return httpErr
-	}
-	return nil
+	return serveHttp(c, r)
 }
 
 func sonarr(c *cli.Context) (err error) {
-	// Register the Collectors
 	r := prometheus.NewRegistry()
 	r.MustRegister(
 		sonarrCollector.NewSonarrCollector(c),
@@ -213,6 +197,10 @@ func sonarr(c *cli.Context) (err error) {
 		sharedCollector.NewSystemStatusCollector(c),
 		sharedCollector.NewSystemHealthCollector(c),
 	)
+	return serveHttp(c, r)
+}
+
+func serveHttp(c *cli.Context, r *prometheus.Registry) error {
 	// Set up the handlers
 	handler := promhttp.HandlerFor(r, promhttp.HandlerOpts{})
 	http.HandleFunc("/", handlers.IndexHandler)
