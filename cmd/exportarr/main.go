@@ -117,9 +117,9 @@ func serveHttp(c *cli.Context, r *prometheus.Registry) error {
 	http.HandleFunc("/healthz", handlers.HealthzHandler)
 	http.Handle("/metrics", handler)
 	// Serve up the metrics
-	log.Infof("Listening on %s:%d", c.String("listen-ip"), c.Int("listen-port"))
+	log.Infof("Listening on %s:%d", c.String("interface"), c.Int("port"))
 	httpErr := http.ListenAndServe(
-		fmt.Sprintf("%s:%d", c.String("listen-ip"), c.Int("listen-port")),
+		fmt.Sprintf("%s:%d", c.String("interface"), c.Int("port")),
 		logRequest(http.DefaultServeMux),
 	)
 	if httpErr != nil {
@@ -165,18 +165,19 @@ func flags(whatarr string) []cli.Flag {
 			EnvVars:  []string{"APIKEY"},
 		},
 		&cli.IntFlag{
-			Name:     "listen-port",
+			Name:     "port",
+			Aliases:  []string{"p"},
 			Usage:    "Port the exporter will listen on",
-			Value:    9707,
-			Required: false,
-			EnvVars:  []string{"LISTEN_PORT"},
+			Required: true,
+			EnvVars:  []string{"PORT"},
 		},
 		&cli.StringFlag{
-			Name:     "listen-ip",
+			Name:     "interface",
+			Aliases:  []string{"i"},
 			Usage:    "IP the exporter will listen on",
 			Value:    "0.0.0.0",
 			Required: false,
-			EnvVars:  []string{"LISTEN_IP"},
+			EnvVars:  []string{"INTERFACE"},
 		},
 		&cli.BoolFlag{
 			Name:     "disable-ssl-verify",

@@ -5,7 +5,7 @@ services:
     image: onedr0p/exportarr:latest
     command: ["exportarr", "sonarr"]
     environment:
-      LISTEN_PORT: 9707
+      PORT: 9707
       URL: "http://192.168.1.100:8989"
       APIKEY: "amlmndfb503rfqaa5ln5hj5qkmu3hy18"
       ENABLE_EPISODE_QUALITY_METRICS: false
@@ -15,7 +15,7 @@ services:
     image: onedr0p/exportarr:latest
     command: ["exportarr", "radarr"]
     environment:
-      LISTEN_PORT: 9708
+      PORT: 9708
       URL: "http://192.168.1.100:7878"
       APIKEY: "amlmndfb503rfqaa5ln5hj5qkmu3hy18"
     ports:

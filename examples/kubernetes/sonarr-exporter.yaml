@@ -70,7 +70,7 @@ spec:
         command: ["exportarr"]
         args: ["sonarr"]
         env:
-        - name: LISTEN_PORT
+        - name: PORT
           value: "9707"
         - name: URL
           value: "http://sonarr.default.svc.cluster.local:8989"

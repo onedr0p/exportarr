@@ -66,7 +66,7 @@ spec:
         command: ["exportarr"]
         args: ["radarr"]
         env:
-        - name: LISTEN_PORT
+        - name: PORT
           value: "9708"
         - name: URL
           value: "http://radarr.default.svc.cluster.local:7878"
