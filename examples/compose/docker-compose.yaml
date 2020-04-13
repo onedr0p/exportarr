@@ -2,48 +2,21 @@
 version: "3.7"
 services:
   sonarr-exporter:
-    image: onedr0p/exportarr:v0.1.0
-    command: [exportarr, sonarr]
+    image: onedr0p/exportarr:latest
+    command: ["exportarr", "sonarr"]
     environment:
-      LOG_LEVEL: "INFO"
-      BASIC_AUTH_ENABLED: false
-      BASIC_AUTH_USERNAME: ""
-      BASIC_AUTH_PASSWORD: ""
-      DISABLE_SSL_VERIFY: false
-      LISTEN_IP: "0.0.0.0"
       LISTEN_PORT: 9707
-      SONARR_URL: "http://192.168.1.100:8989"
-      SONARR_APIKEY: "amlmndfb503rfqaa5ln5hj5qkmu3hy18"
-      SONARR_ENABLE_EPISODE_QUALITY_METRICS: false
+      URL: "http://192.168.1.100:8989"
+      APIKEY: "amlmndfb503rfqaa5ln5hj5qkmu3hy18"
+      ENABLE_EPISODE_QUALITY_METRICS: false
     ports:
       - "9707:9707"
   radarr-exporter:
-    image: onedr0p/exportarr:v0.1.0
-    command: [exportarr, radarr]
+    image: onedr0p/exportarr:latest
+    command: ["exportarr", "radarr"]
     environment:
-      LOG_LEVEL: "INFO"
-      BASIC_AUTH_ENABLED: false
-      BASIC_AUTH_USERNAME: ""
-      BASIC_AUTH_PASSWORD: ""
-      DISABLE_SSL_VERIFY: false
-      LISTEN_IP: "0.0.0.0"
       LISTEN_PORT: 9708
-      RADARR_URL: "http://192.168.1.100:7878"
-      RADARR_APIKEY: "amlmndfb503rfqaa5ln5hj5qkmu3hy18"
+      URL: "http://192.168.1.100:7878"
+      APIKEY: "amlmndfb503rfqaa5ln5hj5qkmu3hy18"
     ports:
       - "9708:9708"
-  lidarr-exporter:
-    image: onedr0p/exportarr:v0.1.0
-    command: [exportarr, lidarr]
-    environment:
-      LOG_LEVEL: "INFO"
-      BASIC_AUTH_ENABLED: false
-      BASIC_AUTH_USERNAME: ""
-      BASIC_AUTH_PASSWORD: ""
-      DISABLE_SSL_VERIFY: false
-      LISTEN_IP: "0.0.0.0"
-      LISTEN_PORT: 9709
-      LIDARR_URL: "http://192.168.1.100:8686"
-      LIDARR_APIKEY: "amlmndfb503rfqaa5ln5hj5qkmu3hy18"
-    ports:
-      - "9709:9709"

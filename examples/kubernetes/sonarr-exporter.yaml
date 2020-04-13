@@ -65,21 +65,21 @@ spec:
     spec:
       containers:
       - name: sonarr-exporter
-        image: onedr0p/exportarr:v0.1.0
-        imagePullPolicy: IfNotPresent
+        image: onedr0p/exportarr:latest
+        imagePullPolicy: Always
         command: ["exportarr"]
         args: ["sonarr"]
         env:
         - name: LISTEN_PORT
           value: "9707"
-        - name: SONARR_URL
+        - name: URL
           value: "http://sonarr.default.svc.cluster.local:8989"
-        - name: SONARR_APIKEY
+        - name: APIKEY
           valueFrom:
             secretKeyRef:
               name: sonarr-exporter
               key: api-key
-        - name: SONARR_ENABLE_EPISODE_QUALITY_METRICS
+        - name: ENABLE_EPISODE_QUALITY_METRICS
           value: "true"
         ports:
         - name: monitoring

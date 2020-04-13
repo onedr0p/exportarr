@@ -33,50 +33,11 @@ func main() {
 	app.Flags = []cli.Flag{
 		&cli.StringFlag{
 			Name:     "log-level",
+			Aliases:  []string{"l"},
 			Usage:    "Set the default Log Level",
 			Value:    "INFO",
 			Required: false,
 			EnvVars:  []string{"LOG_LEVEL"},
-		},
-		&cli.IntFlag{
-			Name:     "listen-port",
-			Usage:    "Port the exporter will listen on",
-			Value:    9707,
-			Required: false,
-			EnvVars:  []string{"LISTEN_PORT"},
-		},
-		&cli.StringFlag{
-			Name:     "listen-ip",
-			Usage:    "IP the exporter will listen on",
-			Value:    "0.0.0.0",
-			Required: false,
-			EnvVars:  []string{"LISTEN_IP"},
-		},
-		&cli.BoolFlag{
-			Name:     "disable-ssl-verify",
-			Usage:    "Disable SSL Verifications (use with caution)",
-			Value:    false,
-			Required: false,
-			EnvVars:  []string{"DISABLE_SSL_VERIFY"},
-		},
-		&cli.BoolFlag{
-			Name:     "basic-auth-enabled",
-			Usage:    "Enable Basic Auth",
-			Value:    false,
-			Required: false,
-			EnvVars:  []string{"BASIC_AUTH_ENABLED"},
-		},
-		&cli.StringFlag{
-			Name:     "basic-auth-username",
-			Usage:    "If Basic Auth is enabled, provide the username",
-			Required: false,
-			EnvVars:  []string{"BASIC_AUTH_USERNAME"},
-		},
-		&cli.StringFlag{
-			Name:     "basic-auth-password",
-			Usage:    "If Basic Auth is enabled, provide the password",
-			Required: false,
-			EnvVars:  []string{"BASIC_AUTH_PASSWORD"},
 		},
 	}
 	app.Before = func(c *cli.Context) error {
@@ -102,69 +63,24 @@ func main() {
 			Aliases:     []string{"r"},
 			Usage:       "Use the exporter for Radarr",
 			Description: strings.Title("Radarr Exporter"),
-			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name:     "url",
-					Value:    "http://127.0.0.1:7878",
-					Usage:    "Full URL to Radarr",
-					Required: false,
-					EnvVars:  []string{"RADARR_URL"},
-				},
-				&cli.StringFlag{
-					Name:     "api-key",
-					Usage:    "Radarr's API Key",
-					Required: true,
-					EnvVars:  []string{"RADARR_APIKEY"},
-				},
-			},
-			Action: radarr,
-			Before: func(c *cli.Context) error {
-				if !utils.IsValidUrl(c.String("url")) {
-					return cli.Exit(fmt.Sprintf("%s is not a valid URL", c.String("url")), 10)
-				}
-				if !utils.IsValidApikey(c.String("api-key")) {
-					return cli.Exit(fmt.Sprintf("%s is not a valid API Key", c.String("api-key")), 11)
-				}
-				return nil
-			},
+			Flags:       flags("radarr"),
+			Action:      radarr,
+			Before:      validation,
 		},
 		{
 			Name:        "sonarr",
 			Aliases:     []string{"s"},
 			Usage:       "Use the exporter for Sonarr",
 			Description: strings.Title("Sonarr Exporter"),
-			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name:     "url",
-					Value:    "http://127.0.0.1:8989",
-					Usage:    "Full URL to Sonarr",
-					Required: false,
-					EnvVars:  []string{"SONARR_URL"},
-				},
-				&cli.StringFlag{
-					Name:     "api-key",
-					Usage:    "Sonarr's API Key",
-					Required: true,
-					EnvVars:  []string{"SONARR_APIKEY"},
-				},
-				&cli.BoolFlag{
-					Name:     "enable-episode-quality-metrics",
-					Usage:    "Enable getting Episode qualities",
-					Value:    false,
-					Required: false,
-					EnvVars:  []string{"SONARR_ENABLE_EPISODE_QUALITY_METRICS"},
-				},
-			},
+			Flags: append(flags("sonarr"), &cli.BoolFlag{
+				Name:     "enable-episode-quality-metrics",
+				Usage:    "Enable getting Episode qualities",
+				Value:    false,
+				Required: false,
+				EnvVars:  []string{"ENABLE_EPISODE_QUALITY_METRICS"},
+			}),
 			Action: sonarr,
-			Before: func(c *cli.Context) error {
-				if !utils.IsValidUrl(c.String("url")) {
-					return cli.Exit(fmt.Sprintf("%s is not a valid URL", c.String("url")), 10)
-				}
-				if !utils.IsValidApikey(c.String("api-key")) {
-					return cli.Exit(fmt.Sprintf("%s is not a valid API Key", c.String("api-key")), 11)
-				}
-				return nil
-			},
+			Before: validation,
 		},
 	}
 
@@ -224,4 +140,75 @@ func logRequest(handler http.Handler) http.Handler {
 		log.Debugf("%s %s %s\n", r.RemoteAddr, r.Method, r.URL)
 		handler.ServeHTTP(w, r)
 	})
+}
+
+// SharedValidation - Shared Validation used for all services
+func validation(c *cli.Context) error {
+	if !utils.IsValidUrl(c.String("url")) {
+		return cli.Exit(fmt.Sprintf("%s is not a valid URL", c.String("url")), 10)
+	}
+	if !utils.IsValidApikey(c.String("api-key")) {
+		return cli.Exit(fmt.Sprintf("%s is not a valid API Key", c.String("api-key")), 11)
+	}
+	return nil
+}
+
+// Flags - Shared flags used for all services
+func flags(whatarr string) []cli.Flag {
+	return []cli.Flag{
+		&cli.StringFlag{
+			Name:     "url",
+			Aliases:  []string{"u"},
+			Usage:    fmt.Sprintf("Full URL to %s", whatarr),
+			Required: true,
+			EnvVars:  []string{"URL"},
+		},
+		&cli.StringFlag{
+			Name:     "api-key",
+			Aliases:  []string{"a"},
+			Usage:    fmt.Sprintf("%s's API Key", whatarr),
+			Required: true,
+			EnvVars:  []string{"APIKEY"},
+		},
+		&cli.IntFlag{
+			Name:     "listen-port",
+			Usage:    "Port the exporter will listen on",
+			Value:    9707,
+			Required: false,
+			EnvVars:  []string{"LISTEN_PORT"},
+		},
+		&cli.StringFlag{
+			Name:     "listen-ip",
+			Usage:    "IP the exporter will listen on",
+			Value:    "0.0.0.0",
+			Required: false,
+			EnvVars:  []string{"LISTEN_IP"},
+		},
+		&cli.BoolFlag{
+			Name:     "disable-ssl-verify",
+			Usage:    "Disable SSL Verifications (use with caution)",
+			Value:    false,
+			Required: false,
+			EnvVars:  []string{"DISABLE_SSL_VERIFY"},
+		},
+		&cli.BoolFlag{
+			Name:     "basic-auth-enabled",
+			Usage:    "Enable Basic Auth",
+			Value:    false,
+			Required: false,
+			EnvVars:  []string{"BASIC_AUTH_ENABLED"},
+		},
+		&cli.StringFlag{
+			Name:     "basic-auth-username",
+			Usage:    "If Basic Auth is enabled, provide the username",
+			Required: false,
+			EnvVars:  []string{"BASIC_AUTH_USERNAME"},
+		},
+		&cli.StringFlag{
+			Name:     "basic-auth-password",
+			Usage:    "If Basic Auth is enabled, provide the password",
+			Required: false,
+			EnvVars:  []string{"BASIC_AUTH_PASSWORD"},
+		},
+	}
 }
