@@ -205,8 +205,7 @@ func flags(whatarr string) []cli.Flag {
 			EnvVars:  []string{"BASIC_AUTH_PASSWORD"},
 		},
 	}
-	switch whatarr {
-	case "sonarr":
+	if whatarr == "sonarr" {
 		flags = append(flags, &cli.BoolFlag{
 			Name:     "enable-episode-quality-metrics",
 			Usage:    "Enable getting Episode qualities",
