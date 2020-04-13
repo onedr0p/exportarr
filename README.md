@@ -52,22 +52,22 @@ Visit http://127.0.0.1:9708/metrics to see Radarr metrics
 
 ### Global
 
-|Environment Variable |CLI Flag          |Description              |Default   |Required|
-|---------------------|------------------|-------------------------|----------|:------:|
-|`LOG_LEVEL`          |`--log-level | -l`|Set the default Log Level|`INFO`    |❌      |
+|Environment Variable |CLI Flag           |Description              |Default   |Required|
+|---------------------|-------------------|-------------------------|----------|:------:|
+|`LOG_LEVEL`          |`--log-level or -l`|Set the default Log Level|`INFO`    |❌      |
 
 ### Sonarr or Radarr
 
-|Environment Variable |CLI Flag               |Description                                 |Default   |Required|
-|---------------------|-----------------------|--------------------------------------------|----------|:------:|
-|`URL`                |`--url | -u`           |The full URL to Sonarr or Radarr            |          |✅      |
-|`APIKEY`             |`--api-key | -a`       |API Key for Sonarr or Radarr                |          |✅      |
-|`BASIC_AUTH_ENABLED` |`--basic-auth-enabled` |Set to `true` to enable Basic Auth          |`false`   |❌      |
-|`BASIC_AUTH_USERNAME`|`--basic-auth-username`|Set to your username if enabled Basic Auth  |          |❌      |
-|`BASIC_AUTH_PASSWORD`|`--basic-auth-password`|Set to your password if enabled Basic Auth  |          |❌      |
-|`DISABLE_SSL_VERIFY` |`--disable-ssl-verify` |Set to `true` to disable SSL verification   |`false`   |❌      |
-|`PORT`               |`--port | -p`          |The port the exporter will listen on        |          |✅      |
-|`INTERFACE`          |`--interface | -i`     |The interface IP the exporter will listen on|`0.0.0.0` |❌      |
+|Environment Variable |CLI Flag                |Description                                 |Default   |Required|
+|---------------------|------------------------|--------------------------------------------|----------|:------:|
+|`URL`                |`--url or -u`           |The full URL to Sonarr or Radarr            |          |✅      |
+|`APIKEY`             |`--api-key or -a`       |API Key for Sonarr or Radarr                |          |✅      |
+|`BASIC_AUTH_ENABLED` |`--basic-auth-enabled`  |Set to `true` to enable Basic Auth          |`false`   |❌      |
+|`BASIC_AUTH_USERNAME`|`--basic-auth-username` |Set to your username if enabled Basic Auth  |          |❌      |
+|`BASIC_AUTH_PASSWORD`|`--basic-auth-password` |Set to your password if enabled Basic Auth  |          |❌      |
+|`DISABLE_SSL_VERIFY` |`--disable-ssl-verify`  |Set to `true` to disable SSL verification   |`false`   |❌      |
+|`PORT`               |`--port or -p`          |The port the exporter will listen on        |          |✅      |
+|`INTERFACE`          |`--interface or -i`     |The interface IP the exporter will listen on|`0.0.0.0` |❌      |
 
 ### Sonarr only
 
