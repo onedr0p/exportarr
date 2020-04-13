@@ -72,15 +72,9 @@ func main() {
 			Aliases:     []string{"s"},
 			Usage:       "Use the exporter for Sonarr",
 			Description: strings.Title("Sonarr Exporter"),
-			Flags: append(flags("sonarr"), &cli.BoolFlag{
-				Name:     "enable-episode-quality-metrics",
-				Usage:    "Enable getting Episode qualities",
-				Value:    false,
-				Required: false,
-				EnvVars:  []string{"ENABLE_EPISODE_QUALITY_METRICS"},
-			}),
-			Action: sonarr,
-			Before: validation,
+			Flags:       flags("sonarr"),
+			Action:      sonarr,
+			Before:      validation,
 		},
 	}
 
@@ -142,7 +136,7 @@ func logRequest(handler http.Handler) http.Handler {
 	})
 }
 
-// SharedValidation - Shared Validation used for all services
+// Validation used for all services
 func validation(c *cli.Context) error {
 	if !utils.IsValidUrl(c.String("url")) {
 		return cli.Exit(fmt.Sprintf("%s is not a valid URL", c.String("url")), 10)
@@ -153,13 +147,13 @@ func validation(c *cli.Context) error {
 	return nil
 }
 
-// Flags - Shared flags used for all services
+// Flags used for all services
 func flags(whatarr string) []cli.Flag {
-	return []cli.Flag{
+	flags := []cli.Flag{
 		&cli.StringFlag{
 			Name:     "url",
 			Aliases:  []string{"u"},
-			Usage:    fmt.Sprintf("Full URL to %s", whatarr),
+			Usage:    fmt.Sprintf("%s's full URL", whatarr),
 			Required: true,
 			EnvVars:  []string{"URL"},
 		},
@@ -211,4 +205,15 @@ func flags(whatarr string) []cli.Flag {
 			EnvVars:  []string{"BASIC_AUTH_PASSWORD"},
 		},
 	}
+	switch whatarr {
+	case "sonarr":
+		flags = append(flags, &cli.BoolFlag{
+			Name:     "enable-episode-quality-metrics",
+			Usage:    "Enable getting Episode qualities",
+			Value:    false,
+			Required: false,
+			EnvVars:  []string{"ENABLE_EPISODE_QUALITY_METRICS"},
+		})
+	}
+	return flags
 }

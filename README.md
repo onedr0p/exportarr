@@ -23,17 +23,15 @@ See examples in the [examples/kubernetes](./examples/kubernetes/) directory
 ./exportarr --help
 ./exportarr sonarr --help
 ./exportarr radarr --help
-./exportarr lidarr --help
 ```
 
 #### Sonarr
 
 ```cmd
-./exportarr \
+./exportarr sonarr \
   --listen-port 9707 \
   --url http://127.0.0.1:8989 \
   --apikey amlmndfb503rfqaa5ln5hj5qkmu3hy18 \
-sonarr \
   --enable-episode-quality-metrics
 ```
 
@@ -42,22 +40,23 @@ Visit http://127.0.0.1:9707/metrics to see Sonarr metrics
 #### Radarr
 
 ```cmd
-./exportarr \
+./exportarr radarr \
   --listen-port 9708 \
   --url http://127.0.0.1:7878 \
-  --apikey amlmndfb503rfqaa5ln5hj5qkmu3hy18 \
-radarr
+  --apikey amlmndfb503rfqaa5ln5hj5qkmu3hy18
 ```
 
 Visit http://127.0.0.1:9708/metrics to see Radarr metrics
 
-#### Lidarr
-
-TBD
-
 ## Environment Variables
 
 ### Global
+
+|Name                 |Description                                                  |Default   |Required|
+|---------------------|-------------------------------------------------------------|----------|:------:|
+|`LOG_LEVEL`          |Set the default Log Level                                    |`INFO`    |        |
+
+### Sonarr and Radarr
 
 |Name                 |Description                                                  |Default   |Required|
 |---------------------|-------------------------------------------------------------|----------|:------:|
@@ -69,9 +68,8 @@ TBD
 |`DISABLE_SSL_VERIFY` |Set to `true` to disable SSL verification (use with caution) |`false`   |        |
 |`LISTEN_PORT`        |The port the exporter will listen on                         |`9707`    |        |
 |`LISTEN_IP`          |The IP the exporter will listen on                           |`0.0.0.0` |        |
-|`LOG_LEVEL`          |Set the default Log Level                                    |`INFO`    |        |
 
-### Sonarr specific
+### Sonarr only
 
 |Name                             |Description                             |Default|Required|
 |---------------------------------|----------------------------------------|-------|--------|
