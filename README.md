@@ -50,16 +50,11 @@ Visit http://127.0.0.1:9708/metrics to see Radarr metrics
 
 ## Configuration
 
-### Global
-
 |Environment Variable |CLI Flag           |Description              |Default   |Required|
-|---------------------|-------------------|-------------------------|----------|:------:|
+|:-------------------:|-------------------|-------------------------|----------|:------:|
+|**Global**
 |`LOG_LEVEL`          |`--log-level or -l`|Set the default Log Level|`INFO`    |❌      |
-
-### Sonarr or Radarr
-
-|Environment Variable |CLI Flag                |Description                                 |Default   |Required|
-|---------------------|------------------------|--------------------------------------------|----------|:------:|
+|**Sonarr or Radarr**
 |`URL`                |`--url or -u`           |The full URL to Sonarr or Radarr            |          |✅      |
 |`APIKEY`             |`--api-key or -a`       |API Key for Sonarr or Radarr                |          |✅      |
 |`BASIC_AUTH_ENABLED` |`--basic-auth-enabled`  |Set to `true` to enable Basic Auth          |`false`   |❌      |
@@ -68,9 +63,5 @@ Visit http://127.0.0.1:9708/metrics to see Radarr metrics
 |`DISABLE_SSL_VERIFY` |`--disable-ssl-verify`  |Set to `true` to disable SSL verification   |`false`   |❌      |
 |`PORT`               |`--port or -p`          |The port the exporter will listen on        |          |✅      |
 |`INTERFACE`          |`--interface or -i`     |The interface IP the exporter will listen on|`0.0.0.0` |❌      |
-
-### Sonarr only
-
-|Environment Variable             |CLI Flag                          |Description                             |Default|Required|
-|---------------------------------|----------------------------------|----------------------------------------|-------|:------:|
+|**Sonarr**
 |`ENABLE_EPISODE_QUALITY_METRICS` |`--enable-episode-quality-metrics`|Enable getting episode qualities (slow) |`false`|❌      |
