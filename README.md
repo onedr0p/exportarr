@@ -15,7 +15,7 @@ See examples in the [examples/compose](./examples/compose/) directory
 
 ### Run with Kubernetes
 
-See examples in the [examples/kubernetes](./examples/kubernetes/) directory, or use the [billimek-charts/sonarr](https://github.com/billimek/billimek-charts/tree/master/charts/sonarr) or [billimek-charts/radarr](https://github.com/billimek/billimek-charts/tree/master/charts/radarr) Helm chart.
+See examples in the [examples/kubernetes](./examples/kubernetes/) directory, or use the [billimek-charts/sonarr](https://github.com/billimek/billimek-charts/tree/master/charts/sonarr) or [billimek-charts/radarr](https://github.com/billimek/billimek-charts/tree/master/charts/radarr) Helm charts.
 
 ### Run from the CLI
 
