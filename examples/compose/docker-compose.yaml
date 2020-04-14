@@ -8,7 +8,7 @@ services:
       PORT: 9707
       URL: "http://192.168.1.100:8989"
       APIKEY: "amlmndfb503rfqaa5ln5hj5qkmu3hy18"
-      ENABLE_EPISODE_QUALITY_METRICS: false
+      ENABLE_EPISODE_QUALITY_METRICS: "false"
     ports:
       - "9707:9707"
   radarr-exporter:
