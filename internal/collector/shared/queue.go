@@ -34,15 +34,17 @@ func (collector *queueCollector) Describe(ch chan<- *prometheus.Desc) {
 func (collector *queueCollector) Collect(ch chan<- prometheus.Metric) {
 	c := client.NewClient(collector.config)
 
-	unknownItemsQuery := "includeUnknownSeriesItems"
-	if collector.config.Command.Name == "radarr" {
-		unknownItemsQuery = "includeUnknownMovieItems"
-	} else if collector.config.Command.Name == "lidarr" {
-		unknownItemsQuery = "includeUnknownMusicItems"
+	unknownItemsQuery := ""
+	if collector.config.Bool("enable-unknown-queue-items") {
+		if collector.config.Command.Name == "sonarr" {
+			unknownItemsQuery = "&includeUnknownSeriesItems=true"
+		} else if collector.config.Command.Name == "radarr" {
+			unknownItemsQuery = "&includeUnknownMovieItems=true"
+		}
 	}
 
 	queue := model.Queue{}
-	if err := c.DoRequest(fmt.Sprintf("queue?page=1&%s=true", unknownItemsQuery), &queue); err != nil {
+	if err := c.DoRequest(fmt.Sprintf("queue?page=1%s", unknownItemsQuery), &queue); err != nil {
 		log.Fatal(err)
 	}
 	// Calculate total pages
@@ -52,7 +54,7 @@ func (collector *queueCollector) Collect(ch chan<- prometheus.Metric) {
 	queueStatusAll = append(queueStatusAll, queue.Records...)
 	if totalPages > 1 {
 		for page := 2; page <= totalPages; page++ {
-			if err := c.DoRequest(fmt.Sprintf("%s?page=%d&%s=true", "queue", page, unknownItemsQuery), &queue); err != nil {
+			if err := c.DoRequest(fmt.Sprintf("queue?page=%d%s", page, unknownItemsQuery), &queue); err != nil {
 				log.Fatal(err)
 			}
 			queueStatusAll = append(queueStatusAll, queue.Records...)

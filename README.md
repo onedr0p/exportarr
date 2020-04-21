@@ -50,18 +50,19 @@ Visit http://127.0.0.1:9708/metrics to see Radarr metrics
 
 ## Configuration
 
-|Environment Variable |CLI Flag           |Description              |Default   |Required|
-|:-------------------:|-------------------|-------------------------|----------|:------:|
-|**Global**
-|`LOG_LEVEL`          |`--log-level or -l`|Set the default Log Level|`INFO`    |❌      |
-|**Sonarr or Radarr**
-|`URL`                |`--url or -u`           |The full URL to Sonarr or Radarr            |          |✅      |
-|`APIKEY`             |`--api-key or -a`       |API Key for Sonarr or Radarr                |          |✅      |
-|`BASIC_AUTH_ENABLED` |`--basic-auth-enabled`  |Set to `true` to enable Basic Auth          |`false`   |❌      |
-|`BASIC_AUTH_USERNAME`|`--basic-auth-username` |Set to your username if enabled Basic Auth  |          |❌      |
-|`BASIC_AUTH_PASSWORD`|`--basic-auth-password` |Set to your password if enabled Basic Auth  |          |❌      |
-|`DISABLE_SSL_VERIFY` |`--disable-ssl-verify`  |Set to `true` to disable SSL verification   |`false`   |❌      |
-|`PORT`               |`--port or -p`          |The port the exporter will listen on        |          |✅      |
-|`INTERFACE`          |`--interface or -i`     |The interface IP the exporter will listen on|`0.0.0.0` |❌      |
-|**Sonarr**
-|`ENABLE_EPISODE_QUALITY_METRICS` |`--enable-episode-quality-metrics`|Enable getting episode qualities (slow) |`false`|❌      |
+|       Environment Variable       | CLI Flag                           | Description                                                            | Default   | Required |
+|:--------------------------------:|------------------------------------|------------------------------------------------------------------------|-----------|:--------:|
+|            **Global**            |                                    |                                                                        |           |          |
+|           `LOG_LEVEL`            | `--log-level or -l`                | Set the default Log Level                                              | `INFO`    |    ❌     |
+|       **Sonarr or Radarr**       |                                    |                                                                        |           |          |
+|              `URL`               | `--url or -u`                      | The full URL to Sonarr or Radarr                                       |           |    ✅     |
+|             `APIKEY`             | `--api-key or -a`                  | API Key for Sonarr or Radarr                                           |           |    ✅     |
+|   `ENABLE_UNKNOWN_QUEUE_ITEMS`   | `--enable-unknown-queue-items`     | Set to `true` to enable gathering unknown queue items in Queue metrics | `false`   |    ❌     |
+|       `BASIC_AUTH_ENABLED`       | `--basic-auth-enabled`             | Set to `true` to enable Basic Auth                                     | `false`   |    ❌     |
+|      `BASIC_AUTH_USERNAME`       | `--basic-auth-username`            | Set to your username if enabled Basic Auth                             |           |    ❌     |
+|      `BASIC_AUTH_PASSWORD`       | `--basic-auth-password`            | Set to your password if enabled Basic Auth                             |           |    ❌     |
+|       `DISABLE_SSL_VERIFY`       | `--disable-ssl-verify`             | Set to `true` to disable SSL verification                              | `false`   |    ❌     |
+|              `PORT`              | `--port or -p`                     | The port the exporter will listen on                                   |           |    ✅     |
+|           `INTERFACE`            | `--interface or -i`                | The interface IP the exporter will listen on                           | `0.0.0.0` |    ❌     |
+|            **Sonarr**            |                                    |                                                                        |           |          |
+| `ENABLE_EPISODE_QUALITY_METRICS` | `--enable-episode-quality-metrics` | Set to `true` to enable gathering total episodes by qualities          | `false`   |    ❌     |

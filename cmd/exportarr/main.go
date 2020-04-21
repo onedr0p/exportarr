@@ -205,11 +205,18 @@ func flags(whatarr string) []cli.Flag {
 			Required: false,
 			EnvVars:  []string{"BASIC_AUTH_PASSWORD"},
 		},
+		&cli.BoolFlag{
+			Name:     "enable-unknown-queue-items",
+			Usage:    "Enable gathering unknown queue items in Queue metrics",
+			Value:    false,
+			Required: false,
+			EnvVars:  []string{"ENABLE_UNKNOWN_QUEUE_ITEMS"},
+		},
 	}
 	if whatarr == "sonarr" {
 		flags = append(flags, &cli.BoolFlag{
 			Name:     "enable-episode-quality-metrics",
-			Usage:    "Enable getting Episode qualities",
+			Usage:    "Enable gathering total episodes by qualities",
 			Value:    false,
 			Required: false,
 			EnvVars:  []string{"ENABLE_EPISODE_QUALITY_METRICS"},
