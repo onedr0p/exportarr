@@ -23,4 +23,4 @@ COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build /sbin/tini /sbin/tini
 USER nonroot:nonroot
 COPY --from=build /build/exportarr /usr/local/bin/exportarr
-ENTRYPOINT ["/sbin/tini", "--", "exportarr"]
+ENTRYPOINT ["/sbin/tini", "--", "/usr/local/bin/exportarr"]
