@@ -16,6 +16,7 @@ RUN apk --no-cache add ca-certificates \
     && chmod +x exportarr
 
 FROM gcr.io/distroless/static:nonroot
+ENV PORT="9707"
 
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build /build/exportarr /usr/local/bin/exportarr
