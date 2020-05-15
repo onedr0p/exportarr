@@ -3,7 +3,8 @@ version: "3.7"
 services:
   sonarr-exporter:
     image: onedr0p/exportarr:latest
-    command: ["exportarr", "sonarr"]
+    entrypoint: ["exportarr"]
+    command: ["sonarr"]
     environment:
       PORT: 9707
       URL: "http://192.168.1.100:8989"
@@ -13,7 +14,8 @@ services:
       - "9707:9707"
   radarr-exporter:
     image: onedr0p/exportarr:latest
-    command: ["exportarr", "radarr"]
+    entrypoint: ["exportarr"]
+    command: ["radarr"]
     environment:
       PORT: 9708
       URL: "http://192.168.1.100:7878"
