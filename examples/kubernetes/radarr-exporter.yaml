@@ -61,7 +61,7 @@ spec:
     spec:
       containers:
       - name: radarr-exporter
-        image: onedr0p/exportarr:latest
+        image: onedr0p/exportarr:master
         imagePullPolicy: Always
         command: ["exportarr"]
         args: ["radarr"]
