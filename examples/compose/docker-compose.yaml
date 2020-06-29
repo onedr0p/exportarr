@@ -2,7 +2,7 @@
 version: "3.7"
 services:
   sonarr-exporter:
-    image: onedr0p/exportarr:latest
+    image: onedr0p/exportarr:master
     entrypoint: ["exportarr"]
     command: ["sonarr"]
     environment:
@@ -13,7 +13,7 @@ services:
     ports:
       - "9707:9707"
   radarr-exporter:
-    image: onedr0p/exportarr:latest
+    image: onedr0p/exportarr:master
     entrypoint: ["exportarr"]
     command: ["radarr"]
     environment:
