@@ -9,6 +9,9 @@ This is Prometheus Exporter will export metrics gathered from Sonarr or Radarr. 
 
 ## Usage
 
+### Run with Docker CLI Sonarr example
+```sudo docker run --name exportarr_sonarr --entrypoint "exportarr" -e port=9707 -e URL="http://192.168.1.1:8989" -e APIKEY="XXXXXX" -e ENABLE_EPISODE_QUALITY_METRICS="false" --restart unless-stopped -p 9707:9707 -d onedr0p/exportarr:master sonarr```
+
 ### Run with Docker Compose
 
 See examples in the [examples/compose](./examples/compose/) directory
