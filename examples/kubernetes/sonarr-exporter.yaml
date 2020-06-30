@@ -65,7 +65,7 @@ spec:
     spec:
       containers:
       - name: sonarr-exporter
-        image: onedr0p/exportarr:latest
+        image: onedr0p/exportarr:master
         imagePullPolicy: Always
         command: ["exportarr"]
         args: ["sonarr"]
