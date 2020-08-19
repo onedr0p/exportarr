@@ -9,9 +9,6 @@ This is Prometheus Exporter will export metrics gathered from Sonarr or Radarr. 
 
 ## Usage
 
-### Run with Docker CLI Sonarr example
-```sudo docker run --name exportarr_sonarr --entrypoint "exportarr" -e port=9707 -e URL="http://192.168.1.1:8989" -e APIKEY="XXXXXX" -e ENABLE_EPISODE_QUALITY_METRICS="false" --restart unless-stopped -p 9707:9707 -d onedr0p/exportarr:master sonarr```
-
 ### Run with Docker Compose
 
 See examples in the [examples/compose](./examples/compose/) directory
@@ -19,6 +16,38 @@ See examples in the [examples/compose](./examples/compose/) directory
 ### Run with Kubernetes
 
 See examples in the [examples/kubernetes](./examples/kubernetes/) directory, or use the [billimek-charts/sonarr](https://github.com/billimek/billimek-charts/tree/master/charts/sonarr) or [billimek-charts/radarr](https://github.com/billimek/billimek-charts/tree/master/charts/radarr) Helm charts.
+
+### Run with Docker CLI
+
+#### Sonarr 
+```bash
+sudo docker run --name exportarr_sonarr \
+  --entrypoint "exportarr" \
+  -e port=9707 \
+  -e URL="http://192.168.1.1:8989" \
+  -e APIKEY="amlmndfb503rfqaa5ln5hj5qkmu3hy18" \
+  -e ENABLE_EPISODE_QUALITY_METRICS="false" \
+  --restart unless-stopped \
+  -p 9707:9707 \
+  -d onedr0p/exportarr:master sonarr
+```
+
+Visit http://127.0.0.1:9707/metrics to see Sonarr metrics
+
+#### Radarr
+
+```bash
+sudo docker run --name exportarr_radarr \
+  --entrypoint "exportarr" \
+  -e port=9708 \
+  -e URL="http://192.168.1.1:7878" \
+  -e APIKEY="amlmndfb503rfqaa5ln5hj5qkmu3hy18" \
+  --restart unless-stopped \
+  -p 9708:9708 \
+  -d onedr0p/exportarr:master sonarr
+```
+
+Visit http://127.0.0.1:9708/metrics to see Radarr metrics
 
 ### Run from the CLI
 
