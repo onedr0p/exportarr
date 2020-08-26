@@ -144,8 +144,8 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 		}
 	}
 
-	missing := model.Missing{}
-	if err := c.DoRequest("wanted/missing?sortKey=airDateUtc", &missing); err != nil {
+	episodesMissing := model.Missing{}
+	if err := c.DoRequest("wanted/missing?sortKey=airDateUtc", &episodesMissing); err != nil {
 		log.Fatal(err)
 	}
 
@@ -156,6 +156,7 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(collector.seasonMonitoredMetric, prometheus.GaugeValue, float64(seasonsMonitored))
 	ch <- prometheus.MustNewConstMetric(collector.episodeMetric, prometheus.GaugeValue, float64(episodes))
 	ch <- prometheus.MustNewConstMetric(collector.episodeDownloadedMetric, prometheus.GaugeValue, float64(episodesDownloaded))
+	ch <- prometheus.MustNewConstMetric(collector.episodeMissingMetric, prometheus.GaugeValue, float64(episodesMissing.TotalRecords))
 
 	if collector.config.Bool("enable-episode-quality-metrics") {
 		if len(episodesQualities) > 0 {
