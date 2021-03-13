@@ -21,7 +21,9 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Prepare
-      run: echo ::set-output name=version::${GITHUB_REF##*/}
+      id: prep
+      run: |
+        echo ::set-output name=version::${GITHUB_REF##*/}
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
