@@ -2,9 +2,8 @@
 version: "3.7"
 services:
   sonarr-exporter:
-    image: onedr0p/exportarr:master
-    entrypoint: ["exportarr"]
-    command: ["sonarr"]
+    image: ghcr.io/onedr0p/exportarr:latest
+    command: ["exportarr", "sonarr"]
     environment:
       PORT: 9707
       URL: "http://192.168.1.100:8989"
@@ -13,12 +12,11 @@ services:
     ports:
       - "9707:9707"
   radarr-exporter:
-    image: onedr0p/exportarr:master
-    entrypoint: ["exportarr"]
-    command: ["radarr"]
+    image: ghcr.io/onedr0p/exportarr:latest
+    command: ["exportarr", "radarr"]
     environment:
       PORT: 9708
       URL: "http://192.168.1.100:7878"
-      APIKEY: "amlmndfb503rfqaa5ln5hj5qkmu3hy18"
+      APIKEY: "zmlmndfb503rfqaa5ln5hj5qkmu3hy19"
     ports:
       - "9708:9708"

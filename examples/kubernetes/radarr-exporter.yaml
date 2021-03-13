@@ -61,10 +61,11 @@ spec:
     spec:
       containers:
       - name: radarr-exporter
-        image: onedr0p/exportarr:master
+        image: ghcr.io/onedr0p/exportarr:latest
         imagePullPolicy: Always
-        command: ["exportarr"]
-        args: ["radarr"]
+        args:
+        - exportarr
+        - radarr
         env:
         - name: PORT
           value: "9708"

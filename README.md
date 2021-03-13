@@ -2,7 +2,6 @@
 
 AIO Prometheus Exporter for Sonarr, Radarr or Lidarr(TBD)
 
-[![Docker Pulls](https://img.shields.io/docker/pulls/onedr0p/exportarr)](https://hub.docker.com/r/onedr0p/exportarr)
 [![Go Report Card](https://goreportcard.com/badge/github.com/onedr0p/exportarr)](https://goreportcard.com/report/github.com/onedr0p/exportarr)
 
 This is Prometheus Exporter will export metrics gathered from Sonarr or Radarr. This only supports v3 APIs for Sonarr and Radarr. It will not gather metrics from all 3 at once, and instead you need to tell the exporter what metrics you want. Be sure to see the examples below for more information.
@@ -15,13 +14,13 @@ See examples in the [examples/compose](./examples/compose/) directory
 
 ### Run with Kubernetes
 
-See examples in the [examples/kubernetes](./examples/kubernetes/) directory, or use the [billimek-charts/sonarr](https://github.com/billimek/billimek-charts/tree/master/charts/sonarr) or [billimek-charts/radarr](https://github.com/billimek/billimek-charts/tree/master/charts/radarr) Helm charts.
+See examples in the [examples/kubernetes](./examples/kubernetes/) directory.
 
 ### Run with Docker CLI
 
 #### Sonarr 
 ```bash
-sudo docker run --name exportarr_sonarr \
+docker run --name exportarr_sonarr \
   --entrypoint "exportarr" \
   -e port=9707 \
   -e URL="http://192.168.1.1:8989" \
@@ -29,7 +28,7 @@ sudo docker run --name exportarr_sonarr \
   -e ENABLE_EPISODE_QUALITY_METRICS="false" \
   --restart unless-stopped \
   -p 9707:9707 \
-  -d onedr0p/exportarr:master sonarr
+  -d ghcr.io/onedr0p/exportarr:latest sonarr
 ```
 
 Visit http://127.0.0.1:9707/metrics to see Sonarr metrics
@@ -37,29 +36,29 @@ Visit http://127.0.0.1:9707/metrics to see Sonarr metrics
 #### Radarr
 
 ```bash
-sudo docker run --name exportarr_radarr \
+docker run --name exportarr_radarr \
   --entrypoint "exportarr" \
   -e port=9708 \
   -e URL="http://192.168.1.1:7878" \
-  -e APIKEY="amlmndfb503rfqaa5ln5hj5qkmu3hy18" \
+  -e APIKEY="zmlmndfb503rfqaa5ln5hj5qkmu3hy19" \
   --restart unless-stopped \
   -p 9708:9708 \
-  -d onedr0p/exportarr:master sonarr
+  -d ghcr.io/onedr0p/exportarr:latest sonarr
 ```
 
 Visit http://127.0.0.1:9708/metrics to see Radarr metrics
 
 ### Run from the CLI
 
-```cmd
+```sh
 ./exportarr --help
-./exportarr sonarr --help
-./exportarr radarr --help
 ```
 
 #### Sonarr
 
-```cmd
+```sh
+./exportarr sonarr --help
+
 ./exportarr sonarr \
   --port 9707 \
   --url http://127.0.0.1:8989 \
@@ -71,7 +70,9 @@ Visit http://127.0.0.1:9707/metrics to see Sonarr metrics
 
 #### Radarr
 
-```cmd
+```sh
+./exportarr radarr --help
+
 ./exportarr radarr \
   --port 9708 \
   --url http://127.0.0.1:7878 \

@@ -65,10 +65,11 @@ spec:
     spec:
       containers:
       - name: sonarr-exporter
-        image: onedr0p/exportarr:master
+        image: ghcr.io/onedr0p/exportarr:latest
         imagePullPolicy: Always
-        command: ["exportarr"]
-        args: ["sonarr"]
+        args:
+        - exportarr
+        - sonarr
         env:
         - name: PORT
           value: "9707"
