@@ -21,14 +21,13 @@ See examples in the [examples/kubernetes](./examples/kubernetes/) directory.
 #### Sonarr 
 ```bash
 docker run --name exportarr_sonarr \
-  --entrypoint "exportarr" \
   -e port=9707 \
   -e URL="http://192.168.1.1:8989" \
   -e APIKEY="amlmndfb503rfqaa5ln5hj5qkmu3hy18" \
   -e ENABLE_EPISODE_QUALITY_METRICS="false" \
   --restart unless-stopped \
   -p 9707:9707 \
-  -d ghcr.io/onedr0p/exportarr:latest sonarr
+  -d ghcr.io/onedr0p/exportarr:latest exportarr sonarr
 ```
 
 Visit http://127.0.0.1:9707/metrics to see Sonarr metrics
@@ -37,13 +36,12 @@ Visit http://127.0.0.1:9707/metrics to see Sonarr metrics
 
 ```bash
 docker run --name exportarr_radarr \
-  --entrypoint "exportarr" \
   -e port=9708 \
   -e URL="http://192.168.1.1:7878" \
   -e APIKEY="zmlmndfb503rfqaa5ln5hj5qkmu3hy19" \
   --restart unless-stopped \
   -p 9708:9708 \
-  -d ghcr.io/onedr0p/exportarr:latest sonarr
+  -d ghcr.io/onedr0p/exportarr:latest exportarr radarr
 ```
 
 Visit http://127.0.0.1:9708/metrics to see Radarr metrics

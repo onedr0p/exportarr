@@ -29,7 +29,9 @@ RUN \
         tzdata \
         tini \
     && \
-    addgroup -S exportarr && adduser -S exportarr -G exportarr
+    addgroup -S exportarr \
+    && \
+    adduser -S exportarr -G exportarr
 
 COPY --from=build /build/exportarr /usr/local/bin/exportarr
 
