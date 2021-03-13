@@ -38,3 +38,5 @@ COPY --from=build /build/exportarr /usr/local/bin/exportarr
 USER exportarr:exportarr
 ENTRYPOINT [ "/sbin/tini", "--" ]
 CMD [ "exportarr" ]
+
+LABEL org.opencontainers.image.source https://github.com/onedr0p/exportarr
