@@ -20,7 +20,7 @@ RUN \
     && \
     chmod +x exportarr
 
-FROM apline:3.13
+FROM alpine:3.13
 ENV PORT="9707"
 
 RUN \

@@ -42,7 +42,7 @@ jobs:
         username: ${{ secrets.GHCR_USERNAME }}
         password: ${{ secrets.GHCR_TOKEN }}
 
-    - name: Build and Push (release)
+    - name: Build and Push
       if: github.event_name != 'pull_request'
       uses: docker/build-push-action@v2
       with:

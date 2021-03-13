@@ -46,18 +46,7 @@ jobs:
         username: ${{ secrets.GHCR_USERNAME }}
         password: ${{ secrets.GHCR_TOKEN }}
 
-    - name: Build and Push (PR)
-      if: github.event_name == 'pull_request'
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        file: ./Dockerfile
-        platforms: linux/amd64,linux/arm/v7,linux/arm64
-        push: false # GitHub secrets not available in PRs
-        tags: |
-          ghcr.io/${{ github.repository_owner }}/pull-request:${{github.event.number}}
-
-    - name: Build and Push (master branch)
+    - name: Build and Push
       if: github.event_name != 'pull_request'
       uses: docker/build-push-action@v2
       with:
