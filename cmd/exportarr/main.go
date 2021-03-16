@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	lidarrCollector "github.com/onedr0p/exportarr/internal/collector/lidarr"
 	radarrCollector "github.com/onedr0p/exportarr/internal/collector/radarr"
 	sharedCollector "github.com/onedr0p/exportarr/internal/collector/shared"
 	sonarrCollector "github.com/onedr0p/exportarr/internal/collector/sonarr"
@@ -76,6 +77,15 @@ func main() {
 			Action:      sonarr,
 			Before:      validation,
 		},
+		{
+			Name:        "lidarr",
+			Aliases:     []string{"s"},
+			Usage:       "Use the exporter for Lidarr",
+			Description: strings.Title("Lidarr Exporter"),
+			Flags:       flags("lidarr"),
+			Action:      lidarr,
+			Before:      validation,
+		},
 	}
 
 	err := app.Run(os.Args)
@@ -101,6 +111,19 @@ func sonarr(c *cli.Context) (err error) {
 	r := prometheus.NewRegistry()
 	r.MustRegister(
 		sonarrCollector.NewSonarrCollector(c),
+		sharedCollector.NewQueueCollector(c),
+		sharedCollector.NewHistoryCollector(c),
+		sharedCollector.NewRootFolderCollector(c),
+		sharedCollector.NewSystemStatusCollector(c),
+		sharedCollector.NewSystemHealthCollector(c),
+	)
+	return serveHttp(c, r)
+}
+
+func lidarr(c *cli.Context) (err error) {
+	r := prometheus.NewRegistry()
+	r.MustRegister(
+		lidarrCollector.NewLidarrCollector(c),
 		sharedCollector.NewQueueCollector(c),
 		sharedCollector.NewHistoryCollector(c),
 		sharedCollector.NewRootFolderCollector(c),
@@ -220,6 +243,22 @@ func flags(whatarr string) []cli.Flag {
 			Value:    false,
 			Required: false,
 			EnvVars:  []string{"ENABLE_EPISODE_QUALITY_METRICS"},
+		})
+	}
+	if whatarr == "lidarr" {
+		flags = append(flags, &cli.BoolFlag{
+			Name:     "enable-song-quality-metrics",
+			Usage:    "Enable gathering total songs by quality.",
+			Value:    false,
+			Required: false,
+			EnvVars:  []string{"ENABLE_SONG_QUALITY_METRICS"},
+		})
+		flags = append(flags, &cli.BoolFlag{
+			Name:     "enable-monitored-albums-metrics",
+			Usage:    "Enable gathering monitored albums.",
+			Value:    false,
+			Required: false,
+			EnvVars:  []string{"ENABLE_MONITORED_ALBUMS_METRICS"},
 		})
 	}
 	return flags
