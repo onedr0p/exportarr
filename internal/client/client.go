@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
@@ -32,7 +33,13 @@ func NewClient(c *cli.Context) *Client {
 
 // DoRequest - Take a HTTP Request and return Unmarshaled data
 func (c *Client) DoRequest(endpoint string, target interface{}) error {
-	url := fmt.Sprintf("%s/api/v3/%s", c.config.String("url"), endpoint)
+	apiVersion := "v3"
+
+	if len(os.Args) > 1 && os.Args[1] == "lidarr" {
+		apiVersion = "v1"
+	}
+
+	url := fmt.Sprintf("%s/api/%s/%s", c.config.String("url"), apiVersion, endpoint)
 
 	log.Infof("Sending HTTP request to %s", url)
 
