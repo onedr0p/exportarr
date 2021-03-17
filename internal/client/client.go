@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
@@ -35,7 +34,7 @@ func NewClient(c *cli.Context) *Client {
 func (c *Client) DoRequest(endpoint string, target interface{}) error {
 	apiVersion := "v3"
 
-	if len(os.Args) > 1 && os.Args[1] == "lidarr" {
+	if c.config.Command.Name == "lidarr" {
 		apiVersion = "v1"
 	}
 
