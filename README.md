@@ -116,7 +116,6 @@ Visit http://127.0.0.1:9709/metrics to see Radarr metrics
 |               `URL`               | `--url or -u`                       | The full URL to Sonarr, Radarr, or Lidarr                              |           |    ✅    |
 |             `APIKEY`              | `--api-key or -a`                   | API Key for Sonarr, Radarr or Lidarr                               |           |    ✅    |
 |   `ENABLE_UNKNOWN_QUEUE_ITEMS`    | `--enable-unknown-queue-items`      | Set to `true` to enable gathering unknown queue items in Queue metrics | `false`   |    ❌    |
-|       `BASIC_AUTH_ENABLED`        | `--basic-auth-enabled`              | Set to `true` to enable Basic Auth                                     | `false`   |    ❌    |
 |       `BASIC_AUTH_USERNAME`       | `--basic-auth-username`             | Set to your username if enabled Basic Auth                             |           |    ❌    |
 |       `BASIC_AUTH_PASSWORD`       | `--basic-auth-password`             | Set to your password if enabled Basic Auth                             |           |    ❌    |
 |       `DISABLE_SSL_VERIFY`        | `--disable-ssl-verify`              | Set to `true` to disable SSL verification                              | `false`   |    ❌    |

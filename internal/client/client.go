@@ -44,7 +44,7 @@ func (c *Client) DoRequest(endpoint string, target interface{}) error {
 
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: c.config.Bool("disable-ssl-verify")}
 	req, err := http.NewRequest("GET", url, nil)
-	if c.config.Bool("basic-auth-enabled") && c.config.String("basic-auth-username") != "" && c.config.String("basic-auth-password") != "" {
+	if c.config.String("basic-auth-username") != "" && c.config.String("basic-auth-password") != "" {
 		req.Header.Add("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(c.config.String("basic-auth-username")+":"+c.config.String("basic-auth-password"))))
 	}
 	req.Header.Add("X-Api-Key", c.config.String("api-key"))
