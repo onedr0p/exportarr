@@ -152,7 +152,7 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 			artistGenres[genre]++
 		}
 
-		if collector.config.Bool("enable-song-quality-metrics") {
+		if collector.config.Bool("enable-additional-metrics") {
 			songFile := model.SongFile{}
 			if err := c.DoRequest(fmt.Sprintf("%s?artistid=%d", "trackfile", s.Id), &songFile); err != nil {
 				log.Fatal(err)
@@ -162,9 +162,7 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 					songsQualities[e.Quality.Quality.Name]++
 				}
 			}
-		}
 
-		if collector.config.Bool("enable-monitored-albums-metrics") {
 			album := model.Album{}
 			if err := c.DoRequest(fmt.Sprintf("%s?artistid=%d", "album", s.Id), &album); err != nil {
 				log.Fatal(err)
@@ -199,16 +197,14 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 		}
 	}
 
-	if collector.config.Bool("enable-song-quality-metrics") {
+	if collector.config.Bool("enable-additional-metrics") {
+		ch <- prometheus.MustNewConstMetric(collector.albumsMonitoredMetric, prometheus.GaugeValue, float64(albumsMonitored))
+
 		if len(songsQualities) > 0 {
 			for qualityName, count := range songsQualities {
 				ch <- prometheus.MustNewConstMetric(collector.songsQualitiesMetric, prometheus.GaugeValue, float64(count), qualityName)
 			}
 		}
-	}
-
-	if collector.config.Bool("enable-monitored-albums-metrics") {
-		ch <- prometheus.MustNewConstMetric(collector.albumsMonitoredMetric, prometheus.GaugeValue, float64(albumsMonitored))
 
 		if len(albumGenres) > 0 {
 			for genre, count := range albumGenres {

@@ -227,36 +227,18 @@ func flags(whatarr string) []cli.Flag {
 		},
 		&cli.BoolFlag{
 			Name:     "enable-unknown-queue-items",
-			Usage:    "Enable gathering unknown queue items in Queue metrics",
+			Usage:    "Enable gathering of unknown queue items in Queue metrics",
 			Value:    false,
 			Required: false,
 			EnvVars:  []string{"ENABLE_UNKNOWN_QUEUE_ITEMS"},
 		},
-	}
-	if whatarr == "sonarr" {
-		flags = append(flags, &cli.BoolFlag{
-			Name:     "enable-episode-quality-metrics",
-			Usage:    "Enable gathering total episodes by qualities",
+		&cli.BoolFlag{
+			Name:     "enable-additional-metrics",
+			Usage:    "Enable gathering of additional metrics (will slow down metrics gathering)",
 			Value:    false,
 			Required: false,
-			EnvVars:  []string{"ENABLE_EPISODE_QUALITY_METRICS"},
-		})
-	}
-	if whatarr == "lidarr" {
-		flags = append(flags, &cli.BoolFlag{
-			Name:     "enable-song-quality-metrics",
-			Usage:    "Enable gathering total songs by quality.",
-			Value:    false,
-			Required: false,
-			EnvVars:  []string{"ENABLE_SONG_QUALITY_METRICS"},
-		})
-		flags = append(flags, &cli.BoolFlag{
-			Name:     "enable-monitored-albums-metrics",
-			Usage:    "Enable gathering monitored albums.",
-			Value:    false,
-			Required: false,
-			EnvVars:  []string{"ENABLE_MONITORED_ALBUMS_METRICS"},
-		})
+			EnvVars:  []string{"ENABLE_ADDITIONAL_METRICS"},
+		},
 	}
 	return flags
 }
