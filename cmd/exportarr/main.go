@@ -29,6 +29,10 @@ func main() {
 			Name:  "onedr0p",
 			Email: "onedr0p@users.noreply.github.com",
 		},
+		&cli.Author{
+			Name:  "kinduff",
+			Email: "313nyk550@relay.firefox.com",
+		},
 	}
 	// Global flags
 	app.Flags = []cli.Flag{
