@@ -11,13 +11,15 @@ import (
 )
 
 type queueCollector struct {
-	config      *cli.Context
-	queueMetric *prometheus.Desc
+	config      *cli.Context     // App configuration
+	configFile  *model.Config    // *arr configuration from config.xml
+	queueMetric *prometheus.Desc // Total number of queue items
 }
 
-func NewQueueCollector(c *cli.Context) *queueCollector {
+func NewQueueCollector(c *cli.Context, cf *model.Config) *queueCollector {
 	return &queueCollector{
-		config: c,
+		config:     c,
+		configFile: cf,
 		queueMetric: prometheus.NewDesc(
 			fmt.Sprintf("%s_queue_total", c.Command.Name),
 			"Total number of items in the queue by status, download_status, and download_state",
@@ -32,7 +34,7 @@ func (collector *queueCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *queueCollector) Collect(ch chan<- prometheus.Metric) {
-	c := client.NewClient(collector.config)
+	c := client.NewClient(collector.config, collector.configFile)
 
 	unknownItemsQuery := ""
 	if collector.config.Bool("enable-unknown-queue-items") {

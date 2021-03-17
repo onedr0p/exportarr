@@ -12,6 +12,7 @@ import (
 
 type lidarrCollector struct {
 	config                 *cli.Context     // App configuration
+	configFile             *model.Config    // *arr configuration from config.xml
 	artistsMetric          *prometheus.Desc // Total number of artists
 	artistsMonitoredMetric *prometheus.Desc // Total number of monitored artists
 	artistGenresMetric     *prometheus.Desc // Total number of artists by genre
@@ -26,9 +27,10 @@ type lidarrCollector struct {
 	songsQualitiesMetric   *prometheus.Desc // Total number of songs by quality
 }
 
-func NewLidarrCollector(c *cli.Context) *lidarrCollector {
+func NewLidarrCollector(c *cli.Context, cf *model.Config) *lidarrCollector {
 	return &lidarrCollector{
-		config: c,
+		config:     c,
+		configFile: cf,
 		artistsMetric: prometheus.NewDesc(
 			"lidarr_artists_total",
 			"Total number of artists",
@@ -120,7 +122,7 @@ func (collector *lidarrCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
-	c := client.NewClient(collector.config)
+	c := client.NewClient(collector.config, collector.configFile)
 
 	var artistsFileSize int64
 	var (
