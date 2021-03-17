@@ -79,7 +79,7 @@ func main() {
 		},
 		{
 			Name:        "lidarr",
-			Aliases:     []string{"s"},
+			Aliases:     []string{"l"},
 			Usage:       "Use the exporter for Lidarr",
 			Description: strings.Title("Lidarr Exporter"),
 			Flags:       flags("lidarr"),

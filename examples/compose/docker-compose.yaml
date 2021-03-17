@@ -25,7 +25,7 @@ services:
     command: ["exportarr", "lidarr"]
     environment:
       PORT: 9709
-      URL: "http://192.168.1.100:8989"
+      URL: "http://192.168.1.100:8686"
       APIKEY: "zmlmndfb503rfqaa5ln5hj5qkmu3hy19"
     ports:
       - "9709:9709"

@@ -54,7 +54,7 @@ docker run --name exportarr_lidarr \
   -e URL="http://192.168.1.1:8686" \
   -e APIKEY="zmlmndfb503rfqaa5ln5hj5qkmu3hy19" \
   --restart unless-stopped \
-  -p 9708:9708 \
+  -p 9709:9709 \
   -d ghcr.io/onedr0p/exportarr:latest exportarr lidarr
 ```
 
@@ -100,7 +100,7 @@ Visit http://127.0.0.1:9708/metrics to see Radarr metrics
 
 ./exportarr lidarr \
   --port 9709 \
-  --url http://127.0.0.1:8989 \
+  --url http://127.0.0.1:8686 \
   --api-key amlmndfb503rfqaa5ln5hj5qkmu3hy18
 ```
 
@@ -124,6 +124,6 @@ Visit http://127.0.0.1:9709/metrics to see Radarr metrics
 |            `INTERFACE`            | `--interface or -i`                 | The interface IP the exporter will listen on                           | `0.0.0.0` |    ❌    |
 |            **Sonarr**             |                                     |                                                                        |           |          |
 | `ENABLE_EPISODE_QUALITY_METRICS`  | `--enable-episode-quality-metrics`  | Set to `true` to enable gathering total episodes by qualities          | `false`   |    ❌    |
-|            **Sonarr**             |                                     |                                                                        |           |          |
+|            **Lidarr**             |                                     |                                                                        |           |          |
 |   `ENABLE_SONG_QUALITY_METRICS`   | `--enable-song-quality-metrics`     | Set to `true` to enable gathering total songs by quality (slow)        | `false`   |    ❌    |
 | `ENABLE_MONITORED_ALBUMS_METRICS` | `--enable-monitored-albums-metrics` | Set to `true` to enable gathering monitored albums (slow)              | `false`   |    ❌    |
