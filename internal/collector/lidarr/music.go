@@ -181,7 +181,7 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	songMissing := model.Missing{}
-	if err := c.DoRequest("wanted/missing?sortKey=airDateUtc", &songMissing); err != nil {
+	if err := c.DoRequest("wanted/missing?sortKey=releaseDate", &songMissing); err != nil {
 		log.Fatal(err)
 	}
 
