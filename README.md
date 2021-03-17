@@ -24,7 +24,6 @@ docker run --name exportarr_sonarr \
   -e port=9707 \
   -e URL="http://192.168.1.1:8989" \
   -e APIKEY="amlmndfb503rfqaa5ln5hj5qkmu3hy18" \
-  -e ENABLE_EPISODE_QUALITY_METRICS="false" \
   --restart unless-stopped \
   -p 9707:9707 \
   -d ghcr.io/onedr0p/exportarr:latest exportarr sonarr
@@ -74,8 +73,7 @@ Visit http://127.0.0.1:9709/metrics to see Lidarr metrics
 ./exportarr sonarr \
   --port 9707 \
   --url http://127.0.0.1:8989 \
-  --api-key amlmndfb503rfqaa5ln5hj5qkmu3hy18 \
-  --enable-episode-quality-metrics
+  --api-key amlmndfb503rfqaa5ln5hj5qkmu3hy18
 ```
 
 Visit http://127.0.0.1:9707/metrics to see Sonarr metrics
