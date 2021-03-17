@@ -1,3 +1,8 @@
-./radarr-exporter
-/vendor/
-/.idea/
+# Project
+/exportarr
+
+# Go
+/vendor
+
+# IDEs
+.idea
