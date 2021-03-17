@@ -32,7 +32,13 @@ func NewClient(c *cli.Context) *Client {
 
 // DoRequest - Take a HTTP Request and return Unmarshaled data
 func (c *Client) DoRequest(endpoint string, target interface{}) error {
-	url := fmt.Sprintf("%s/api/v3/%s", c.config.String("url"), endpoint)
+	apiVersion := "v3"
+
+	if c.config.Command.Name == "lidarr" {
+		apiVersion = "v1"
+	}
+
+	url := fmt.Sprintf("%s/api/%s/%s", c.config.String("url"), apiVersion, endpoint)
 
 	log.Infof("Sending HTTP request to %s", url)
 
