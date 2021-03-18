@@ -42,27 +42,26 @@ func (c *Client) DoRequest(endpoint string, target interface{}) error {
 	}
 
 	var url string
-	if c.config.String("url") != "" {
-		url = fmt.Sprintf("%s/api/%s/%s",
+	var apiKey string
+
+	// Use the values from config.xml if using the config flag
+	if c.config.String("config") != "" {
+		url = fmt.Sprintf("%s:%s/%s/api/%s/%s",
 			c.config.String("url"),
-			apiVersion,
-			endpoint,
-		)
-	} else {
-		url = fmt.Sprintf("http://%s:%s/%s/api/%s/%s",
-			c.config.String("interface"),
 			c.configFile.Port,
 			c.configFile.UrlBase,
 			apiVersion,
 			endpoint,
 		)
-	}
-
-	var apiKey string
-	if c.config.String("api-key") != "" {
-		apiKey = c.config.String("api-key")
-	} else {
 		apiKey = c.configFile.ApiKey
+	} else {
+		// Otherwise use the value provided in the api-key flag
+		url = fmt.Sprintf("%s/api/%s/%s",
+			c.config.String("url"),
+			apiVersion,
+			endpoint,
+		)
+		apiKey = c.config.String("api-key")
 	}
 
 	log.Infof("Sending HTTP request to %s", url)

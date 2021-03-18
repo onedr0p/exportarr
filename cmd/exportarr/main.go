@@ -214,7 +214,7 @@ func flags(arr string) []cli.Flag {
 			Name:     "url",
 			Aliases:  []string{"u"},
 			Usage:    fmt.Sprintf("%s's full URL", arr),
-			Required: false,
+			Required: true,
 			EnvVars:  []string{"URL"},
 		},
 		&cli.StringFlag{
