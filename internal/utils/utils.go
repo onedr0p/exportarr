@@ -1,8 +1,15 @@
 package utils
 
 import (
+	"encoding/xml"
+	"fmt"
+	"io/ioutil"
 	"net/url"
+	"os"
 	"regexp"
+
+	"github.com/onedr0p/exportarr/internal/model"
+	log "github.com/sirupsen/logrus"
 )
 
 // IsValidApikey - Check if the API Key is 32 characters and only a-z0-9
@@ -18,4 +25,31 @@ func IsValidApikey(str string) bool {
 func IsValidUrl(str string) bool {
 	u, err := url.Parse(str)
 	return err == nil && u.Scheme != "" && u.Host != ""
+}
+
+// IsFileThere - Checks if the file is there
+func IsFileThere(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
+}
+
+// GetArrConfigFromFile - Get the config from config.xml
+func GetArrConfigFromFile(file string) (*model.Config, error) {
+	xmlFile, err := os.Open(file)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	defer xmlFile.Close()
+	byteValue, _ := ioutil.ReadAll(xmlFile)
+
+	var config model.Config
+	xml.Unmarshal(byteValue, &config)
+
+	log.Infof("Getting Config from %s", file)
+
+	return &config, nil
 }

@@ -11,13 +11,15 @@ import (
 )
 
 type systemHealthCollector struct {
-	config             *cli.Context
-	systemHealthMetric *prometheus.Desc
+	config             *cli.Context     // App configuration
+	configFile         *model.Config    // *arr configuration from config.xml
+	systemHealthMetric *prometheus.Desc // Total number of health issues
 }
 
-func NewSystemHealthCollector(c *cli.Context) *systemHealthCollector {
+func NewSystemHealthCollector(c *cli.Context, cf *model.Config) *systemHealthCollector {
 	return &systemHealthCollector{
-		config: c,
+		config:     c,
+		configFile: cf,
 		systemHealthMetric: prometheus.NewDesc(
 			fmt.Sprintf("%s_system_health_issues", c.Command.Name),
 			"Total number of health issues by source, type, message and wikiurl",
@@ -32,7 +34,7 @@ func (collector *systemHealthCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *systemHealthCollector) Collect(ch chan<- prometheus.Metric) {
-	c := client.NewClient(collector.config)
+	c := client.NewClient(collector.config, collector.configFile)
 	systemHealth := model.SystemHealth{}
 	if err := c.DoRequest("health", &systemHealth); err != nil {
 		log.Fatal(err)

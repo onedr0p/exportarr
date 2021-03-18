@@ -11,13 +11,15 @@ import (
 )
 
 type historyCollector struct {
-	config        *cli.Context
-	historyMetric *prometheus.Desc
+	config        *cli.Context     // App configuration
+	configFile    *model.Config    // *arr configuration from config.xml
+	historyMetric *prometheus.Desc // Total number of history items
 }
 
-func NewHistoryCollector(c *cli.Context) *historyCollector {
+func NewHistoryCollector(c *cli.Context, cf *model.Config) *historyCollector {
 	return &historyCollector{
-		config: c,
+		config:     c,
+		configFile: cf,
 		historyMetric: prometheus.NewDesc(
 			fmt.Sprintf("%s_history_total", c.Command.Name),
 			"Total number of item in the history",
@@ -32,7 +34,7 @@ func (collector *historyCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *historyCollector) Collect(ch chan<- prometheus.Metric) {
-	c := client.NewClient(collector.config)
+	c := client.NewClient(collector.config, collector.configFile)
 	history := model.History{}
 	if err := c.DoRequest("history", &history); err != nil {
 		log.Fatal(err)

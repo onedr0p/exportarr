@@ -11,13 +11,15 @@ import (
 )
 
 type rootFolderCollector struct {
-	config           *cli.Context
-	rootFolderMetric *prometheus.Desc
+	config           *cli.Context     // App configuration
+	configFile       *model.Config    // *arr configuration from config.xml
+	rootFolderMetric *prometheus.Desc // Total number of root folders
 }
 
-func NewRootFolderCollector(c *cli.Context) *rootFolderCollector {
+func NewRootFolderCollector(c *cli.Context, cf *model.Config) *rootFolderCollector {
 	return &rootFolderCollector{
-		config: c,
+		config:     c,
+		configFile: cf,
 		rootFolderMetric: prometheus.NewDesc(
 			fmt.Sprintf("%s_rootfolder_freespace_bytes", c.Command.Name),
 			"Root folder space in bytes by path",
@@ -32,7 +34,7 @@ func (collector *rootFolderCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *rootFolderCollector) Collect(ch chan<- prometheus.Metric) {
-	c := client.NewClient(collector.config)
+	c := client.NewClient(collector.config, collector.configFile)
 	rootFolders := model.RootFolder{}
 	if err := c.DoRequest("rootfolder", &rootFolders); err != nil {
 		log.Fatal(err)

@@ -10,6 +10,7 @@ import (
 
 type radarrCollector struct {
 	config                *cli.Context     // App configuration
+	configFile            *model.Config    // *arr configuration from config.xml
 	movieMetric           *prometheus.Desc // Total number of movies
 	movieDownloadedMetric *prometheus.Desc // Total number of downloaded movies
 	movieMonitoredMetric  *prometheus.Desc // Total number of monitored movies
@@ -19,9 +20,10 @@ type radarrCollector struct {
 	movieFileSizeMetric   *prometheus.Desc // Total fizesize of all movies in bytes
 }
 
-func NewRadarrCollector(c *cli.Context) *radarrCollector {
+func NewRadarrCollector(c *cli.Context, cf *model.Config) *radarrCollector {
 	return &radarrCollector{
-		config: c,
+		config:     c,
+		configFile: cf,
 		movieMetric: prometheus.NewDesc(
 			"radarr_movie_total",
 			"Total number of movies",
@@ -78,7 +80,7 @@ func (collector *radarrCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
-	c := client.NewClient(collector.config)
+	c := client.NewClient(collector.config, collector.configFile)
 	var fileSize int64
 	var (
 		downloaded = 0

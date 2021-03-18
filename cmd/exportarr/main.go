@@ -10,6 +10,8 @@ import (
 	radarrCollector "github.com/onedr0p/exportarr/internal/collector/radarr"
 	sharedCollector "github.com/onedr0p/exportarr/internal/collector/shared"
 	sonarrCollector "github.com/onedr0p/exportarr/internal/collector/sonarr"
+	"github.com/onedr0p/exportarr/internal/model"
+
 	"github.com/onedr0p/exportarr/internal/handlers"
 	"github.com/onedr0p/exportarr/internal/utils"
 	"github.com/prometheus/client_golang/prometheus"
@@ -45,8 +47,8 @@ func main() {
 			EnvVars:  []string{"LOG_LEVEL"},
 		},
 	}
-	app.Before = func(c *cli.Context) error {
-		switch strings.ToUpper(c.String("log-level")) {
+	app.Before = func(config *cli.Context) error {
+		switch strings.ToUpper(config.String("log-level")) {
 		case "TRACE":
 			log.SetLevel(log.TraceLevel)
 		case "DEBUG":
@@ -64,9 +66,18 @@ func main() {
 	}
 	app.Commands = []*cli.Command{
 		{
+			Name:        "lidarr",
+			Aliases:     []string{"l"},
+			Usage:       "Prometheus Exporter for Lidarr",
+			Description: strings.Title("Lidarr Exporter"),
+			Flags:       flags("lidarr"),
+			Action:      lidarr,
+			Before:      validation,
+		},
+		{
 			Name:        "radarr",
 			Aliases:     []string{"r"},
-			Usage:       "Use the exporter for Radarr",
+			Usage:       "Prometheus Exporter for Radarr",
 			Description: strings.Title("Radarr Exporter"),
 			Flags:       flags("radarr"),
 			Action:      radarr,
@@ -75,19 +86,10 @@ func main() {
 		{
 			Name:        "sonarr",
 			Aliases:     []string{"s"},
-			Usage:       "Use the exporter for Sonarr",
+			Usage:       "Prometheus Exporter for Sonarr",
 			Description: strings.Title("Sonarr Exporter"),
 			Flags:       flags("sonarr"),
 			Action:      sonarr,
-			Before:      validation,
-		},
-		{
-			Name:        "lidarr",
-			Aliases:     []string{"l"},
-			Usage:       "Use the exporter for Lidarr",
-			Description: strings.Title("Lidarr Exporter"),
-			Flags:       flags("lidarr"),
-			Action:      lidarr,
 			Before:      validation,
 		},
 	}
@@ -98,55 +100,73 @@ func main() {
 	}
 }
 
-func radarr(c *cli.Context) (err error) {
-	r := prometheus.NewRegistry()
-	r.MustRegister(
-		radarrCollector.NewRadarrCollector(c),
-		sharedCollector.NewQueueCollector(c),
-		sharedCollector.NewHistoryCollector(c),
-		sharedCollector.NewRootFolderCollector(c),
-		sharedCollector.NewSystemStatusCollector(c),
-		sharedCollector.NewSystemHealthCollector(c),
+func lidarr(config *cli.Context) (err error) {
+	registry := prometheus.NewRegistry()
+
+	var configFile *model.Config
+	if config.String("config") != "" {
+		configFile, _ = utils.GetArrConfigFromFile(config.String("config"))
+	}
+
+	registry.MustRegister(
+		lidarrCollector.NewLidarrCollector(config, configFile),
+		sharedCollector.NewQueueCollector(config, configFile),
+		sharedCollector.NewHistoryCollector(config, configFile),
+		sharedCollector.NewRootFolderCollector(config, configFile),
+		sharedCollector.NewSystemStatusCollector(config, configFile),
+		sharedCollector.NewSystemHealthCollector(config, configFile),
 	)
-	return serveHttp(c, r)
+	return serveHttp(config, registry)
 }
 
-func sonarr(c *cli.Context) (err error) {
-	r := prometheus.NewRegistry()
-	r.MustRegister(
-		sonarrCollector.NewSonarrCollector(c),
-		sharedCollector.NewQueueCollector(c),
-		sharedCollector.NewHistoryCollector(c),
-		sharedCollector.NewRootFolderCollector(c),
-		sharedCollector.NewSystemStatusCollector(c),
-		sharedCollector.NewSystemHealthCollector(c),
+func radarr(config *cli.Context) (err error) {
+	registry := prometheus.NewRegistry()
+
+	var configFile *model.Config
+	if config.String("config") != "" {
+		configFile, _ = utils.GetArrConfigFromFile(config.String("config"))
+	}
+
+	registry.MustRegister(
+		radarrCollector.NewRadarrCollector(config, configFile),
+		sharedCollector.NewQueueCollector(config, configFile),
+		sharedCollector.NewHistoryCollector(config, configFile),
+		sharedCollector.NewRootFolderCollector(config, configFile),
+		sharedCollector.NewSystemStatusCollector(config, configFile),
+		sharedCollector.NewSystemHealthCollector(config, configFile),
 	)
-	return serveHttp(c, r)
+	return serveHttp(config, registry)
 }
 
-func lidarr(c *cli.Context) (err error) {
-	r := prometheus.NewRegistry()
-	r.MustRegister(
-		lidarrCollector.NewLidarrCollector(c),
-		sharedCollector.NewQueueCollector(c),
-		sharedCollector.NewHistoryCollector(c),
-		sharedCollector.NewRootFolderCollector(c),
-		sharedCollector.NewSystemStatusCollector(c),
-		sharedCollector.NewSystemHealthCollector(c),
+func sonarr(config *cli.Context) (err error) {
+	registry := prometheus.NewRegistry()
+
+	var configFile *model.Config
+	if config.String("config") != "" {
+		configFile, _ = utils.GetArrConfigFromFile(config.String("config"))
+	}
+
+	registry.MustRegister(
+		sonarrCollector.NewSonarrCollector(config, configFile),
+		sharedCollector.NewQueueCollector(config, configFile),
+		sharedCollector.NewHistoryCollector(config, configFile),
+		sharedCollector.NewRootFolderCollector(config, configFile),
+		sharedCollector.NewSystemStatusCollector(config, configFile),
+		sharedCollector.NewSystemHealthCollector(config, configFile),
 	)
-	return serveHttp(c, r)
+	return serveHttp(config, registry)
 }
 
-func serveHttp(c *cli.Context, r *prometheus.Registry) error {
+func serveHttp(config *cli.Context, registry *prometheus.Registry) error {
 	// Set up the handlers
-	handler := promhttp.HandlerFor(r, promhttp.HandlerOpts{})
+	handler := promhttp.HandlerFor(registry, promhttp.HandlerOpts{})
 	http.HandleFunc("/", handlers.IndexHandler)
 	http.HandleFunc("/healthz", handlers.HealthzHandler)
 	http.Handle("/metrics", handler)
 	// Serve up the metrics
-	log.Infof("Listening on %s:%d", c.String("interface"), c.Int("port"))
+	log.Infof("Listening on %s:%d", config.String("interface"), config.Int("port"))
 	httpErr := http.ListenAndServe(
-		fmt.Sprintf("%s:%d", c.String("interface"), c.Int("port")),
+		fmt.Sprintf("%s:%d", config.String("interface"), config.Int("port")),
 		logRequest(http.DefaultServeMux),
 	)
 	if httpErr != nil {
@@ -164,32 +184,52 @@ func logRequest(handler http.Handler) http.Handler {
 }
 
 // Validation used for all services
-func validation(c *cli.Context) error {
-	if !utils.IsValidUrl(c.String("url")) {
-		return cli.Exit(fmt.Sprintf("%s is not a valid URL", c.String("url")), 10)
+func validation(config *cli.Context) error {
+	// Data validations
+	if config.String("url") != "" && !utils.IsValidUrl(config.String("url")) {
+		return cli.Exit(fmt.Sprintf("%s is not a valid URL", config.String("url")), 1)
 	}
-	if !utils.IsValidApikey(c.String("api-key")) {
-		return cli.Exit(fmt.Sprintf("%s is not a valid API Key", c.String("api-key")), 11)
+	if config.String("api-key") != "" && !utils.IsValidApikey(config.String("api-key")) {
+		return cli.Exit(fmt.Sprintf("%s is not a valid API Key", config.String("api-key")), 1)
+	}
+	if config.String("config") != "" &&
+		!utils.IsFileThere(config.String("config")) {
+		return cli.Exit(fmt.Sprintf("%s config file does not exist", config.String("config")), 1)
+	}
+
+	// Logical validations
+	if config.String("url") != "" && config.String("api-key") != "" && config.String("config") != "" {
+		return cli.Exit("url and api-key or config must be set, not all of them", 1)
+	}
+	if config.String("url") == "" && config.String("api-key") == "" && config.String("config") == "" {
+		return cli.Exit("url and api-key or config must be set, not none of them", 1)
 	}
 	return nil
 }
 
 // Flags used for all services
-func flags(whatarr string) []cli.Flag {
+func flags(arr string) []cli.Flag {
 	flags := []cli.Flag{
 		&cli.StringFlag{
 			Name:     "url",
 			Aliases:  []string{"u"},
-			Usage:    fmt.Sprintf("%s's full URL", whatarr),
+			Usage:    fmt.Sprintf("%s's full URL", arr),
 			Required: true,
 			EnvVars:  []string{"URL"},
 		},
 		&cli.StringFlag{
 			Name:     "api-key",
 			Aliases:  []string{"a"},
-			Usage:    fmt.Sprintf("%s's API Key", whatarr),
-			Required: true,
+			Usage:    fmt.Sprintf("%s's API Key", arr),
+			Required: false,
 			EnvVars:  []string{"APIKEY"},
+		},
+		&cli.StringFlag{
+			Name:     "config",
+			Aliases:  []string{"c"},
+			Usage:    fmt.Sprintf("Path to %s's config.xml", arr),
+			Required: false,
+			EnvVars:  []string{"CONFIG"},
 		},
 		&cli.IntFlag{
 			Name:     "port",

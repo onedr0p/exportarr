@@ -12,6 +12,7 @@ import (
 
 type sonarrCollector struct {
 	config                  *cli.Context     // App configuration
+	configFile              *model.Config    // *arr configuration from config.xml
 	seriesMetric            *prometheus.Desc // Total number of series
 	seriesMonitoredMetric   *prometheus.Desc // Total number of monitored series
 	seriesFileSizeMetric    *prometheus.Desc // Total fizesize of all series in bytes
@@ -24,9 +25,10 @@ type sonarrCollector struct {
 	episodeQualitiesMetric  *prometheus.Desc // Total number of episodes by quality
 }
 
-func NewSonarrCollector(c *cli.Context) *sonarrCollector {
+func NewSonarrCollector(c *cli.Context, cf *model.Config) *sonarrCollector {
 	return &sonarrCollector{
-		config: c,
+		config:     c,
+		configFile: cf,
 		seriesMetric: prometheus.NewDesc(
 			"sonarr_series_total",
 			"Total number of series",
@@ -104,7 +106,7 @@ func (collector *sonarrCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
-	c := client.NewClient(collector.config)
+	c := client.NewClient(collector.config, collector.configFile)
 	var seriesFileSize int64
 	var (
 		seriesMonitored    = 0
