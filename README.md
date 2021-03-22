@@ -64,7 +64,9 @@ Visit http://127.0.0.1:9709/metrics to see Lidarr metrics
 ### Run from the CLI
 
 ```sh
-./exportarr --help
+go get github.com/onedr0p/exportarr
+
+exportarr --help
 ```
 
 #### Sonarr
