@@ -23,7 +23,7 @@ This exporter is also included in the Lidarr, Radarr, and Sonarr helm charts loc
 #### Sonarr
 ```bash
 docker run --name exportarr_sonarr \
-  -e port=9707 \
+  -e PORT=9707 \
   -e URL="http://192.168.1.1:8989" \
   -e APIKEY="amlmndfb503rfqaa5ln5hj5qkmu3hy18" \
   --restart unless-stopped \
@@ -37,7 +37,7 @@ Visit http://127.0.0.1:9707/metrics to see Sonarr metrics
 
 ```bash
 docker run --name exportarr_radarr \
-  -e port=9708 \
+  -e PORT=9708 \
   -e URL="http://192.168.1.1:7878" \
   -e APIKEY="zmlmndfb503rfqaa5ln5hj5qkmu3hy19" \
   --restart unless-stopped \
@@ -51,7 +51,7 @@ Visit http://127.0.0.1:9708/metrics to see Radarr metrics
 
 ```bash
 docker run --name exportarr_lidarr \
-  -e port=9709 \
+  -e PORT=9709 \
   -e URL="http://192.168.1.1:8686" \
   -e APIKEY="zmlmndfb503rfqaa5ln5hj5qkmu3hy19" \
   --restart unless-stopped \
