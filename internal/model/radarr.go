@@ -4,6 +4,7 @@ package model
 type Movie []struct {
 	Status    string `json:"status"`
 	HasFile   bool   `json:"hasFile"`
+	Available bool   `json:"isAvailable"`
 	Monitored bool   `json:"monitored"`
 	MovieFile struct {
 		Size    int64 `json:"size"`
