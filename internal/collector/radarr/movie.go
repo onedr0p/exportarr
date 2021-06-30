@@ -99,7 +99,7 @@ func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
 		}
 		if s.Monitored {
 			monitored++
-			if !s.HasFile && s.Status == "released" {
+			if !s.HasFile && s.Available {
 				missing++
 			} else if !s.HasFile {
 				wanted++
