@@ -46,7 +46,7 @@ func (c *Client) DoRequest(endpoint string, target interface{}) error {
 
 	// Use the values from config.xml if using the config flag
 	if c.config.String("config") != "" {
-		url = fmt.Sprintf("%s:%s/%s/api/%s/%s",
+		url = fmt.Sprintf("%s:%s%s/api/%s/%s",
 			c.config.String("url"),
 			c.configFile.Port,
 			c.configFile.UrlBase,
@@ -90,6 +90,7 @@ func (c *Client) DoRequest(endpoint string, target interface{}) error {
 		log.Fatal(errMsg)
 		return errors.New(errMsg)
 	}
+
 	defer resp.Body.Close()
 	return json.NewDecoder(resp.Body).Decode(target)
 }
