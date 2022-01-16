@@ -7,12 +7,11 @@ ENV GO111MODULE=on \
     GOOS=${TARGETOS} \
     GOARCH=${TARGETARCH} \
     GOARM=${TARGETVARIANT}
-RUN apt-get -y update && apt-get -y install tini upx
+RUN apt-get -y update && apt-get -y install tini
 WORKDIR /build
 COPY . .
 RUN go mod download
 RUN go build -a -tags netgo -ldflags '-w -extldflags "-static"' -o exportarr /build/cmd/exportarr/.
-RUN upx /build/exportarr
 RUN chmod +x exportarr
 
 FROM gcr.io/distroless/static-debian11
