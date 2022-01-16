@@ -17,7 +17,7 @@ RUN chmod +x exportarr
 
 FROM gcr.io/distroless/static-debian11
 ENV PORT="9707"
-COPY --from=build /build/exportarr  /exportarr
+COPY --from=build /build/exportarr /exportarr
 COPY --from=build /usr/bin/tini-static /tini
 ENTRYPOINT [ "/tini", "--", "/exportarr" ]
 LABEL org.opencontainers.image.source https://github.com/onedr0p/exportarr
