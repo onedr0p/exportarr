@@ -86,7 +86,10 @@ func (c *Client) DoRequest(endpoint string, target interface{}) error {
 		return err
 	}
 	if !(resp.StatusCode >= 200 && resp.StatusCode < 300) {
-		errMsg := fmt.Sprintf("An error has occurred during retrieving statistics HTTP statuscode %d", resp.StatusCode)
+		errMsg := fmt.Sprintf("An error has occurred during retrieving statistics HTTP status %s", resp.Status)
+		if location := resp.Header.Get("Location"); location != "" {
+			errMsg += " (Location: " + location + ")"
+		}
 		log.Fatal(errMsg)
 		return errors.New(errMsg)
 	}
