@@ -30,7 +30,7 @@ docker run --name exportarr_sonarr \
   -e APIKEY="amlmndfb503rfqaa5ln5hj5qkmu3hy18" \
   --restart unless-stopped \
   -p 9707:9707 \
-  -d ghcr.io/onedr0p/exportarr:latest exportarr sonarr
+  -d ghcr.io/onedr0p/exportarr:latest sonarr
 ```
 
 Visit http://127.0.0.1:9707/metrics to see Sonarr metrics
@@ -44,7 +44,7 @@ docker run --name exportarr_radarr \
   -e APIKEY="zmlmndfb503rfqaa5ln5hj5qkmu3hy19" \
   --restart unless-stopped \
   -p 9708:9708 \
-  -d ghcr.io/onedr0p/exportarr:latest exportarr radarr
+  -d ghcr.io/onedr0p/exportarr:latest radarr
 ```
 
 Visit http://127.0.0.1:9708/metrics to see Radarr metrics
@@ -58,7 +58,7 @@ docker run --name exportarr_lidarr \
   -e APIKEY="zmlmndfb503rfqaa5ln5hj5qkmu3hy19" \
   --restart unless-stopped \
   -p 9709:9709 \
-  -d ghcr.io/onedr0p/exportarr:latest exportarr lidarr
+  -d ghcr.io/onedr0p/exportarr:latest lidarr
 ```
 
 Visit http://127.0.0.1:9709/metrics to see Lidarr metrics

@@ -64,7 +64,6 @@ spec:
         image: ghcr.io/onedr0p/exportarr:latest
         imagePullPolicy: Always
         args:
-        - exportarr
         - lidarr
         env:
         - name: PORT
