@@ -1,4 +1,4 @@
-FROM golang:1.17.7-bullseye as build
+FROM golang:1.17.8-bullseye as build
 ARG TARGETOS
 ARG TARGETARCH
 ARG TARGETVARIANT=""
