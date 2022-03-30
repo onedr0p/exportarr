@@ -26,7 +26,7 @@ This exporter is also included in the Lidarr, Radarr, and Sonarr helm charts loc
 ```bash
 docker run --name exportarr_sonarr \
   -e PORT=9707 \
-  -e URL="http://192.168.1.1:8989" \
+  -e URL="http://x.x.x.x:8989" \
   -e APIKEY="amlmndfb503rfqaa5ln5hj5qkmu3hy18" \
   --restart unless-stopped \
   -p 9707:9707 \
@@ -40,11 +40,11 @@ Visit http://127.0.0.1:9707/metrics to see Sonarr metrics
 ```bash
 docker run --name exportarr_radarr \
   -e PORT=9708 \
-  -e URL="http://192.168.1.1:7878" \
+  -e URL="http://x.x.x.x:7878" \
   -e APIKEY="zmlmndfb503rfqaa5ln5hj5qkmu3hy19" \
   --restart unless-stopped \
   -p 9708:9708 \
-  -d ghcr.io/onedr0p/exportarr:latest radarr
+  -d ghcr.io/onedr0p/exportarr:v1.0.0 radarr
 ```
 
 Visit http://127.0.0.1:9708/metrics to see Radarr metrics
@@ -54,22 +54,16 @@ Visit http://127.0.0.1:9708/metrics to see Radarr metrics
 ```bash
 docker run --name exportarr_lidarr \
   -e PORT=9709 \
-  -e URL="http://192.168.1.1:8686" \
+  -e URL="http://x.x.x.x:8686" \
   -e APIKEY="zmlmndfb503rfqaa5ln5hj5qkmu3hy19" \
   --restart unless-stopped \
   -p 9709:9709 \
-  -d ghcr.io/onedr0p/exportarr:latest lidarr
+  -d ghcr.io/onedr0p/exportarr:v1.0.0 lidarr
 ```
 
 Visit http://127.0.0.1:9709/metrics to see Lidarr metrics
 
 ### Run from the CLI
-
-```sh
-go get github.com/onedr0p/exportarr
-
-exportarr --help
-```
 
 #### Sonarr
 
@@ -78,7 +72,7 @@ exportarr --help
 
 ./exportarr sonarr \
   --port 9707 \
-  --url http://127.0.0.1:8989 \
+  --url http://x.x.x.x:8989 \
   --api-key amlmndfb503rfqaa5ln5hj5qkmu3hy18
 ```
 
@@ -91,7 +85,7 @@ Visit http://127.0.0.1:9707/metrics to see Sonarr metrics
 
 ./exportarr radarr \
   --port 9708 \
-  --url http://127.0.0.1:7878 \
+  --url http://x.x.x.x:7878 \
   --api-key amlmndfb503rfqaa5ln5hj5qkmu3hy18
 ```
 
@@ -104,7 +98,7 @@ Visit http://127.0.0.1:9708/metrics to see Radarr metrics
 
 ./exportarr lidarr \
   --port 9709 \
-  --url http://127.0.0.1:8686 \
+  --url http://x.x.x.x:8686 \
   --api-key amlmndfb503rfqaa5ln5hj5qkmu3hy18
 ```
 
