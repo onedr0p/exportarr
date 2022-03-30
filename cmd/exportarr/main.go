@@ -223,6 +223,7 @@ func flags(arr string) []cli.Flag {
 			Usage:    fmt.Sprintf("%s's API Key", arr),
 			Required: false,
 			EnvVars:  []string{"APIKEY"},
+			FilePath: "/etc/exportarr/apikey",
 		},
 		&cli.StringFlag{
 			Name:     "config",
