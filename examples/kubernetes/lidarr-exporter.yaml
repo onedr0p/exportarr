@@ -14,7 +14,7 @@ spec:
     app.kubernetes.io/instance: lidarr-exporter
   ports:
     - name: monitoring
-      port: 9709
+      port: 9707
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -67,7 +67,7 @@ spec:
             - lidarr
           env:
             - name: PORT
-              value: "9709"
+              value: "9707"
             - name: URL
               value: "http://lidarr.default.svc.cluster.local:8686"
             - name: APIKEY
@@ -77,7 +77,7 @@ spec:
                   key: api-key
           ports:
             - name: monitoring
-              containerPort: 9709
+              containerPort: 9707
           livenessProbe:
             httpGet:
               path: /healthz
