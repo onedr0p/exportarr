@@ -13,8 +13,8 @@ spec:
     app.kubernetes.io/name: lidarr-exporter
     app.kubernetes.io/instance: lidarr-exporter
   ports:
-  - name: monitoring
-    port: 9709
+    - name: monitoring
+      port: 9709
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -30,10 +30,10 @@ spec:
       app.kubernetes.io/name: lidarr-exporter
       app.kubernetes.io/instance: lidarr-exporter
   endpoints:
-  - port: monitoring
-    interval: 4m
-    scrapeTimeout: 90s
-    path: /metrics
+    - port: monitoring
+      interval: 4m
+      scrapeTimeout: 90s
+      path: /metrics
 ---
 kind: Deployment
 apiVersion: apps/v1
@@ -60,40 +60,40 @@ spec:
         prometheus.io/port: "monitoring"
     spec:
       containers:
-      - name: lidarr-exporter
-        image: ghcr.io/onedr0p/exportarr:latest
-        imagePullPolicy: Always
-        args:
-        - lidarr
-        env:
-        - name: PORT
-          value: "9709"
-        - name: URL
-          value: "http://lidarr.default.svc.cluster.local:8686"
-        - name: APIKEY
-          valueFrom:
-            secretKeyRef:
-              name: lidarr-exporter
-              key: api-key
-        ports:
-        - name: monitoring
-          containerPort: 9709
-        livenessProbe:
-          httpGet:
-            path: /healthz
-            port: monitoring
-          failureThreshold: 5
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /healthz
-            port: monitoring
-          failureThreshold: 5
-          periodSeconds: 10
-        resources:
-          requests:
-            cpu: 100m
-            memory: 64Mi
-          limits:
-            cpu: 500m
-            memory: 256Mi
+        - name: lidarr-exporter
+          image: ghcr.io/onedr0p/exportarr:v1.0.0
+          imagePullPolicy: IfNotPresent
+          args:
+            - lidarr
+          env:
+            - name: PORT
+              value: "9709"
+            - name: URL
+              value: "http://lidarr.default.svc.cluster.local:8686"
+            - name: APIKEY
+              valueFrom:
+                secretKeyRef:
+                  name: lidarr-exporter
+                  key: api-key
+          ports:
+            - name: monitoring
+              containerPort: 9709
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: monitoring
+            failureThreshold: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: monitoring
+            failureThreshold: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
