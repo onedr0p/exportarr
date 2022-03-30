@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/onedr0p/exportarr/internal/model"
 	log "github.com/sirupsen/logrus"
@@ -34,6 +35,15 @@ func IsFileThere(filename string) bool {
 		return false
 	}
 	return !info.IsDir()
+}
+
+// FormatURLBase - Formats a base URL
+func FormatURLBase(urlBase string) string {
+	u := strings.Trim(urlBase, "/")
+	if urlBase == "" {
+		return u
+	}
+	return fmt.Sprintf("/%s", strings.Trim(u, "/"))
 }
 
 // GetArrConfigFromFile - Get the config from config.xml

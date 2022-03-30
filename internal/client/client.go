@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/onedr0p/exportarr/internal/model"
+	"github.com/onedr0p/exportarr/internal/utils"
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 )
@@ -49,7 +50,7 @@ func (c *Client) DoRequest(endpoint string, target interface{}) error {
 		url = fmt.Sprintf("%s:%s%s/api/%s/%s",
 			c.config.String("url"),
 			c.configFile.Port,
-			c.configFile.UrlBase,
+			utils.FormatURLBase(c.configFile.UrlBase),
 			apiVersion,
 			endpoint,
 		)

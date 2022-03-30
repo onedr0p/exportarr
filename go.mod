@@ -1,6 +1,6 @@
 module github.com/onedr0p/exportarr
 
-go 1.17
+go 1.18
 
 require (
 	github.com/prometheus/client_golang v1.12.1
@@ -18,7 +18,6 @@ require (
 	github.com/prometheus/common v0.32.1 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
-	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9 // indirect
 	google.golang.org/protobuf v1.26.0 // indirect
 )
