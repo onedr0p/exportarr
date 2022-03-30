@@ -1,4 +1,4 @@
-FROM golang:1.18.0-bullseye as build
+FROM golang:1.18.0-alpine as builder
 ARG TARGETOS
 ARG TARGETARCH
 ARG TARGETVARIANT=""
@@ -7,16 +7,19 @@ ENV GO111MODULE=on \
     GOOS=${TARGETOS} \
     GOARCH=${TARGETARCH} \
     GOARM=${TARGETVARIANT}
-RUN apt-get -y update && apt-get -y install tini
+RUN apk add --no-cache ca-certificates tini-static \
+    && update-ca-certificates
 WORKDIR /build
 COPY . .
-RUN go mod download
 RUN go build -a -tags netgo -ldflags '-w -extldflags "-static"' -o exportarr /build/cmd/exportarr/.
-RUN chmod +x exportarr
 
-FROM gcr.io/distroless/static-debian11
+FROM gcr.io/distroless/static:nonroot
 ENV PORT="9707"
-COPY --from=build /build/exportarr /exportarr
-COPY --from=build /usr/bin/tini-static /tini
+USER nonroot:nonroot
+COPY --from=builder --chown=nonroot:nonroot /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder --chown=nonroot:nonroot /build/exportarr /exportarr
+COPY --from=builder --chown=nonroot:nonroot /sbin/tini-static /tini
 ENTRYPOINT [ "/tini", "--", "/exportarr" ]
-LABEL org.opencontainers.image.source https://github.com/onedr0p/exportarr
+LABEL \
+    org.opencontainers.image.title="exportarr" \
+    org.opencontainers.image.source="https://github.com/onedr0p/exportarr"
