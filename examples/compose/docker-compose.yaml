@@ -6,9 +6,8 @@ services:
     command: ["sonarr"]
     environment:
       PORT: 9707
-      URL: "http://192.168.1.100:8989"
+      URL: "http://x.x.x.x:8989"
       APIKEY: "xxx"
-      ENABLE_EPISODE_QUALITY_METRICS: "false"
     ports:
       - "9707:9707"
   radarr-exporter:
@@ -16,7 +15,7 @@ services:
     command: ["radarr"]
     environment:
       PORT: 9708
-      URL: "http://192.168.1.100:7878"
+      URL: "http://x.x.x.x:7878"
       APIKEY: "xxx"
     ports:
       - "9708:9708"
@@ -25,7 +24,7 @@ services:
     command: ["lidarr"]
     environment:
       PORT: 9709
-      URL: "http://192.168.1.100:8686"
+      URL: "http://x.x.x.x:8686"
       APIKEY: "xxx"
     ports:
       - "9709:9709"
