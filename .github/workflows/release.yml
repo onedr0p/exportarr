@@ -22,7 +22,7 @@ jobs:
         echo ::set-output name=version::${GITHUB_REF##*/}
 
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@v1
+      uses: docker/setup-qemu-action@v2
       with:
         platforms: all
 
