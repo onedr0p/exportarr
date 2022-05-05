@@ -44,7 +44,7 @@ jobs:
 
     - name: Build and Push
       if: github.event_name != 'pull_request'
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v3
       with:
         context: .
         file: ./Dockerfile
