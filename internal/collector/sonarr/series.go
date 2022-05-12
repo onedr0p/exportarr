@@ -43,19 +43,19 @@ func NewSonarrCollector(c *cli.Context, cf *model.Config) *sonarrCollector {
 		),
 		seriesFileSizeMetric: prometheus.NewDesc(
 			"sonarr_series_filesize_bytes",
-			"Total number of monitored series",
+			"Total fizesize of all series in bytes",
 			nil,
 			prometheus.Labels{"url": c.String("url")},
 		),
 		seasonMetric: prometheus.NewDesc(
 			"sonarr_season_total",
-			"Total number of series",
+			"Total number of seasons",
 			nil,
 			prometheus.Labels{"url": c.String("url")},
 		),
 		seasonMonitoredMetric: prometheus.NewDesc(
 			"sonarr_season_monitored_total",
-			"Total number of series",
+			"Total number of monitored seasons",
 			nil,
 			prometheus.Labels{"url": c.String("url")},
 		),
