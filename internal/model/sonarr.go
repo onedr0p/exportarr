@@ -41,8 +41,8 @@ type EpisodeFile []struct {
 // EpisodeFile - Stores struct of JSON response
 // https://github.com/Sonarr/Sonarr/wiki/Episode
 type Episode []struct {
-	Size      int  `json:"episodeFileId"`
-	Title     int  `json:"title"`
-	HasFile   bool `json:"hasFile"`
-	Monitored bool `json:"monitored"`
+	Size      int    `json:"episodeFileId"`
+	Title     string `json:"title"`
+	HasFile   bool   `json:"hasFile"`
+	Monitored bool   `json:"monitored"`
 }
