@@ -102,7 +102,7 @@ func NewSonarrCollector(c *cli.Context, cf *model.Config) *sonarrCollector {
 		),
 		episodeUnmonitoredMetric: prometheus.NewDesc(
 			"sonarr_episode_unmonitored_total",
-			"Total number of unmonitored episodes",
+      "Total number of unmonitored episodes",
 			nil,
 			prometheus.Labels{"url": c.String("url")},
 		),
@@ -159,8 +159,8 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 		seasonsUnmonitored  = 0
 		episodes            = 0
 		episodesDownloaded  = 0
+		episodeMonitored    = 0
 		episodesUnmonitored = 0
-		episodesMonitored   = 0
 		episodesQualities   = map[string]int{}
 	)
 
@@ -182,7 +182,7 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 		if s.Statistics.PercentOfEpisodes == 100 {
 			seriesDownloaded++
 		}
-
+    
 		seasons += s.Statistics.SeasonCount
 		episodes += s.Statistics.TotalEpisodeCount
 		episodesDownloaded += s.Statistics.EpisodeFileCount
@@ -246,6 +246,8 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(collector.seasonUnmonitoredMetric, prometheus.GaugeValue, float64(seasonsUnmonitored))
 	ch <- prometheus.MustNewConstMetric(collector.episodeMetric, prometheus.GaugeValue, float64(episodes))
 	ch <- prometheus.MustNewConstMetric(collector.episodeDownloadedMetric, prometheus.GaugeValue, float64(episodesDownloaded))
+	ch <- prometheus.MustNewConstMetric(collector.episodeMonitoredMetric, prometheus.GaugeValue, float64(episodesMonitored))
+	ch <- prometheus.MustNewConstMetric(collector.episodeUnmonitoredMetric, prometheus.GaugeValue, float64(episodesUnmonitored))
 	ch <- prometheus.MustNewConstMetric(collector.episodeMissingMetric, prometheus.GaugeValue, float64(episodesMissing.TotalRecords))
 
 	if collector.config.Bool("enable-additional-metrics") {
