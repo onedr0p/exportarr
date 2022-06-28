@@ -14,10 +14,12 @@ type sonarrCollector struct {
 	config                   *cli.Context     // App configuration
 	configFile               *model.Config    // *arr configuration from config.xml
 	seriesMetric             *prometheus.Desc // Total number of series
+	seriesDownloadedMetric   *prometheus.Desc // Total number of downloaded series
 	seriesMonitoredMetric    *prometheus.Desc // Total number of monitored series
 	seriesUnmonitoredMetric  *prometheus.Desc // Total number of unmonitored series
 	seriesFileSizeMetric     *prometheus.Desc // Total fizesize of all series in bytes
 	seasonMetric             *prometheus.Desc // Total number of seasons
+	seasonDownloadedMetric   *prometheus.Desc // Total number of downloaded seasons
 	seasonMonitoredMetric    *prometheus.Desc // Total number of monitored seasons
 	seasonUnmonitoredMetric  *prometheus.Desc // Total number of monitored seasons
 	episodeMetric            *prometheus.Desc // Total number of episodes
@@ -35,6 +37,12 @@ func NewSonarrCollector(c *cli.Context, cf *model.Config) *sonarrCollector {
 		seriesMetric: prometheus.NewDesc(
 			"sonarr_series_total",
 			"Total number of series",
+			nil,
+			prometheus.Labels{"url": c.String("url")},
+		),
+		seriesDownloadedMetric: prometheus.NewDesc(
+			"sonarr_series_downloaded_total",
+			"Total number of downloaded series",
 			nil,
 			prometheus.Labels{"url": c.String("url")},
 		),
@@ -59,6 +67,12 @@ func NewSonarrCollector(c *cli.Context, cf *model.Config) *sonarrCollector {
 		seasonMetric: prometheus.NewDesc(
 			"sonarr_season_total",
 			"Total number of seasons",
+			nil,
+			prometheus.Labels{"url": c.String("url")},
+		),
+		seasonDownloadedMetric: prometheus.NewDesc(
+			"sonarr_season_downloaded_total",
+			"Total number of downloaded seasons",
 			nil,
 			prometheus.Labels{"url": c.String("url")},
 		),
@@ -115,10 +129,12 @@ func NewSonarrCollector(c *cli.Context, cf *model.Config) *sonarrCollector {
 
 func (collector *sonarrCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.seriesMetric
+	ch <- collector.seriesDownloadedMetric
 	ch <- collector.seriesMonitoredMetric
 	ch <- collector.seriesUnmonitoredMetric
 	ch <- collector.seriesFileSizeMetric
 	ch <- collector.seasonMetric
+	ch <- collector.seasonDownloadedMetric
 	ch <- collector.seasonMonitoredMetric
 	ch <- collector.seasonUnmonitoredMetric
 	ch <- collector.episodeMetric
@@ -133,9 +149,11 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 	c := client.NewClient(collector.config, collector.configFile)
 	var seriesFileSize int64
 	var (
+		seriesDownloaded    = 0
 		seriesMonitored     = 0
 		seriesUnmonitored   = 0
 		seasons             = 0
+		seasonsDownloaded   = 0
 		seasonsMonitored    = 0
 		seasonsUnmonitored  = 0
 		episodes            = 0
@@ -156,17 +174,27 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 			seriesUnmonitored++
 		}
 
+		if s.Statistics.PercentOfEpisodes == 100 {
+			seriesDownloaded++
+		}
+
 		seasons += s.Statistics.SeasonCount
 		episodes += s.Statistics.TotalEpisodeCount
 		episodesDownloaded += s.Statistics.EpisodeFileCount
 		seriesFileSize += s.Statistics.SizeOnDisk
+
 		for _, e := range s.Seasons {
 			if !e.Monitored {
 				seasonsUnmonitored++
 			} else {
 				seasonsMonitored++
 			}
+
+			if e.Statistics.PercentOfEpisodes == 100 {
+				seasonsDownloaded++
+			}
 		}
+
 		if collector.config.Bool("enable-additional-metrics") {
 			episodeFile := model.EpisodeFile{}
 			if err := c.DoRequest(fmt.Sprintf("%s?seriesId=%d", "episodefile", s.Id), &episodeFile); err != nil {
@@ -198,10 +226,12 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	ch <- prometheus.MustNewConstMetric(collector.seriesMetric, prometheus.GaugeValue, float64(len(series)))
+	ch <- prometheus.MustNewConstMetric(collector.seriesDownloadedMetric, prometheus.GaugeValue, float64(seriesDownloaded))
 	ch <- prometheus.MustNewConstMetric(collector.seriesMonitoredMetric, prometheus.GaugeValue, float64(seriesMonitored))
 	ch <- prometheus.MustNewConstMetric(collector.seriesUnmonitoredMetric, prometheus.GaugeValue, float64(seriesUnmonitored))
 	ch <- prometheus.MustNewConstMetric(collector.seriesFileSizeMetric, prometheus.GaugeValue, float64(seriesFileSize))
 	ch <- prometheus.MustNewConstMetric(collector.seasonMetric, prometheus.GaugeValue, float64(seasons))
+	ch <- prometheus.MustNewConstMetric(collector.seasonDownloadedMetric, prometheus.GaugeValue, float64(seasonsDownloaded))
 	ch <- prometheus.MustNewConstMetric(collector.seasonMonitoredMetric, prometheus.GaugeValue, float64(seasonsMonitored))
 	ch <- prometheus.MustNewConstMetric(collector.seasonUnmonitoredMetric, prometheus.GaugeValue, float64(seasonsUnmonitored))
 	ch <- prometheus.MustNewConstMetric(collector.episodeMetric, prometheus.GaugeValue, float64(episodes))
