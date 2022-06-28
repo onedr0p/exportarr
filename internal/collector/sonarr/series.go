@@ -2,12 +2,12 @@ package collector
 
 import (
 	"fmt"
-
 	"github.com/onedr0p/exportarr/internal/client"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
+	"time"
 )
 
 type sonarrCollector struct {
@@ -146,6 +146,7 @@ func (collector *sonarrCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
+	total := time.Now()
 	c := client.NewClient(collector.config, collector.configFile)
 	var seriesFileSize int64
 	var (
@@ -163,11 +164,16 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 		episodesMonitored   = 0
 		episodesQualities   = map[string]int{}
 	)
+
+	cseries := []time.Duration{}
 	series := model.Series{}
 	if err := c.DoRequest("series", &series); err != nil {
 		log.Fatal(err)
 	}
+
 	for _, s := range series {
+		tseries := time.Now()
+
 		if !s.Monitored {
 			seriesMonitored++
 		} else {
@@ -196,6 +202,7 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 		}
 
 		if collector.config.Bool("enable-additional-metrics") {
+			textra := time.Now()
 			episodeFile := model.EpisodeFile{}
 			if err := c.DoRequest(fmt.Sprintf("%s?seriesId=%d", "episodefile", s.Id), &episodeFile); err != nil {
 				log.Fatal(err)
@@ -217,7 +224,11 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 					episodeMonitored++
 				}
 			}
+			log.Debug("TIME :: Extra options took %s", time.Since(textra))
 		}
+		e := time.Since(tseries)
+		cseries = append(cseries, e)
+		log.Debug("TIME :: series %s took %s", s.Id, e)
 	}
 
 	episodesMissing := model.Missing{}
@@ -249,4 +260,9 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 			}
 		}
 	}
+	log.Debug("TIME :: total took %s with series timings as %s",
+		time.Since(total),
+		cseries,
+	)
+
 }
