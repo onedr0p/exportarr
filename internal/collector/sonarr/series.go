@@ -150,18 +150,18 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 	c := client.NewClient(collector.config, collector.configFile)
 	var seriesFileSize int64
 	var (
-		seriesDownloaded    = 0
-		seriesMonitored     = 0
-		seriesUnmonitored   = 0
-		seasons             = 0
-		seasonsDownloaded   = 0
-		seasonsMonitored    = 0
-		seasonsUnmonitored  = 0
-		episodes            = 0
-		episodesDownloaded  = 0
-		episodeMonitored    = 0
-		episodesUnmonitored = 0
-		episodesQualities   = map[string]int{}
+		seriesDownloaded     = 0
+		seriesMonitored      = 0
+		seriesUnmonitored    = 0
+		seasons              = 0
+		seasonsDownloaded    = 0
+		seasonsMonitored     = 0
+		seasonsUnmonitored   = 0
+		episodes             = 0
+		episodesDownloaded   = 0
+		episodesMonitored    = 0
+		episodesUnmonitored  = 0
+		episodesQualities    = map[string]int{}
 	)
 
 	cseries := []time.Duration{}
