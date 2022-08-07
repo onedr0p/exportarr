@@ -23,7 +23,7 @@ See examples in the [examples/compose](./examples/compose/) directory
 See examples in the [examples/kubernetes](./examples/kubernetes/)
 directory.
 
-This exporter is also included in the Lidarr, Radarr, Sonarr, and Prolarr helm
+This exporter is also included in the Lidarr, Radarr, Sonarr, and Prowlarr helm
 charts located over at
 [k8s-at-home/charts](https://github.com/k8s-at-home/charts)
 
@@ -136,7 +136,7 @@ Visit http://127.0.0.1:9709/metrics to see Radarr metrics
   --api-key amlmndfb503rfqaa5ln5hj5qkmu3hy18
 ```
 
-Visit http://127.0.0.1:9709/metrics to see Radarr metrics
+Visit http://127.0.0.1:9709/metrics to see Prowlarr metrics
 
 ## Configuration
 
