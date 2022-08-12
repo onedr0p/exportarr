@@ -36,11 +36,7 @@ func NewClient(c *cli.Context, cf *model.Config) *Client {
 
 // DoRequest - Take a HTTP Request and return Unmarshaled data
 func (c *Client) DoRequest(endpoint string, target interface{}) error {
-	apiVersion := "v3"
-
-	if c.config.Command.Name == "lidarr" {
-		apiVersion = "v1"
-	}
+	apiVersion := c.configFile.ApiVersion
 
 	var url string
 	var apiKey string
@@ -87,7 +83,7 @@ func (c *Client) DoRequest(endpoint string, target interface{}) error {
 		return err
 	}
 	if !(resp.StatusCode >= 200 && resp.StatusCode < 300) {
-		errMsg := fmt.Sprintf("An error has occurred during retrieving statistics HTTP status %s", resp.Status)
+		errMsg := fmt.Sprintf("An error has occurred during retrieving statistics from %s HTTP status %s", url, resp.Status)
 		if location := resp.Header.Get("Location"); location != "" {
 			errMsg += " (Location: " + location + ")"
 		}

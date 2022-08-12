@@ -5,9 +5,9 @@ AIO Prometheus Exporter for Sonarr, Radarr or Lidarr
 [![Go Report Card](https://goreportcard.com/badge/github.com/onedr0p/exportarr)](https://goreportcard.com/report/github.com/onedr0p/exportarr)
 
 This is Prometheus Exporter will export metrics gathered from Sonarr,
-Radarr, or Lidarr. This only supports v1 API of Lidarr and v3 APIs for
-Sonarr and Radarr. It will not gather metrics from all 3 at once, and
-instead you need to tell the exporter what metrics you want. Be sure
+Radarr, Lidarr, or Prowlarr. This only supports v1 API of Lidarr and Prowlarr
+and v3 APIs for Sonarr and Radarr. It will not gather metrics from all 3 at once,
+and instead you need to tell the exporter what metrics you want. Be sure
 to see the examples below for more information.
 
 ![image](https://user-images.githubusercontent.com/213795/111993814-6fa68b80-8aed-11eb-85ae-3e5a0851923c.png)
@@ -23,7 +23,7 @@ See examples in the [examples/compose](./examples/compose/) directory
 See examples in the [examples/kubernetes](./examples/kubernetes/)
 directory.
 
-This exporter is also included in the Lidarr, Radarr, and Sonarr helm
+This exporter is also included in the Lidarr, Radarr, Sonarr, and Prowlarr helm
 charts located over at
 [k8s-at-home/charts](https://github.com/k8s-at-home/charts)
 
@@ -70,6 +70,20 @@ docker run --name exportarr_lidarr \
 
 Visit http://127.0.0.1:9709/metrics to see Lidarr metrics
 
+#### Prowlarr
+
+```bash
+docker run --name exportarr_prowlarr \
+  -e PORT=9710 \
+  -e URL="http://x.x.x.x:9696" \
+  -e APIKEY="zmlmndfb503rfqaa5ln5hj5qkmu3hy19" \
+  --restart unless-stopped \
+  -p 9709:9709 \
+  -d ghcr.io/onedr0p/exportarr:v1.0.0 prowlarr
+```
+
+Visit http://127.0.0.1:9709/metrics to see Prowlarr metrics
+
 ### Run from the CLI
 
 #### Sonarr
@@ -110,6 +124,19 @@ Visit http://127.0.0.1:9708/metrics to see Radarr metrics
 ```
 
 Visit http://127.0.0.1:9709/metrics to see Radarr metrics
+
+#### Prowlarr
+
+```sh
+./exportarr prowlarr --help
+
+./exportarr prowlarr \
+  --port 9710 \
+  --url http://x.x.x.x:9696 \
+  --api-key amlmndfb503rfqaa5ln5hj5qkmu3hy18
+```
+
+Visit http://127.0.0.1:9709/metrics to see Prowlarr metrics
 
 ## Configuration
 

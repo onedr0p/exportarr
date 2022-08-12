@@ -92,6 +92,15 @@ func main() {
 			Action:      sonarr,
 			Before:      validation,
 		},
+		{
+			Name:        "prowlarr",
+			Aliases:     []string{"s"},
+			Usage:       "Prometheus Exporter for Prowlarr",
+			Description: strings.Title("Prowlarr Exporter"),
+			Flags:       flags("prowlarr"),
+			Action:      prowlarr,
+			Before:      validation,
+		},
 	}
 
 	err := app.Run(os.Args)
@@ -106,7 +115,10 @@ func lidarr(config *cli.Context) (err error) {
 	var configFile *model.Config
 	if config.String("config") != "" {
 		configFile, _ = utils.GetArrConfigFromFile(config.String("config"))
+	} else {
+		configFile = model.NewConfig()
 	}
+	configFile.ApiVersion = "v1"
 
 	registry.MustRegister(
 		lidarrCollector.NewLidarrCollector(config, configFile),
@@ -125,6 +137,8 @@ func radarr(config *cli.Context) (err error) {
 	var configFile *model.Config
 	if config.String("config") != "" {
 		configFile, _ = utils.GetArrConfigFromFile(config.String("config"))
+	} else {
+		configFile = model.NewConfig()
 	}
 
 	registry.MustRegister(
@@ -144,6 +158,8 @@ func sonarr(config *cli.Context) (err error) {
 	var configFile *model.Config
 	if config.String("config") != "" {
 		configFile, _ = utils.GetArrConfigFromFile(config.String("config"))
+	} else {
+		configFile = model.NewConfig()
 	}
 
 	registry.MustRegister(
@@ -151,6 +167,25 @@ func sonarr(config *cli.Context) (err error) {
 		sharedCollector.NewQueueCollector(config, configFile),
 		sharedCollector.NewHistoryCollector(config, configFile),
 		sharedCollector.NewRootFolderCollector(config, configFile),
+		sharedCollector.NewSystemStatusCollector(config, configFile),
+		sharedCollector.NewSystemHealthCollector(config, configFile),
+	)
+	return serveHttp(config, registry)
+}
+
+func prowlarr(config *cli.Context) (err error) {
+	registry := prometheus.NewRegistry()
+
+	var configFile *model.Config
+	if config.String("config") != "" {
+		configFile, _ = utils.GetArrConfigFromFile(config.String("config"))
+	} else {
+		configFile = model.NewConfig()
+	}
+	configFile.ApiVersion = "v1"
+
+	registry.MustRegister(
+		sharedCollector.NewHistoryCollector(config, configFile),
 		sharedCollector.NewSystemStatusCollector(config, configFile),
 		sharedCollector.NewSystemHealthCollector(config, configFile),
 	)
