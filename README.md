@@ -78,11 +78,11 @@ docker run --name exportarr_prowlarr \
   -e URL="http://x.x.x.x:9696" \
   -e APIKEY="zmlmndfb503rfqaa5ln5hj5qkmu3hy19" \
   --restart unless-stopped \
-  -p 9709:9709 \
+  -p 9710:9710 \
   -d ghcr.io/onedr0p/exportarr:v1.0.0 prowlarr
 ```
 
-Visit http://127.0.0.1:9709/metrics to see Prowlarr metrics
+Visit http://127.0.0.1:9710/metrics to see Prowlarr metrics
 
 ### Run from the CLI
 
@@ -136,7 +136,7 @@ Visit http://127.0.0.1:9709/metrics to see Radarr metrics
   --api-key amlmndfb503rfqaa5ln5hj5qkmu3hy18
 ```
 
-Visit http://127.0.0.1:9709/metrics to see Prowlarr metrics
+Visit http://127.0.0.1:9710/metrics to see Prowlarr metrics
 
 ## Configuration
 
