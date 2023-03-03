@@ -8,6 +8,7 @@ import (
 
 	lidarrCollector "github.com/onedr0p/exportarr/internal/collector/lidarr"
 	radarrCollector "github.com/onedr0p/exportarr/internal/collector/radarr"
+	readarrCollector "github.com/onedr0p/exportarr/internal/collector/readarr"
 	sharedCollector "github.com/onedr0p/exportarr/internal/collector/shared"
 	sonarrCollector "github.com/onedr0p/exportarr/internal/collector/sonarr"
 	"github.com/onedr0p/exportarr/internal/model"
@@ -94,11 +95,20 @@ func main() {
 		},
 		{
 			Name:        "prowlarr",
-			Aliases:     []string{"s"},
+			Aliases:     []string{"p"},
 			Usage:       "Prometheus Exporter for Prowlarr",
 			Description: strings.Title("Prowlarr Exporter"),
 			Flags:       flags("prowlarr"),
 			Action:      prowlarr,
+			Before:      validation,
+		},
+		{
+			Name:        "readarr",
+			Aliases:     []string{"b"}, // b for book
+			Usage:       "Prometheus Exporter for Readarr",
+			Description: strings.Title("Readarr Exporter"),
+			Flags:       flags("readarr"),
+			Action:      readarr,
 			Before:      validation,
 		},
 	}
@@ -186,6 +196,28 @@ func prowlarr(config *cli.Context) (err error) {
 
 	registry.MustRegister(
 		sharedCollector.NewHistoryCollector(config, configFile),
+		sharedCollector.NewSystemStatusCollector(config, configFile),
+		sharedCollector.NewSystemHealthCollector(config, configFile),
+	)
+	return serveHttp(config, registry)
+}
+
+func readarr(config *cli.Context) (err error) {
+	registry := prometheus.NewRegistry()
+
+	var configFile *model.Config
+	if config.String("config") != "" {
+		configFile, _ = utils.GetArrConfigFromFile(config.String("config"))
+	} else {
+		configFile = model.NewConfig()
+	}
+	configFile.ApiVersion = "v1"
+
+	registry.MustRegister(
+		readarrCollector.NewReadarrCollector(config, configFile),
+		sharedCollector.NewQueueCollector(config, configFile),
+		sharedCollector.NewHistoryCollector(config, configFile),
+		sharedCollector.NewRootFolderCollector(config, configFile),
 		sharedCollector.NewSystemStatusCollector(config, configFile),
 		sharedCollector.NewSystemHealthCollector(config, configFile),
 	)
