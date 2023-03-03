@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	lidarrCollector "github.com/onedr0p/exportarr/internal/collector/lidarr"
+	prowlarrCollector "github.com/onedr0p/exportarr/internal/collector/prowlarr"
 	radarrCollector "github.com/onedr0p/exportarr/internal/collector/radarr"
 	sharedCollector "github.com/onedr0p/exportarr/internal/collector/shared"
 	sonarrCollector "github.com/onedr0p/exportarr/internal/collector/sonarr"
@@ -185,6 +186,7 @@ func prowlarr(config *cli.Context) (err error) {
 	configFile.ApiVersion = "v1"
 
 	registry.MustRegister(
+		prowlarrCollector.NewProwlarrCollector(config, configFile),
 		sharedCollector.NewHistoryCollector(config, configFile),
 		sharedCollector.NewSystemStatusCollector(config, configFile),
 		sharedCollector.NewSystemHealthCollector(config, configFile),
