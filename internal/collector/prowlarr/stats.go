@@ -116,12 +116,19 @@ type prowlarrCollector struct {
 }
 
 func NewProwlarrCollector(c *cli.Context, cf *model.Config) *prowlarrCollector {
+	var lastStatUpdate time.Time
+	if c.Bool("enable-additional-metrics") {
+		// If additional metrics are enabled, backfill the cache.
+		lastStatUpdate = time.Time{}
+	} else {
+		lastStatUpdate = time.Now()
+	}
 	return &prowlarrCollector{
 		config:             c,
 		configFile:         cf,
 		indexerStatCache:   NewIndexerStatCache(),
 		userAgentStatCache: NewUserAgentCache(),
-		lastStatUpdate:     time.Time{},
+		lastStatUpdate:     lastStatUpdate,
 		indexerMetric: prometheus.NewDesc(
 			"prowlarr_indexer_total",
 			"Total number of configured indexers",
