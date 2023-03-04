@@ -5,7 +5,7 @@ AIO Prometheus Exporter for Sonarr, Radarr or Lidarr
 [![Go Report Card](https://goreportcard.com/badge/github.com/onedr0p/exportarr)](https://goreportcard.com/report/github.com/onedr0p/exportarr)
 
 This is Prometheus Exporter will export metrics gathered from Sonarr,
-Radarr, Lidarr, or Prowlarr. This only supports v1 API of Lidarr and Prowlarr
+Radarr, Lidarr, Prowlarr, and Readarr (experimental). This only supports v1 API of Lidarr, Prowlarr, and Readarr
 and v3 APIs for Sonarr and Radarr. It will not gather metrics from all 3 at once,
 and instead you need to tell the exporter what metrics you want. Be sure
 to see the examples below for more information.
@@ -84,6 +84,19 @@ docker run --name exportarr_prowlarr \
 
 Visit http://127.0.0.1:9710/metrics to see Prowlarr metrics
 
+### Readarr (Experimental)
+
+```bash
+docker run --name exportarr_readarr \
+  -e PORT=9711 \
+  -e URL="http://x.x.x.x:9797" \
+  -e APIKEY="zmlmndfb503rfqaa5ln5hj5qkmu3hy19" \
+  --restart unless-stopped \
+  -p 9711:9711 \
+  -d ghcr.io/onedr0p/exportarr:v1.0.0 readarr
+```
+
+Visit http://127.0.0.1:9711/metrics to see Readarr metrics
 ### Run from the CLI
 
 #### Sonarr
@@ -132,6 +145,17 @@ Visit http://127.0.0.1:9709/metrics to see Radarr metrics
 
 ./exportarr prowlarr \
   --port 9710 \
+  --url http://x.x.x.x:9696 \
+  --api-key amlmndfb503rfqaa5ln5hj5qkmu3hy18
+```
+
+#### Readarr (Experimental)
+
+```sh
+./exportarr readarr --help
+
+./exportarr readarr \
+  --port 9711 \
   --url http://x.x.x.x:9696 \
   --api-key amlmndfb503rfqaa5ln5hj5qkmu3hy18
 ```
