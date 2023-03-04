@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/onedr0p/exportarr/internal/utils"
@@ -60,7 +61,16 @@ func (c *Client) DoRequest(endpoint string, target interface{}) error {
 			apiVersion,
 			endpoint,
 		)
-		apiKey = c.config.String("api-key")
+		if c.config.String("api-key") != "" {
+			apiKey = c.config.String("api-key")
+		} else if c.config.String("api-key-file") != "" {
+			data, err := os.ReadFile(c.config.String("api-key-file"))
+			if err != nil {
+				log.Fatalf("An error has occurred during reading of API Key file %v", err)
+				return err
+			}
+			apiKey = string(data)
+		}
 	}
 
 	log.Infof("Sending HTTP request to %s", url)

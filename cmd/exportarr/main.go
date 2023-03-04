@@ -259,16 +259,29 @@ func validation(config *cli.Context) error {
 	if config.String("api-key") != "" && !utils.IsValidApikey(config.String("api-key")) {
 		return cli.Exit(fmt.Sprintf("%s is not a valid API Key", config.String("api-key")), 1)
 	}
+	if config.String("api-key-file") != "" {
+		data, err := os.ReadFile(config.String("api-key-file"))
+		if err != nil {
+			return cli.Exit(fmt.Sprintf("unable to read API Key file %s", config.String("api-key-file")), 1)
+		}
+		if !utils.IsValidApikey(string(data)) {
+			return cli.Exit(fmt.Sprintf("%s is not a valid API Key", string(data)), 1)
+		}
+	}
 	if config.String("config") != "" &&
 		!utils.IsFileThere(config.String("config")) {
 		return cli.Exit(fmt.Sprintf("%s config file does not exist", config.String("config")), 1)
 	}
 
 	// Logical validations
-	if config.String("url") != "" && config.String("api-key") != "" && config.String("config") != "" {
+	if config.String("api-key") != "" && config.String("api-key-file") != "" {
+		return cli.Exit("either api-key or api-key-file can be set, not both of them", 1)
+	}
+	apiKeyIsSet := config.String("api-key") != "" || config.String("api-key-file") != ""
+	if config.String("url") != "" && apiKeyIsSet && config.String("config") != "" {
 		return cli.Exit("url and api-key or config must be set, not all of them", 1)
 	}
-	if config.String("url") == "" && config.String("api-key") == "" && config.String("config") == "" {
+	if config.String("url") == "" && !apiKeyIsSet && config.String("config") == "" {
 		return cli.Exit("url and api-key or config must be set, not none of them", 1)
 	}
 	return nil
@@ -291,6 +304,12 @@ func flags(arr string) []cli.Flag {
 			Required: false,
 			EnvVars:  []string{"APIKEY"},
 			FilePath: "/etc/exportarr/apikey",
+		},
+		&cli.StringFlag{
+			Name:     "api-key-file",
+			Usage:    fmt.Sprintf("%s's API Key file location", arr),
+			Required: false,
+			EnvVars:  []string{"APIKEY_FILE"},
 		},
 		&cli.StringFlag{
 			Name:     "config",
