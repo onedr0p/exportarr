@@ -1,11 +1,13 @@
 package client
 
 import (
+	"compress/gzip"
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/onedr0p/exportarr/internal/model"
@@ -65,17 +67,18 @@ func (c *Client) DoRequest(endpoint string, target interface{}) error {
 
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: c.config.Bool("disable-ssl-verify")}
 	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		log.Fatalf("An error has occurred when creating HTTP request %v", err)
+		return err
+	}
+
 	if c.config.String("basic-auth-username") != "" && c.config.String("basic-auth-password") != "" {
 		req.Header.Add("Authorization", fmt.Sprintf("Basic %s",
 			base64.StdEncoding.EncodeToString([]byte(c.config.String("basic-auth-username")+":"+c.config.String("basic-auth-password"))),
 		))
 	}
 	req.Header.Add("X-Api-Key", apiKey)
-
-	if err != nil {
-		log.Fatalf("An error has occurred when creating HTTP request %v", err)
-		return err
-	}
+	req.Header.Add("Accept-Encoding", "gzip")
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
@@ -90,7 +93,19 @@ func (c *Client) DoRequest(endpoint string, target interface{}) error {
 		log.Fatal(errMsg)
 		return errors.New(errMsg)
 	}
-
 	defer resp.Body.Close()
-	return json.NewDecoder(resp.Body).Decode(target)
+
+	var bodyReader io.ReadCloser
+	switch resp.Header.Get("Content-Encoding") {
+	case "gzip":
+		bodyReader, err = gzip.NewReader(resp.Body)
+		if err != nil {
+			log.Fatalf("An error has occurred reading gzipped statistics %v", err)
+			return err
+		}
+		defer bodyReader.Close()
+	default:
+		bodyReader = resp.Body
+	}
+	return json.NewDecoder(bodyReader).Decode(target)
 }
