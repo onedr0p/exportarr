@@ -178,3 +178,9 @@ Visit http://127.0.0.1:9710/metrics to see Prowlarr metrics
 | `BASIC_AUTH_USERNAME`        | `--basic-auth-username`        | Set to your basic auth username                                |           | ❌       |
 | `ENABLE_ADDITIONAL_METRICS`  | `--enable-additional-metrics`  | Set to `true` to enable gathering of additional metrics (slow) | `false`   | ❌       |
 | `ENABLE_UNKNOWN_QUEUE_ITEMS` | `--enable-unknown-queue-items` | Set to `true` to enable gathering unknown queue items          | `false`   | ❌       |
+
+### Prowlarr Backfill
+
+The prowlarr collector is a little different than other collectors as it's hitting an actual "stats" endpoint, collecting counters of events that happened in a small time window, rather than getting all-time statistics like the other collectors. This means that by default, when you start the prowlarr collector, collected stats will start from that moment (all counters will start from zero). `ENABLE_ADDITIONAL_METRIC` will tell the collector that it should backfill all-time metrics the first time it's queried. The actual API call this makes is *really* slow. On my prowlarr instance which is only a few months old, this took more than 5 seconds, so if you have a very active or very old prowlarr server this might time out, and need to be turned off.
+
+Note that if you have to turn off backfill that your counters will reset to zero every time you restart the collector. This isn't a huge problem, prometheus expects counters to reset on restart, so normal aggregations like `rate()`, `increase()`, `irate()`, etc will all still work fine. The only thing that will be tough will be getting all-time stats (you can still do it, but you'll have to do something like `increase(stat_you_want_to_see[<timeserverhasbeenalive>])`, which will likely be slow)
