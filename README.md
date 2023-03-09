@@ -10,7 +10,7 @@ and v3 APIs for Sonarr and Radarr. It will not gather metrics from all 3 at once
 and instead you need to tell the exporter what metrics you want. Be sure
 to see the examples below for more information.
 
-![image](https://user-images.githubusercontent.com/213795/111993814-6fa68b80-8aed-11eb-85ae-3e5a0851923c.png)
+![image](.github/images/dashboard-1.png)
 
 ## Usage
 
