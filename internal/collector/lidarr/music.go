@@ -177,7 +177,8 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 			}
 
 			album := model.Album{}
-			if err := c.DoRequest(fmt.Sprintf("%s?artistid=%d", "album", s.Id), &album); err != nil {
+			params = map[string]string{"artistid": fmt.Sprintf("%d", s.Id)}
+			if err := c.DoRequest("album", &album, params); err != nil {
 				log.Fatal(err)
 			}
 			for _, a := range album {

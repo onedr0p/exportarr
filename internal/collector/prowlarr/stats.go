@@ -1,7 +1,6 @@
 package collector
 
 import (
-	"fmt"
 	"sync"
 	"time"
 
@@ -279,8 +278,11 @@ func (collector *prowlarrCollector) Collect(ch chan<- prometheus.Metric) {
 	stats := model.IndexerStatResponse{}
 	startDate := collector.lastStatUpdate.In(time.UTC)
 	endDate := time.Now().In(time.UTC)
-	req := fmt.Sprintf("indexerstats?startDate=%s&endDate=%s", startDate.Format(time.RFC3339), endDate.Format(time.RFC3339))
-	if err := c.DoRequest(req, &stats); err != nil {
+	params := map[string]string{
+		"startDate": startDate.Format(time.RFC3339),
+		"endDate":   endDate.Format(time.RFC3339),
+	}
+	if err := c.DoRequest("indexerstats", &stats, params); err != nil {
 		log.Fatal(err)
 	}
 	collector.lastStatUpdate = endDate
