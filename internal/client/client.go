@@ -1,121 +1,85 @@
 package client
 
 import (
-	"compress/gzip"
 	"crypto/tls"
-	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"io"
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/onedr0p/exportarr/internal/model"
-	"github.com/onedr0p/exportarr/internal/utils"
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 )
 
 // Client struct is a Radarr client to request an instance of a Radarr
 type Client struct {
-	config     *cli.Context
-	configFile *model.Config
 	httpClient http.Client
+	URL        url.URL
 }
 
 // NewClient method initializes a new Radarr client.
-func NewClient(c *cli.Context, cf *model.Config) *Client {
+func NewClient(c *cli.Context, cf *model.Config) (*Client, error) {
+	var baseURL *url.URL
+	auth := AuthConfig{
+		Username: c.String("basic-auth-username"),
+		Password: c.String("basic-auth-password"),
+	}
+
+	apiVersion := cf.ApiVersion
+
+	if c.String("config") != "" {
+		baseURL.Parse(c.String("url") + ":" + cf.Port)
+		baseURL = baseURL.JoinPath(cf.UrlBase, "api", apiVersion)
+		auth.ApiKey = cf.ApiKey
+
+	} else {
+		// Otherwise use the value provided in the api-key flag
+		baseURL.Parse(c.String("url"))
+		baseURL = baseURL.JoinPath("api", apiVersion)
+
+		if c.String("api-key") != "" {
+			auth.ApiKey = c.String("api-key")
+		} else if c.String("api-key-file") != "" {
+			data, err := os.ReadFile(c.String("api-key-file"))
+			if err != nil {
+				return nil, fmt.Errorf("Couldn't Read API Key file %w", err)
+			}
+			auth.ApiKey = string(data)
+		}
+	}
+	baseTransport := http.DefaultTransport
+	if c.Bool("disable-ssl-verify") {
+		baseTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	}
 	return &Client{
-		config:     c,
-		configFile: cf,
 		httpClient: http.Client{
 			CheckRedirect: func(req *http.Request, via []*http.Request) error {
 				return http.ErrUseLastResponse
 			},
+			Transport: NewArrTransport(auth, baseTransport),
 		},
-	}
+	}, nil
 }
 
 // DoRequest - Take a HTTP Request and return Unmarshaled data
 func (c *Client) DoRequest(endpoint string, target interface{}) error {
-	apiVersion := c.configFile.ApiVersion
-
-	var url string
-	var apiKey string
-
-	// Use the values from config.xml if using the config flag
-	if c.config.String("config") != "" {
-		url = fmt.Sprintf("%s:%s%s/api/%s/%s",
-			c.config.String("url"),
-			c.configFile.Port,
-			utils.FormatURLBase(c.configFile.UrlBase),
-			apiVersion,
-			endpoint,
-		)
-		apiKey = c.configFile.ApiKey
-	} else {
-		// Otherwise use the value provided in the api-key flag
-		url = fmt.Sprintf("%s/api/%s/%s",
-			c.config.String("url"),
-			apiVersion,
-			endpoint,
-		)
-		if c.config.String("api-key") != "" {
-			apiKey = c.config.String("api-key")
-		} else if c.config.String("api-key-file") != "" {
-			data, err := os.ReadFile(c.config.String("api-key-file"))
-			if err != nil {
-				log.Fatalf("An error has occurred during reading of API Key file %v", err)
-				return err
-			}
-			apiKey = string(data)
-		}
-	}
-
+	url := c.URL.JoinPath(endpoint).String()
 	log.Infof("Sending HTTP request to %s", url)
 
-	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: c.config.Bool("disable-ssl-verify")}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		log.Fatalf("An error has occurred when creating HTTP request %v", err)
-		return err
+		return fmt.Errorf("Failed to create HTTP Request: %w", err)
 	}
-
-	if c.config.String("basic-auth-username") != "" && c.config.String("basic-auth-password") != "" {
-		req.Header.Add("Authorization", fmt.Sprintf("Basic %s",
-			base64.StdEncoding.EncodeToString([]byte(c.config.String("basic-auth-username")+":"+c.config.String("basic-auth-password"))),
-		))
-	}
-	req.Header.Add("X-Api-Key", apiKey)
-	req.Header.Add("Accept-Encoding", "gzip")
-
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		log.Fatalf("An error has occurred during retrieving statistics %v", err)
-		return err
-	}
-	if !(resp.StatusCode >= 200 && resp.StatusCode < 300) {
-		errMsg := fmt.Sprintf("An error has occurred during retrieving statistics from %s HTTP status %s", url, resp.Status)
 		if location := resp.Header.Get("Location"); location != "" {
-			errMsg += " (Location: " + location + ")"
+			return fmt.Errorf("Failed to execute HTTP Request(%s - %s): %w", url, location, err)
+		} else {
+			return fmt.Errorf("Failed to execute HTTP Request(%s): %w", url, err)
 		}
-		log.Fatal(errMsg)
-		return errors.New(errMsg)
 	}
 	defer resp.Body.Close()
-
-	var bodyReader io.ReadCloser
-	switch resp.Header.Get("Content-Encoding") {
-	case "gzip":
-		bodyReader, err = gzip.NewReader(resp.Body)
-		if err != nil {
-			log.Fatalf("An error has occurred reading gzipped statistics %v", err)
-			return err
-		}
-		defer bodyReader.Close()
-	default:
-		bodyReader = resp.Body
-	}
-	return json.NewDecoder(bodyReader).Decode(target)
+	return json.NewDecoder(resp.Body).Decode(target)
 }

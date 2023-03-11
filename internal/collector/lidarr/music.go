@@ -122,8 +122,18 @@ func (collector *lidarrCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
-	c := client.NewClient(collector.config, collector.configFile)
-
+	c, err := client.NewClient(collector.config, collector.configFile)
+	if err != nil {
+		log.Errorf("Error creating client: %w", err)
+		ch <- prometheus.NewInvalidMetric(
+			prometheus.NewDesc(
+				"lidarr_collector_error",
+				"Error Collecting from Lidarr",
+				nil,
+				prometheus.Labels{"url": collector.config.String("url")}),
+			err)
+		return
+	}
 	var artistsFileSize int64
 	var (
 		artistsMonitored = 0

@@ -240,7 +240,18 @@ func (collector *prowlarrCollector) Describe(ch chan<- *prometheus.Desc) {
 
 func (collector *prowlarrCollector) Collect(ch chan<- prometheus.Metric) {
 	total := time.Now()
-	c := client.NewClient(collector.config, collector.configFile)
+	c, err := client.NewClient(collector.config, collector.configFile)
+	if err != nil {
+		log.Errorf("Error creating client: %w", err)
+		ch <- prometheus.NewInvalidMetric(
+			prometheus.NewDesc(
+				"prowlarr_collector_error",
+				"Error Collecting from Prowlarr",
+				nil,
+				prometheus.Labels{"url": collector.config.String("url")}),
+			err)
+		return
+	}
 
 	var enabledIndexers = 0
 

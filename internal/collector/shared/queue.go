@@ -34,7 +34,18 @@ func (collector *queueCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *queueCollector) Collect(ch chan<- prometheus.Metric) {
-	c := client.NewClient(collector.config, collector.configFile)
+	c, err := client.NewClient(collector.config, collector.configFile)
+	if err != nil {
+		log.Errorf("Error creating client: %w", err)
+		ch <- prometheus.NewInvalidMetric(
+			prometheus.NewDesc(
+				fmt.Sprintf("%s_collector_error", collector.config.Command.Name),
+				"Error Collecting metrics",
+				nil,
+				prometheus.Labels{"url": collector.config.String("url")}),
+			err)
+		return
+	}
 
 	unknownItemsQuery := ""
 	if collector.config.Bool("enable-unknown-queue-items") {
