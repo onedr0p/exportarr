@@ -29,6 +29,7 @@ type sonarrCollector struct {
 	episodeDownloadedMetric  *prometheus.Desc // Total number of downloaded episodes
 	episodeMissingMetric     *prometheus.Desc // Total number of missing episodes
 	episodeQualitiesMetric   *prometheus.Desc // Total number of episodes by quality
+	errorMetric              *prometheus.Desc // Error Description for use with InvalidMetric
 }
 
 func NewSonarrCollector(c *cli.Context, cf *model.Config) *sonarrCollector {
@@ -125,6 +126,12 @@ func NewSonarrCollector(c *cli.Context, cf *model.Config) *sonarrCollector {
 			[]string{"quality"},
 			prometheus.Labels{"url": c.String("url")},
 		),
+		errorMetric: prometheus.NewDesc(
+			"sonarr_collector_error",
+			"Error while collecting metrics",
+			nil,
+			prometheus.Labels{"url": c.String("url")},
+		),
 	}
 }
 
@@ -150,14 +157,8 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 	total := time.Now()
 	c, err := client.NewClient(collector.config, collector.configFile)
 	if err != nil {
-		log.Errorf("Error creating client: %w", err)
-		ch <- prometheus.NewInvalidMetric(
-			prometheus.NewDesc(
-				"sonarr_collector_error",
-				"Error Collecting from Lidarr",
-				nil,
-				prometheus.Labels{"url": collector.config.String("url")}),
-			err)
+		log.Errorf("Error creating client: %s", err)
+		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 		return
 	}
 	var seriesFileSize int64
@@ -179,7 +180,9 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 	cseries := []time.Duration{}
 	series := model.Series{}
 	if err := c.DoRequest("series", &series); err != nil {
-		log.Fatal(err)
+		log.Errorf("Error getting series: %s", err)
+		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+		return
 	}
 
 	for _, s := range series {
@@ -217,7 +220,9 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 			episodeFile := model.EpisodeFile{}
 			params := map[string]string{"seriesId": fmt.Sprintf("%d", s.Id)}
 			if err := c.DoRequest("episodefile", &episodeFile, params); err != nil {
-				log.Fatal(err)
+				log.Errorf("Error getting episodefile: %s", err)
+				ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+				return
 			}
 			for _, e := range episodeFile {
 				if e.Quality.Quality.Name != "" {
@@ -227,7 +232,9 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 
 			episode := model.Episode{}
 			if err := c.DoRequest("episode", &episode, params); err != nil {
-				log.Fatal(err)
+				log.Errorf("Error getting episode: %s", err)
+				ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+				return
 			}
 			for _, e := range episode {
 				if !e.Monitored {
@@ -236,17 +243,19 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 					episodesMonitored++
 				}
 			}
-			log.Debug("TIME :: Extra options took %s", time.Since(textra))
+			log.Debugf("TIME :: Extra options took %s", time.Since(textra))
 		}
 		e := time.Since(tseries)
 		cseries = append(cseries, e)
-		log.Debug("TIME :: series %s took %s", s.Id, e)
+		log.Debugf("TIME :: series %d took %s", s.Id, e)
 	}
 
 	episodesMissing := model.Missing{}
 	params := map[string]string{"sortKey": "airDateUtc"}
 	if err := c.DoRequest("wanted/missing", &episodesMissing, params); err != nil {
-		log.Fatal(err)
+		log.Errorf("Error getting missing: %s", err)
+		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+		return
 	}
 
 	ch <- prometheus.MustNewConstMetric(collector.seriesMetric, prometheus.GaugeValue, float64(len(series)))
@@ -274,7 +283,7 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 			}
 		}
 	}
-	log.Debug("TIME :: total took %s with series timings as %s",
+	log.Debugf("TIME :: total took %s with series timings as %s",
 		time.Since(total),
 		cseries,
 	)

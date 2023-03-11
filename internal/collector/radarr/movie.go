@@ -19,6 +19,7 @@ type radarrCollector struct {
 	movieMissingMetric     *prometheus.Desc // Total number of missing movies
 	movieQualitiesMetric   *prometheus.Desc // Total number of movies by quality
 	movieFileSizeMetric    *prometheus.Desc // Total fizesize of all movies in bytes
+	errorMetric            *prometheus.Desc // Error Description for use with InvalidMetric
 }
 
 func NewRadarrCollector(c *cli.Context, cf *model.Config) *radarrCollector {
@@ -73,6 +74,12 @@ func NewRadarrCollector(c *cli.Context, cf *model.Config) *radarrCollector {
 			[]string{"quality"},
 			prometheus.Labels{"url": c.String("url")},
 		),
+		errorMetric: prometheus.NewDesc(
+			"radarr_collector_error",
+			"Error while collecting metrics",
+			nil,
+			prometheus.Labels{"url": c.String("url")},
+		),
 	}
 }
 
@@ -90,14 +97,8 @@ func (collector *radarrCollector) Describe(ch chan<- *prometheus.Desc) {
 func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
 	c, err := client.NewClient(collector.config, collector.configFile)
 	if err != nil {
-		log.Errorf("Error creating client: %w", err)
-		ch <- prometheus.NewInvalidMetric(
-			prometheus.NewDesc(
-				"radarr_collector_error",
-				"Error Collecting from Radarr",
-				nil,
-				prometheus.Labels{"url": collector.config.String("url")}),
-			err)
+		log.Errorf("Error creating client: %s", err)
+		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 		return
 	}
 	var fileSize int64
@@ -112,7 +113,9 @@ func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
 	movies := model.Movie{}
 	// https://radarr.video/docs/api/#/Movie/get_api_v3_movie
 	if err := c.DoRequest("movie", &movies); err != nil {
-		log.Fatal(err)
+		log.Errorf("Error getting movies: %s", err)
+		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+		return
 	}
 	for _, s := range movies {
 		if s.HasFile {

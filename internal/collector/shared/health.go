@@ -14,6 +14,7 @@ type systemHealthCollector struct {
 	config             *cli.Context     // App configuration
 	configFile         *model.Config    // *arr configuration from config.xml
 	systemHealthMetric *prometheus.Desc // Total number of health issues
+	errorMetric        *prometheus.Desc // Error Description for use with InvalidMetric
 }
 
 func NewSystemHealthCollector(c *cli.Context, cf *model.Config) *systemHealthCollector {
@@ -26,6 +27,12 @@ func NewSystemHealthCollector(c *cli.Context, cf *model.Config) *systemHealthCol
 			[]string{"source", "type", "message", "wikiurl"},
 			prometheus.Labels{"url": c.String("url")},
 		),
+		errorMetric: prometheus.NewDesc(
+			fmt.Sprintf("%s_health_collector_error", c.Command.Name),
+			"Error while collecting metrics",
+			nil,
+			prometheus.Labels{"url": c.String("url")},
+		),
 	}
 }
 
@@ -36,19 +43,15 @@ func (collector *systemHealthCollector) Describe(ch chan<- *prometheus.Desc) {
 func (collector *systemHealthCollector) Collect(ch chan<- prometheus.Metric) {
 	c, err := client.NewClient(collector.config, collector.configFile)
 	if err != nil {
-		log.Errorf("Error creating client: %w", err)
-		ch <- prometheus.NewInvalidMetric(
-			prometheus.NewDesc(
-				fmt.Sprintf("%s_collector_error", collector.config.Command.Name),
-				"Error Collecting metrics",
-				nil,
-				prometheus.Labels{"url": collector.config.String("url")}),
-			err)
+		log.Errorf("Error creating client: %s", err)
+		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 		return
 	}
 	systemHealth := model.SystemHealth{}
 	if err := c.DoRequest("health", &systemHealth); err != nil {
-		log.Fatal(err)
+		log.Errorf("Error getting health: %s", err)
+		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+		return
 	}
 	// Group metrics by source, type, message and wikiurl
 	if len(systemHealth) > 0 {

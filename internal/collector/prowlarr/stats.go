@@ -112,6 +112,8 @@ type prowlarrCollector struct {
 	userAgentMetric                  *prometheus.Desc   // Total number of active user agents
 	userAgentQueriesMetric           *prometheus.Desc   // Total number of queries
 	userAgentGrabsMetric             *prometheus.Desc   // Total number of grabs
+	errorMetric                      *prometheus.Desc   // Error Description for use with InvalidMetric
+
 }
 
 func NewProwlarrCollector(c *cli.Context, cf *model.Config) *prowlarrCollector {
@@ -218,6 +220,12 @@ func NewProwlarrCollector(c *cli.Context, cf *model.Config) *prowlarrCollector {
 			[]string{"user_agent"},
 			prometheus.Labels{"url": c.String("url")},
 		),
+		errorMetric: prometheus.NewDesc(
+			"prowlarr_collector_error",
+			"Error while collecting metrics",
+			nil,
+			prometheus.Labels{"url": c.String("url")},
+		),
 	}
 }
 
@@ -241,14 +249,8 @@ func (collector *prowlarrCollector) Collect(ch chan<- prometheus.Metric) {
 	total := time.Now()
 	c, err := client.NewClient(collector.config, collector.configFile)
 	if err != nil {
-		log.Errorf("Error creating client: %w", err)
-		ch <- prometheus.NewInvalidMetric(
-			prometheus.NewDesc(
-				"prowlarr_collector_error",
-				"Error Collecting from Prowlarr",
-				nil,
-				prometheus.Labels{"url": collector.config.String("url")}),
-			err)
+		log.Errorf("Error creating client: %s", err)
+		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 		return
 	}
 
@@ -256,7 +258,9 @@ func (collector *prowlarrCollector) Collect(ch chan<- prometheus.Metric) {
 
 	indexers := model.Indexer{}
 	if err := c.DoRequest("indexer", &indexers); err != nil {
-		log.Fatal(err)
+		log.Errorf("Error getting indexers: %s", err)
+		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+		return
 	}
 	for _, indexer := range indexers {
 		if indexer.Enabled {
@@ -267,7 +271,9 @@ func (collector *prowlarrCollector) Collect(ch chan<- prometheus.Metric) {
 			if field.Name == "vipExpiration" && field.Value != "" {
 				t, err := time.Parse("2006-01-02", field.Value.(string))
 				if err != nil {
-					log.Fatal(err)
+					log.Errorf("Couldn't parse VIP Expiration: %s", err)
+					ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+					return
 				}
 				expirationSeconds := t.Unix() - time.Now().Unix()
 				ch <- prometheus.MustNewConstMetric(collector.indexerVipExpirationMetric, prometheus.GaugeValue, float64(expirationSeconds), indexer.Name)
@@ -283,7 +289,9 @@ func (collector *prowlarrCollector) Collect(ch chan<- prometheus.Metric) {
 		"endDate":   endDate.Format(time.RFC3339),
 	}
 	if err := c.DoRequest("indexerstats", &stats, params); err != nil {
-		log.Fatal(err)
+		log.Errorf("Error getting indexer stats: %s", err)
+		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+		return
 	}
 	collector.lastStatUpdate = endDate
 
@@ -316,7 +324,7 @@ func (collector *prowlarrCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(collector.userAgentMetric, prometheus.GaugeValue, float64(len(stats.UserAgents)))
 	ch <- prometheus.MustNewConstMetric(collector.indexerEnabledMetric, prometheus.GaugeValue, float64(enabledIndexers))
 
-	log.Debug("TIME :: total took %s ",
-		time.Since(total),
+	log.Debugf("TIME :: total took %s ",
+		time.Since(total).String(),
 	)
 }
