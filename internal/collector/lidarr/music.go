@@ -166,7 +166,8 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 
 		if collector.config.Bool("enable-additional-metrics") {
 			songFile := model.SongFile{}
-			if err := c.DoRequest(fmt.Sprintf("%s?artistid=%d", "trackfile", s.Id), &songFile); err != nil {
+			params := map[string]string{"artistid": fmt.Sprintf("%d", s.Id)}
+			if err := c.DoRequest("trackfile", &songFile, params); err != nil {
 				log.Fatal(err)
 			}
 			for _, e := range songFile {

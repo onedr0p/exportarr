@@ -30,13 +30,21 @@ func NewClient(c *cli.Context, cf *model.Config) (*Client, error) {
 	apiVersion := cf.ApiVersion
 
 	if c.String("config") != "" {
-		baseURL.Parse(c.String("url") + ":" + cf.Port)
+		var err error
+		baseURL, err = baseURL.Parse(c.String("url") + ":" + cf.Port)
+		if err != nil {
+			return nil, fmt.Errorf("Couldn't parse URL: %w", err)
+		}
 		baseURL = baseURL.JoinPath(cf.UrlBase, "api", apiVersion)
 		auth.ApiKey = cf.ApiKey
 
 	} else {
 		// Otherwise use the value provided in the api-key flag
-		baseURL.Parse(c.String("url"))
+		var err error
+		baseURL, err = baseURL.Parse(c.String("url"))
+		if err != nil {
+			return nil, fmt.Errorf("Couldn't parse URL: %w", err)
+		}
 		baseURL = baseURL.JoinPath("api", apiVersion)
 
 		if c.String("api-key") != "" {
@@ -60,25 +68,27 @@ func NewClient(c *cli.Context, cf *model.Config) (*Client, error) {
 			},
 			Transport: NewArrTransport(auth, baseTransport),
 		},
+		URL: *baseURL,
 	}, nil
 }
 
 // DoRequest - Take a HTTP Request and return Unmarshaled data
-func (c *Client) DoRequest(endpoint string, target interface{}) error {
+func (c *Client) DoRequest(endpoint string, target interface{}, queryParams ...map[string]string) error {
+	for _, m := range queryParams {
+		for k, v := range m {
+			c.URL.Query().Add(k, v)
+		}
+	}
 	url := c.URL.JoinPath(endpoint).String()
 	log.Infof("Sending HTTP request to %s", url)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return fmt.Errorf("Failed to create HTTP Request: %w", err)
+		return fmt.Errorf("Failed to create HTTP Request(%s): %w", url, err)
 	}
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		if location := resp.Header.Get("Location"); location != "" {
-			return fmt.Errorf("Failed to execute HTTP Request(%s - %s): %w", url, location, err)
-		} else {
-			return fmt.Errorf("Failed to execute HTTP Request(%s): %w", url, err)
-		}
+		return fmt.Errorf("Failed to execute HTTP Request(%s): %w", url, err)
 	}
 	defer resp.Body.Close()
 	return json.NewDecoder(resp.Body).Decode(target)

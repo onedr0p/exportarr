@@ -215,7 +215,8 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 		if collector.config.Bool("enable-additional-metrics") {
 			textra := time.Now()
 			episodeFile := model.EpisodeFile{}
-			if err := c.DoRequest(fmt.Sprintf("%s?seriesId=%d", "episodefile", s.Id), &episodeFile); err != nil {
+			params := map[string]string{"seriesId": fmt.Sprintf("%d", s.Id)}
+			if err := c.DoRequest("episodefile", &episodeFile, params); err != nil {
 				log.Fatal(err)
 			}
 			for _, e := range episodeFile {
@@ -225,7 +226,7 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 			}
 
 			episode := model.Episode{}
-			if err := c.DoRequest(fmt.Sprintf("%s?seriesId=%d", "episode", s.Id), &episode); err != nil {
+			if err := c.DoRequest("episode", &episode, params); err != nil {
 				log.Fatal(err)
 			}
 			for _, e := range episode {
@@ -243,7 +244,8 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	episodesMissing := model.Missing{}
-	if err := c.DoRequest("wanted/missing?sortKey=airDateUtc", &episodesMissing); err != nil {
+	params := map[string]string{"sortKey": "airDateUtc"}
+	if err := c.DoRequest("wanted/missing", &episodesMissing, params); err != nil {
 		log.Fatal(err)
 	}
 
