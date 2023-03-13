@@ -1,7 +1,6 @@
 package collector
 
 import (
-	"fmt"
 	"sync"
 	"time"
 
@@ -240,7 +239,18 @@ func (collector *prowlarrCollector) Describe(ch chan<- *prometheus.Desc) {
 
 func (collector *prowlarrCollector) Collect(ch chan<- prometheus.Metric) {
 	total := time.Now()
-	c := client.NewClient(collector.config, collector.configFile)
+	c, err := client.NewClient(collector.config, collector.configFile)
+	if err != nil {
+		log.Errorf("Error creating client: %w", err)
+		ch <- prometheus.NewInvalidMetric(
+			prometheus.NewDesc(
+				"prowlarr_collector_error",
+				"Error Collecting from Prowlarr",
+				nil,
+				prometheus.Labels{"url": collector.config.String("url")}),
+			err)
+		return
+	}
 
 	var enabledIndexers = 0
 
@@ -268,8 +278,11 @@ func (collector *prowlarrCollector) Collect(ch chan<- prometheus.Metric) {
 	stats := model.IndexerStatResponse{}
 	startDate := collector.lastStatUpdate.In(time.UTC)
 	endDate := time.Now().In(time.UTC)
-	req := fmt.Sprintf("indexerstats?startDate=%s&endDate=%s", startDate.Format(time.RFC3339), endDate.Format(time.RFC3339))
-	if err := c.DoRequest(req, &stats); err != nil {
+	params := map[string]string{
+		"startDate": startDate.Format(time.RFC3339),
+		"endDate":   endDate.Format(time.RFC3339),
+	}
+	if err := c.DoRequest("indexerstats", &stats, params); err != nil {
 		log.Fatal(err)
 	}
 	collector.lastStatUpdate = endDate

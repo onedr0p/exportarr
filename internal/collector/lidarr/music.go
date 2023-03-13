@@ -122,8 +122,18 @@ func (collector *lidarrCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
-	c := client.NewClient(collector.config, collector.configFile)
-
+	c, err := client.NewClient(collector.config, collector.configFile)
+	if err != nil {
+		log.Errorf("Error creating client: %w", err)
+		ch <- prometheus.NewInvalidMetric(
+			prometheus.NewDesc(
+				"lidarr_collector_error",
+				"Error Collecting from Lidarr",
+				nil,
+				prometheus.Labels{"url": collector.config.String("url")}),
+			err)
+		return
+	}
 	var artistsFileSize int64
 	var (
 		artistsMonitored = 0
@@ -156,7 +166,8 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 
 		if collector.config.Bool("enable-additional-metrics") {
 			songFile := model.SongFile{}
-			if err := c.DoRequest(fmt.Sprintf("%s?artistid=%d", "trackfile", s.Id), &songFile); err != nil {
+			params := map[string]string{"artistid": fmt.Sprintf("%d", s.Id)}
+			if err := c.DoRequest("trackfile", &songFile, params); err != nil {
 				log.Fatal(err)
 			}
 			for _, e := range songFile {
@@ -166,7 +177,8 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 			}
 
 			album := model.Album{}
-			if err := c.DoRequest(fmt.Sprintf("%s?artistid=%d", "album", s.Id), &album); err != nil {
+			params = map[string]string{"artistid": fmt.Sprintf("%d", s.Id)}
+			if err := c.DoRequest("album", &album, params); err != nil {
 				log.Fatal(err)
 			}
 			for _, a := range album {

@@ -114,7 +114,18 @@ func (c *readarrCollector) Describe(ch chan<- *prometheus.Desc) {
 
 func (collector *readarrCollector) Collect(ch chan<- prometheus.Metric) {
 	total := time.Now()
-	c := client.NewClient(collector.config, collector.configFile)
+	c, err := client.NewClient(collector.config, collector.configFile)
+	if err != nil {
+		log.Errorf("Error creating client: %w", err)
+		ch <- prometheus.NewInvalidMetric(
+			prometheus.NewDesc(
+				"readarr_collector_error",
+				"Error Collecting from Readarr",
+				nil,
+				prometheus.Labels{"url": collector.config.String("url")}),
+			err)
+		return
+	}
 	tauthors := []time.Duration{}
 	var authorsFileSize int64
 	var (
