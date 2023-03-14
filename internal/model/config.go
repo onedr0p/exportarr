@@ -9,7 +9,7 @@ type Config struct {
 	ApiKey     string   `xml:"ApiKey"`
 	Port       string   `xml:"Port"`
 	UrlBase    string   `xml:"UrlBase"`
-	ApiVersion string   `ml:"ApiVersion"`
+	ApiVersion string   `xml:"ApiVersion"`
 }
 
 func NewConfig() *Config {
