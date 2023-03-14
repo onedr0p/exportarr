@@ -14,6 +14,7 @@ type rootFolderCollector struct {
 	config           *cli.Context     // App configuration
 	configFile       *model.Config    // *arr configuration from config.xml
 	rootFolderMetric *prometheus.Desc // Total number of root folders
+	errorMetric      *prometheus.Desc // Error Description for use with InvalidMetric
 }
 
 func NewRootFolderCollector(c *cli.Context, cf *model.Config) *rootFolderCollector {
@@ -26,6 +27,12 @@ func NewRootFolderCollector(c *cli.Context, cf *model.Config) *rootFolderCollect
 			[]string{"path"},
 			prometheus.Labels{"url": c.String("url")},
 		),
+		errorMetric: prometheus.NewDesc(
+			fmt.Sprintf("%s_rootfolder_collector_error", c.Command.Name),
+			"Error while collecting metrics",
+			nil,
+			prometheus.Labels{"url": c.String("url")},
+		),
 	}
 }
 
@@ -36,19 +43,15 @@ func (collector *rootFolderCollector) Describe(ch chan<- *prometheus.Desc) {
 func (collector *rootFolderCollector) Collect(ch chan<- prometheus.Metric) {
 	c, err := client.NewClient(collector.config, collector.configFile)
 	if err != nil {
-		log.Errorf("Error creating client: %w", err)
-		ch <- prometheus.NewInvalidMetric(
-			prometheus.NewDesc(
-				fmt.Sprintf("%s_collector_error", collector.config.Command.Name),
-				"Error Collecting metrics",
-				nil,
-				prometheus.Labels{"url": collector.config.String("url")}),
-			err)
+		log.Errorf("Error creating client: %s", err)
+		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 		return
 	}
 	rootFolders := model.RootFolder{}
 	if err := c.DoRequest("rootfolder", &rootFolders); err != nil {
-		log.Fatal(err)
+		log.Errorf("Error getting rootfolder: %s", err)
+		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+		return
 	}
 	// Group metrics by path
 	if len(rootFolders) > 0 {

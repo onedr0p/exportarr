@@ -24,6 +24,7 @@ type readarrCollector struct {
 	bookMonitoredMetric     *prometheus.Desc // Total number of monitored books
 	bookUnmonitoredMetric   *prometheus.Desc // Total number of unmonitored books
 	bookMissingMetric       *prometheus.Desc // Total number of missing books
+	errorMetric             *prometheus.Desc // Error Description for use with InvalidMetric
 }
 
 func NewReadarrCollector(c *cli.Context, cf *model.Config) *readarrCollector {
@@ -96,6 +97,12 @@ func NewReadarrCollector(c *cli.Context, cf *model.Config) *readarrCollector {
 			nil,
 			prometheus.Labels{"url": c.String("url")},
 		),
+		errorMetric: prometheus.NewDesc(
+			"readarr_collector_error",
+			"Error while collecting metrics",
+			nil,
+			prometheus.Labels{"url": c.String("url")},
+		),
 	}
 }
 
@@ -116,14 +123,8 @@ func (collector *readarrCollector) Collect(ch chan<- prometheus.Metric) {
 	total := time.Now()
 	c, err := client.NewClient(collector.config, collector.configFile)
 	if err != nil {
-		log.Errorf("Error creating client: %w", err)
-		ch <- prometheus.NewInvalidMetric(
-			prometheus.NewDesc(
-				"readarr_collector_error",
-				"Error Collecting from Readarr",
-				nil,
-				prometheus.Labels{"url": collector.config.String("url")}),
-			err)
+		log.Errorf("Error creating client: %s", err)
+		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 		return
 	}
 	tauthors := []time.Duration{}
@@ -142,7 +143,9 @@ func (collector *readarrCollector) Collect(ch chan<- prometheus.Metric) {
 
 	authors := model.Author{}
 	if err := c.DoRequest("author", &authors); err != nil {
-		log.Fatal(err)
+		log.Errorf("Error getting authors: %s", err)
+		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+		return
 	}
 
 	for _, a := range authors {
@@ -163,12 +166,14 @@ func (collector *readarrCollector) Collect(ch chan<- prometheus.Metric) {
 		}
 		b := time.Since(tauthor)
 		tauthors = append(tauthors, b)
-		log.Debug("TIME :: author %s took %s", a.AuthorName, b)
+		log.Debugf("TIME :: author %s took %s", a.AuthorName, b)
 	}
 
 	books := model.Book{}
 	if err := c.DoRequest("book", &books); err != nil {
-		log.Fatal(err)
+		log.Errorf("Error getting books: %s", err)
+		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+		return
 	}
 	for _, b := range books {
 		if !b.Monitored {
@@ -196,7 +201,7 @@ func (collector *readarrCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(collector.bookUnmonitoredMetric, prometheus.GaugeValue, float64(booksUnmonitored))
 	ch <- prometheus.MustNewConstMetric(collector.bookMissingMetric, prometheus.GaugeValue, float64(booksMissing))
 
-	log.Debug("TIME :: total took %s with author timings as %s",
+	log.Debugf("TIME :: total took %s with author timings as %s",
 		time.Since(total),
 		tauthors,
 	)
