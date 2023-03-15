@@ -3,7 +3,7 @@ name: ci
 
 on:
   push:
-    branches: 
+    branches:
       - master
   pull_request:
     types:
@@ -11,8 +11,29 @@ on:
       - reopened
 
 jobs:
+  go-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ">=1.19"
+
+      - name: Tidy
+        run: |
+          go version
+          go mod tidy
+
+      - name: Run Unit tests
+        run: |
+          go version
+          go test -v -race -covermode atomic -coverprofile=covprofile ./...
+
   build:
     runs-on: ubuntu-latest
+    needs: go-tests
     if: "!contains(github.event.head_commit.message, '[ci-skip]')"
     steps:
       - name: Checkout
