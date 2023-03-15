@@ -93,8 +93,6 @@ func TestRoundTrip_FormAuth(t *testing.T) {
 		require.NotNil(r, "Request should not be nil")
 		require.NotNil(r.Header, "Request header should not be nil")
 		require.Empty(r.Header.Get("Authorization"), "Authorization header should be empty")
-		require.NotEmpty(r.Header.Get("X-Api-Key"), "X-Api-Key header should be set")
-		require.Equal(TEST_KEY, r.Header.Get("X-Api-Key"), "X-Api-Key Header set to wrong value")
 		require.Equal("POST", r.Method, "Request method should be POST")
 		require.Equal("/login", r.URL.Path, "Request URL should be /login")
 		require.Equal("application/x-www-form-urlencoded", r.Header.Get("Content-Type"), "Content-Type should be application/x-www-form-urlencoded")
@@ -105,7 +103,7 @@ func TestRoundTrip_FormAuth(t *testing.T) {
 			Value:   "abcdef1234567890abcdef1234567890",
 			Expires: time.Now().Add(24 * time.Hour),
 		})
-		w.WriteHeader(http.StatusOK)
+		w.WriteHeader(http.StatusFound)
 		w.Write([]byte("OK"))
 	}))
 	defer ts.Close()
@@ -124,7 +122,7 @@ func TestRoundTrip_FormAuth(t *testing.T) {
 		require.NoError(err, "Cookie should be set")
 		require.Equal(cookie.Value, "abcdef1234567890abcdef1234567890", "Cookie should be set")
 		return &http.Response{
-			StatusCode: 200,
+			StatusCode: http.StatusOK,
 			Body:       nil,
 			Header:     make(http.Header),
 		}, nil
@@ -134,6 +132,35 @@ func TestRoundTrip_FormAuth(t *testing.T) {
 	require.NoError(err, "Error creating request: %s", err)
 	_, err = client.Do(req)
 	require.NoError(err, "Error sending request: %s", err)
+}
+
+func TestRoundTrip_FormAuthFailure(t *testing.T) {
+	require := require.New(t)
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/?loginFailed=true", http.StatusFound)
+	}))
+	u, _ := url.Parse(ts.URL)
+	auth := &FormAuth{
+		Username:    TEST_USER,
+		Password:    TEST_PASS,
+		ApiKey:      TEST_KEY,
+		AuthBaseURL: u,
+		Transport:   http.DefaultTransport,
+	}
+	transport := NewArrTransport(auth, testRoundTripFunc(func(req *http.Request) (*http.Response, error) {
+		return &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       nil,
+			Header:     make(http.Header),
+		}, nil
+	}))
+	client := &http.Client{Transport: transport}
+	req, err := http.NewRequest("GET", "http://example.com", nil)
+	require.NoError(err, "Error creating request: %s", err)
+	require.NotPanics(func() {
+		_, err = client.Do(req)
+	}, "Form Auth should not panic on auth failure")
+	require.Error(err, "Form Auth Transport should throw an error when auth fails")
 }
 
 func TestRoundTrip_Retries(t *testing.T) {
