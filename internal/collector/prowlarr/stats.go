@@ -116,12 +116,9 @@ type prowlarrCollector struct {
 }
 
 func NewProwlarrCollector(c *config.Config) *prowlarrCollector {
-	var lastStatUpdate time.Time
-	if c.EnableAdditionalMetrics {
-		// If additional metrics are enabled, backfill the cache.
-		lastStatUpdate = time.Time{}
-	} else {
-		lastStatUpdate = time.Now()
+	lastStatUpdate := time.Now()
+	if c.Prowlarr.Backfill || !c.Prowlarr.BackfillSinceTime.IsZero() {
+		lastStatUpdate = c.Prowlarr.BackfillSinceTime
 	}
 	return &prowlarrCollector{
 		config:             c,
