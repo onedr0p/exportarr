@@ -6,8 +6,6 @@ import (
 	"net/url"
 	"strings"
 	"time"
-
-	log "github.com/sirupsen/logrus"
 )
 
 type Authenticator interface {
@@ -111,10 +109,6 @@ func (a *FormAuth) Auth(req *http.Request) error {
 		authReq.Header.Add("Content-Length", fmt.Sprintf("%d", len(form.Encode())))
 
 		client := &http.Client{Transport: a.Transport, CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			log.Infof("Redirect: %s", req.URL.String())
-			log.Infof("URL: %+v", req.URL)
-			log.Infof("Query: %s", req.URL.Query())
-
 			if req.URL.Query().Get("loginFailed") == "true" {
 				return fmt.Errorf("Failed to renew FormAuth Cookie: Login Failed")
 			}
