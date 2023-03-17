@@ -4,11 +4,9 @@ import (
 	"fmt"
 	"net/url"
 	"os"
-	"regexp"
 	"strings"
 
-	"github.com/go-ozzo/ozzo-validation/is"
-	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/gookit/validate"
 	"github.com/knadh/koanf/providers/confmap"
 	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/providers/file"
@@ -20,13 +18,13 @@ import (
 type Config struct {
 	Arr                     string `koanf:"arr"`
 	LogLevel                string `koanf:"log-level"`
-	URL                     string `koanf:"url"`
-	ApiKey                  string `koanf:"api-key"`
+	URL                     string `koanf:"url" validate:"required|url"`
+	ApiKey                  string `koanf:"api-key" validate:"required|regex:([a-z0-9]{32})"`
 	ApiKeyFile              string `koanf:"api-key-file"`
-	ApiVersion              string `koanf:"api-version"`
+	ApiVersion              string `koanf:"api-version" validate:"required|in:v3,v4"`
 	XMLConfig               string `koanf:"config"`
-	Port                    int    `koanf:"port"`
-	Interface               string `koanf:"interface"`
+	Port                    int    `koanf:"port" validate:"required"`
+	Interface               string `koanf:"interface" validate:"required|ip"`
 	DisableSSLVerify        bool   `koanf:"disable-ssl-verify"`
 	AuthUsername            string `koanf:"auth-username"`
 	AuthPassword            string `koanf:"auth-password"`
@@ -112,20 +110,18 @@ func LoadConfig(flags *flag.FlagSet) (*Config, error) {
 }
 
 func (c *Config) Validate() error {
-	return validation.ValidateStruct(c,
-		validation.Field(&c.URL, validation.Required, is.URL),
-		validation.Field(&c.ApiKey,
-			validation.Required,
-			validation.Match(regexp.MustCompile(`([a-z0-9]{32})`)).
-				Error("Invalid API Key, must be 32 characters long and only contain lowercase letters and numbers")),
-		validation.Field(&c.Port, validation.Required),
-		validation.Field(&c.Interface, validation.Required, is.IP),
-		validation.Field(&c.AuthUsername,
-			validation.When(c.AuthPassword != "", validation.Required.Error("auth-username is required when auth-password is set")),
-			validation.When(c.FormAuth, validation.Required.Error("auth-username is required when form-auth is set"))),
-		validation.Field(&c.AuthPassword,
-			validation.When(c.AuthUsername != "", validation.Required.Error("auth-password is required when auth-username is set")),
-			validation.When(c.FormAuth, validation.Required.Error("auth-password is required when form-auth is set"))),
-		validation.Field(&c.ApiVersion, validation.Required, validation.In("v1", "v3")),
-	)
+	v := validate.Struct(c)
+	if !v.Validate() {
+		return v.Errors
+	}
+	if c.AuthPassword != "" && c.AuthUsername == "" {
+		return fmt.Errorf("auth-username is required when auth-password is set")
+	}
+	if c.AuthUsername != "" && c.AuthPassword == "" {
+		return fmt.Errorf("auth-password is required when auth-username is set")
+	}
+	if c.FormAuth && (c.AuthUsername == "" || c.AuthPassword == "") {
+		return fmt.Errorf("auth-username and auth-password are required when form-auth is set")
+	}
+	return nil
 }

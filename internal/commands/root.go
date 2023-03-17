@@ -9,7 +9,6 @@ import (
 	"syscall"
 	"time"
 
-	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
@@ -38,7 +37,7 @@ func Execute() error {
 }
 
 func init() {
-	cobra.OnInitialize(validateFlags, initConfig)
+	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringP("log-level", "l", "info", "Log level (debug, info, warn, error, fatal, panic)")
 	rootCmd.PersistentFlags().StringP("config", "c", "", "*arr config.xml file for parsing authentication information")
@@ -53,35 +52,6 @@ func init() {
 	rootCmd.PersistentFlags().Bool("form-auth", false, "Use form based authentication")
 	rootCmd.PersistentFlags().Bool("enable-unknown-queue-items", false, "Enable unknown queue items")
 	rootCmd.PersistentFlags().Bool("enable-additional-metric", false, "Enable additional metric")
-}
-
-// validateFlags performs logical validation of flags, content is validated in the config package
-func validateFlags() {
-	flags := rootCmd.PersistentFlags()
-	apiKey, _ := flags.GetString("api-key")
-	apiKeyFile, _ := flags.GetString("api-key-file")
-	apiKeySet := apiKey != "" || apiKeyFile != ""
-	url, _ := flags.GetString("url")
-	xmlConfig, _ := flags.GetString("config")
-
-	err := validation.Errors{
-		"api-key": validation.Validate(apiKey,
-			validation.When(apiKeyFile != "", validation.Empty.Error("api-key and api-key-file are mutually exclusive")),
-		),
-		"api-key-file": validation.Validate(apiKeyFile,
-			validation.When(apiKey != "", validation.Empty.Error("api-key and api-key-file are mutually exclusive")),
-		),
-		"config": validation.Validate(xmlConfig,
-			validation.When(url == "" || !apiKeySet, validation.Required.Error("url & api-key must be set, or config must be set")),
-			validation.When(url != "" && apiKeySet, validation.Empty.Error("only two of url, api-key/api-key-file. and config can be set")),
-			validation.When(apiKey == "" && apiKeyFile == "", validation.Required.Error("one of api-key, api-key-file, or config is required")),
-		),
-	}
-	if err.Filter() != nil {
-		for _, e := range err {
-			log.Fatal(e)
-		}
-	}
 }
 
 func initConfig() {
