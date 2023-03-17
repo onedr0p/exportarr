@@ -286,6 +286,9 @@ func validation(config *cli.Context) error {
 	if config.String("url") == "" && !apiKeyIsSet && config.String("config") == "" {
 		return cli.Exit("url and api-key or config must be set, not none of them", 1)
 	}
+	if config.Bool("form-auth") && (config.String("auth-username") == "" || config.String("auth-password") == "") {
+		return cli.Exit("username and password must be set if form-auth is set", 1)
+	}
 	return nil
 }
 
@@ -343,16 +346,25 @@ func flags(arr string) []cli.Flag {
 			EnvVars:  []string{"DISABLE_SSL_VERIFY"},
 		},
 		&cli.StringFlag{
-			Name:     "basic-auth-username",
-			Usage:    "Provide the username for basic auth",
+			Name:     "auth-username",
+			Aliases:  []string{"basic-auth-username"},
+			Usage:    "Provide the username for basic or form auth",
 			Required: false,
-			EnvVars:  []string{"BASIC_AUTH_USERNAME"},
+			EnvVars:  []string{"AUTH_USERNAME", "BASIC_AUTH_USERNAME"},
 		},
 		&cli.StringFlag{
-			Name:     "basic-auth-password",
-			Usage:    "Provide the password for basic auth",
+			Name:     "auth-password",
+			Aliases:  []string{"basic-auth-password"},
+			Usage:    "Provide the password for basic or form auth",
 			Required: false,
-			EnvVars:  []string{"BASIC_AUTH_PASSWORD"},
+			EnvVars:  []string{"AUTH_PASSWORD", "BASIC_AUTH_PASSWORD"},
+		},
+		&cli.BoolFlag{
+			Name:     "form-auth",
+			Usage:    "Use form authentication rather than basic auth",
+			Value:    false,
+			Required: false,
+			EnvVars:  []string{"FORM_AUTH"},
 		},
 		&cli.BoolFlag{
 			Name:     "enable-unknown-queue-items",

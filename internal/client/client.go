@@ -21,11 +21,8 @@ type Client struct {
 
 // NewClient method initializes a new Radarr client.
 func NewClient(c *cli.Context, cf *model.Config) (*Client, error) {
+	var apiKey string
 	var baseURL *url.URL
-	auth := AuthConfig{
-		Username: c.String("basic-auth-username"),
-		Password: c.String("basic-auth-password"),
-	}
 
 	apiVersion := cf.ApiVersion
 
@@ -35,8 +32,8 @@ func NewClient(c *cli.Context, cf *model.Config) (*Client, error) {
 		if err != nil {
 			return nil, fmt.Errorf("Couldn't parse URL: %w", err)
 		}
-		baseURL = baseURL.JoinPath(cf.UrlBase, "api", apiVersion)
-		auth.ApiKey = cf.ApiKey
+		baseURL = baseURL.JoinPath(cf.UrlBase)
+		apiKey = cf.ApiKey
 
 	} else {
 		// Otherwise use the value provided in the api-key flag
@@ -45,22 +42,45 @@ func NewClient(c *cli.Context, cf *model.Config) (*Client, error) {
 		if err != nil {
 			return nil, fmt.Errorf("Couldn't parse URL: %w", err)
 		}
-		baseURL = baseURL.JoinPath("api", apiVersion)
 
 		if c.String("api-key") != "" {
-			auth.ApiKey = c.String("api-key")
+			apiKey = c.String("api-key")
 		} else if c.String("api-key-file") != "" {
 			data, err := os.ReadFile(c.String("api-key-file"))
 			if err != nil {
 				return nil, fmt.Errorf("Couldn't Read API Key file %w", err)
 			}
-			auth.ApiKey = string(data)
+
+			apiKey = string(data)
 		}
 	}
+
 	baseTransport := http.DefaultTransport
 	if c.Bool("disable-ssl-verify") {
 		baseTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	}
+
+	var auth Authenticator
+	if c.Bool("form-auth") {
+		auth = &FormAuth{
+			Username:    c.String("auth-username"),
+			Password:    c.String("auth-password"),
+			ApiKey:      apiKey,
+			AuthBaseURL: baseURL,
+			Transport:   baseTransport,
+		}
+	} else if c.String("username") != "" && c.String("password") != "" {
+		auth = &BasicAuth{
+			Username: c.String("auth-username"),
+			Password: c.String("auth-password"),
+			ApiKey:   apiKey,
+		}
+	} else {
+		auth = &ApiKeyAuth{
+			ApiKey: apiKey,
+		}
+	}
+
 	return &Client{
 		httpClient: http.Client{
 			CheckRedirect: func(req *http.Request, via []*http.Request) error {
@@ -68,7 +88,7 @@ func NewClient(c *cli.Context, cf *model.Config) (*Client, error) {
 			},
 			Transport: NewArrTransport(auth, baseTransport),
 		},
-		URL: *baseURL,
+		URL: *baseURL.JoinPath("api", apiVersion),
 	}, nil
 }
 
