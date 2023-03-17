@@ -5,10 +5,10 @@ import (
 	"time"
 
 	"github.com/onedr0p/exportarr/internal/client"
+	"github.com/onedr0p/exportarr/internal/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
 )
 
 type indexerStatCache struct {
@@ -92,8 +92,7 @@ func (u *userAgentStatCache) UpdateKey(key string, value model.UserAgentStats) m
 }
 
 type prowlarrCollector struct {
-	config                           *cli.Context       // App configuration
-	configFile                       *model.Config      // *arr configuration from config.xml
+	config                           *config.Config     // App configuration
 	indexerStatCache                 indexerStatCache   // Cache of indexer stats
 	userAgentStatCache               userAgentStatCache // Cache of user agent stats
 	lastStatUpdate                   time.Time          // Last time stat caches were updated
@@ -116,9 +115,9 @@ type prowlarrCollector struct {
 
 }
 
-func NewProwlarrCollector(c *cli.Context, cf *model.Config) *prowlarrCollector {
+func NewProwlarrCollector(c *config.Config) *prowlarrCollector {
 	var lastStatUpdate time.Time
-	if c.Bool("enable-additional-metrics") {
+	if c.EnableAdditionalMetrics {
 		// If additional metrics are enabled, backfill the cache.
 		lastStatUpdate = time.Time{}
 	} else {
@@ -126,7 +125,6 @@ func NewProwlarrCollector(c *cli.Context, cf *model.Config) *prowlarrCollector {
 	}
 	return &prowlarrCollector{
 		config:             c,
-		configFile:         cf,
 		indexerStatCache:   NewIndexerStatCache(),
 		userAgentStatCache: NewUserAgentCache(),
 		lastStatUpdate:     lastStatUpdate,
@@ -134,97 +132,97 @@ func NewProwlarrCollector(c *cli.Context, cf *model.Config) *prowlarrCollector {
 			"prowlarr_indexer_total",
 			"Total number of configured indexers",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		indexerEnabledMetric: prometheus.NewDesc(
 			"prowlarr_indexer_enabled_total",
 			"Total number of enabled indexers",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		indexerAverageResponseTimeMetric: prometheus.NewDesc(
 			"prowlarr_indexer_average_response_time_ms",
 			"Average response time of indexers in ms",
 			[]string{"indexer"},
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		indexerQueriesMetric: prometheus.NewDesc(
 			"prowlarr_indexer_queries_total",
 			"Total number of queries",
 			[]string{"indexer"},
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		indexerGrabsMetric: prometheus.NewDesc(
 			"prowlarr_indexer_grabs_total",
 			"Total number of grabs",
 			[]string{"indexer"},
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		indexerRssQueriesMetric: prometheus.NewDesc(
 			"prowlarr_indexer_rss_queries_total",
 			"Total number of rss queries",
 			[]string{"indexer"},
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		indexerAuthQueriesMetric: prometheus.NewDesc(
 			"prowlarr_indexer_auth_queries_total",
 			"Total number of auth queries",
 			[]string{"indexer"},
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		indexerFailedQueriesMetric: prometheus.NewDesc(
 			"prowlarr_indexer_failed_queries_total",
 			"Total number of failed queries",
 			[]string{"indexer"},
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		indexerFailedGrabsMetric: prometheus.NewDesc(
 			"prowlarr_indexer_failed_grabs_total",
 			"Total number of failed grabs",
 			[]string{"indexer"},
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		indexerFailedRssQueriesMetric: prometheus.NewDesc(
 			"prowlarr_indexer_failed_rss_queries_total",
 			"Total number of failed rss queries",
 			[]string{"indexer"},
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		indexerFailedAuthQueriesMetric: prometheus.NewDesc(
 			"prowlarr_indexer_failed_auth_queries_total",
 			"Total number of failed auth queries",
 			[]string{"indexer"},
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		indexerVipExpirationMetric: prometheus.NewDesc(
 			"prowlarr_indexer_vip_expires_in_seconds",
 			"VIP expiration date",
 			[]string{"indexer"},
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		userAgentMetric: prometheus.NewDesc(
 			"prowlarr_user_agent_total",
 			"Total number of active user agents",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		userAgentQueriesMetric: prometheus.NewDesc(
 			"prowlarr_user_agent_queries_total",
 			"Total number of queries",
 			[]string{"user_agent"},
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		userAgentGrabsMetric: prometheus.NewDesc(
 			"prowlarr_user_agent_grabs_total",
 			"Total number of grabs",
 			[]string{"user_agent"},
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		errorMetric: prometheus.NewDesc(
 			"prowlarr_collector_error",
 			"Error while collecting metrics",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 	}
 }
@@ -247,7 +245,7 @@ func (collector *prowlarrCollector) Describe(ch chan<- *prometheus.Desc) {
 
 func (collector *prowlarrCollector) Collect(ch chan<- prometheus.Metric) {
 	total := time.Now()
-	c, err := client.NewClient(collector.config, collector.configFile)
+	c, err := client.NewClient(collector.config)
 	if err != nil {
 		log.Errorf("Error creating client: %s", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)

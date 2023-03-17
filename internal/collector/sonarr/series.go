@@ -5,15 +5,14 @@ import (
 	"time"
 
 	"github.com/onedr0p/exportarr/internal/client"
+	"github.com/onedr0p/exportarr/internal/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
 )
 
 type sonarrCollector struct {
-	config                   *cli.Context     // App configuration
-	configFile               *model.Config    // *arr configuration from config.xml
+	config                   *config.Config   // App configuration
 	seriesMetric             *prometheus.Desc // Total number of series
 	seriesDownloadedMetric   *prometheus.Desc // Total number of downloaded series
 	seriesMonitoredMetric    *prometheus.Desc // Total number of monitored series
@@ -32,105 +31,104 @@ type sonarrCollector struct {
 	errorMetric              *prometheus.Desc // Error Description for use with InvalidMetric
 }
 
-func NewSonarrCollector(c *cli.Context, cf *model.Config) *sonarrCollector {
+func NewSonarrCollector(conf *config.Config) *sonarrCollector {
 	return &sonarrCollector{
-		config:     c,
-		configFile: cf,
+		config: conf,
 		seriesMetric: prometheus.NewDesc(
 			"sonarr_series_total",
 			"Total number of series",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": conf.URLLabel()},
 		),
 		seriesDownloadedMetric: prometheus.NewDesc(
 			"sonarr_series_downloaded_total",
 			"Total number of downloaded series",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": conf.URLLabel()},
 		),
 		seriesMonitoredMetric: prometheus.NewDesc(
 			"sonarr_series_monitored_total",
 			"Total number of monitored series",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": conf.URLLabel()},
 		),
 		seriesUnmonitoredMetric: prometheus.NewDesc(
 			"sonarr_series_unmonitored_total",
 			"Total number of unmonitored series",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": conf.URLLabel()},
 		),
 		seriesFileSizeMetric: prometheus.NewDesc(
 			"sonarr_series_filesize_bytes",
 			"Total fizesize of all series in bytes",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": conf.URLLabel()},
 		),
 		seasonMetric: prometheus.NewDesc(
 			"sonarr_season_total",
 			"Total number of seasons",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": conf.URLLabel()},
 		),
 		seasonDownloadedMetric: prometheus.NewDesc(
 			"sonarr_season_downloaded_total",
 			"Total number of downloaded seasons",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": conf.URLLabel()},
 		),
 		seasonMonitoredMetric: prometheus.NewDesc(
 			"sonarr_season_monitored_total",
 			"Total number of monitored seasons",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": conf.URLLabel()},
 		),
 		seasonUnmonitoredMetric: prometheus.NewDesc(
 			"sonarr_season_unmonitored_total",
 			"Total number of unmonitored seasons",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": conf.URLLabel()},
 		),
 		episodeMetric: prometheus.NewDesc(
 			"sonarr_episode_total",
 			"Total number of episodes",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": conf.URLLabel()},
 		),
 		episodeMonitoredMetric: prometheus.NewDesc(
 			"sonarr_episode_monitored_total",
 			"Total number of monitored episodes",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": conf.URLLabel()},
 		),
 		episodeUnmonitoredMetric: prometheus.NewDesc(
 			"sonarr_episode_unmonitored_total",
 			"Total number of unmonitored episodes",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": conf.URLLabel()},
 		),
 		episodeDownloadedMetric: prometheus.NewDesc(
 			"sonarr_episode_downloaded_total",
 			"Total number of downloaded episodes",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": conf.URLLabel()},
 		),
 		episodeMissingMetric: prometheus.NewDesc(
 			"sonarr_episode_missing_total",
 			"Total number of missing episodes",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": conf.URLLabel()},
 		),
 		episodeQualitiesMetric: prometheus.NewDesc(
 			"sonarr_episode_quality_total",
 			"Total number of downloaded episodes by quality",
 			[]string{"quality"},
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": conf.URLLabel()},
 		),
 		errorMetric: prometheus.NewDesc(
 			"sonarr_collector_error",
 			"Error while collecting metrics",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": conf.URLLabel()},
 		),
 	}
 }
@@ -155,7 +153,7 @@ func (collector *sonarrCollector) Describe(ch chan<- *prometheus.Desc) {
 
 func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 	total := time.Now()
-	c, err := client.NewClient(collector.config, collector.configFile)
+	c, err := client.NewClient(collector.config)
 	if err != nil {
 		log.Errorf("Error creating client: %s", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
@@ -215,7 +213,7 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 			}
 		}
 
-		if collector.config.Bool("enable-additional-metrics") {
+		if collector.config.EnableAdditionalMetrics {
 			textra := time.Now()
 			episodeFile := model.EpisodeFile{}
 			params := map[string]string{"seriesId": fmt.Sprintf("%d", s.Id)}
@@ -271,7 +269,7 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(collector.episodeDownloadedMetric, prometheus.GaugeValue, float64(episodesDownloaded))
 	ch <- prometheus.MustNewConstMetric(collector.episodeMissingMetric, prometheus.GaugeValue, float64(episodesMissing.TotalRecords))
 
-	if collector.config.Bool("enable-additional-metrics") {
+	if collector.config.EnableAdditionalMetrics {
 		ch <- prometheus.MustNewConstMetric(collector.episodeMonitoredMetric, prometheus.GaugeValue, float64(episodesMonitored))
 		ch <- prometheus.MustNewConstMetric(collector.episodeUnmonitoredMetric, prometheus.GaugeValue, float64(episodesUnmonitored))
 

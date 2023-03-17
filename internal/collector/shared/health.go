@@ -4,34 +4,32 @@ import (
 	"fmt"
 
 	"github.com/onedr0p/exportarr/internal/client"
+	"github.com/onedr0p/exportarr/internal/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
 )
 
 type systemHealthCollector struct {
-	config             *cli.Context     // App configuration
-	configFile         *model.Config    // *arr configuration from config.xml
+	config             *config.Config   // App configuration
 	systemHealthMetric *prometheus.Desc // Total number of health issues
 	errorMetric        *prometheus.Desc // Error Description for use with InvalidMetric
 }
 
-func NewSystemHealthCollector(c *cli.Context, cf *model.Config) *systemHealthCollector {
+func NewSystemHealthCollector(c *config.Config) *systemHealthCollector {
 	return &systemHealthCollector{
-		config:     c,
-		configFile: cf,
+		config: c,
 		systemHealthMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_system_health_issues", c.Command.Name),
+			fmt.Sprintf("%s_system_health_issues", c.Arr),
 			"Total number of health issues by source, type, message and wikiurl",
 			[]string{"source", "type", "message", "wikiurl"},
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		errorMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_health_collector_error", c.Command.Name),
+			fmt.Sprintf("%s_health_collector_error", c.Arr),
 			"Error while collecting metrics",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 	}
 }
@@ -41,7 +39,7 @@ func (collector *systemHealthCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *systemHealthCollector) Collect(ch chan<- prometheus.Metric) {
-	c, err := client.NewClient(collector.config, collector.configFile)
+	c, err := client.NewClient(collector.config)
 	if err != nil {
 		log.Errorf("Error creating client: %s", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)

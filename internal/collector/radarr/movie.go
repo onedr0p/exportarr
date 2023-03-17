@@ -2,15 +2,14 @@ package collector
 
 import (
 	"github.com/onedr0p/exportarr/internal/client"
+	"github.com/onedr0p/exportarr/internal/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
 )
 
 type radarrCollector struct {
-	config                 *cli.Context     // App configuration
-	configFile             *model.Config    // *arr configuration from config.xml
+	config                 *config.Config   // App configuration
 	movieMetric            *prometheus.Desc // Total number of movies
 	movieDownloadedMetric  *prometheus.Desc // Total number of downloaded movies
 	movieMonitoredMetric   *prometheus.Desc // Total number of monitored movies
@@ -22,63 +21,62 @@ type radarrCollector struct {
 	errorMetric            *prometheus.Desc // Error Description for use with InvalidMetric
 }
 
-func NewRadarrCollector(c *cli.Context, cf *model.Config) *radarrCollector {
+func NewRadarrCollector(c *config.Config) *radarrCollector {
 	return &radarrCollector{
-		config:     c,
-		configFile: cf,
+		config: c,
 		movieMetric: prometheus.NewDesc(
 			"radarr_movie_total",
 			"Total number of movies",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		movieDownloadedMetric: prometheus.NewDesc(
 			"radarr_movie_downloaded_total",
 			"Total number of downloaded movies",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		movieMonitoredMetric: prometheus.NewDesc(
 			"radarr_movie_monitored_total",
 			"Total number of monitored movies",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		movieUnmonitoredMetric: prometheus.NewDesc(
 			"radarr_movie_unmonitored_total",
 			"Total number of unmonitored movies",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		movieWantedMetric: prometheus.NewDesc(
 			"radarr_movie_wanted_total",
 			"Total number of wanted movies",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		movieMissingMetric: prometheus.NewDesc(
 			"radarr_movie_missing_total",
 			"Total number of missing movies",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		movieFileSizeMetric: prometheus.NewDesc(
 			"radarr_movie_filesize_total",
 			"Total filesize of all movies",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		movieQualitiesMetric: prometheus.NewDesc(
 			"radarr_movie_quality_total",
 			"Total number of downloaded movies by quality",
 			[]string{"quality"},
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		errorMetric: prometheus.NewDesc(
 			"radarr_collector_error",
 			"Error while collecting metrics",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 	}
 }
@@ -95,7 +93,7 @@ func (collector *radarrCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
-	c, err := client.NewClient(collector.config, collector.configFile)
+	c, err := client.NewClient(collector.config)
 	if err != nil {
 		log.Errorf("Error creating client: %s", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
