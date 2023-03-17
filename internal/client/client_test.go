@@ -82,7 +82,7 @@ func TestDoRequest(t *testing.T) {
 		{
 			name:        "noParams",
 			endpoint:    "queue",
-			expectedURL: "http://localhost:7878/api/v3/queue",
+			expectedURL: "/api/v3/queue",
 		},
 		{
 			name:     "params",
@@ -91,13 +91,14 @@ func TestDoRequest(t *testing.T) {
 				"page":      "1",
 				"testParam": "asdf",
 			},
-			expectedURL: "http://localhost:7878/api/v3/test?page=1&testParam=asdf",
+			expectedURL: "/api/v3/test?page=1&testParam=asdf",
 		},
 	}
 	for _, param := range parameters {
 		t.Run(param.name, func(t *testing.T) {
 			require := require.New(t)
 			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				require.Equal(param.expectedURL, r.URL.String(), "DoRequest should use the correct URL")
 				fmt.Fprintln(w, "{\"test\": \"asdf2\"}")
 			}))
 			defer ts.Close()

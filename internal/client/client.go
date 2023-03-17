@@ -94,15 +94,18 @@ func NewClient(c *cli.Context, cf *model.Config) (*Client, error) {
 
 // DoRequest - Take a HTTP Request and return Unmarshaled data
 func (c *Client) DoRequest(endpoint string, target interface{}, queryParams ...map[string]string) error {
+	values := c.URL.Query()
 	for _, m := range queryParams {
 		for k, v := range m {
-			c.URL.Query().Add(k, v)
+			values.Add(k, v)
 		}
 	}
-	url := c.URL.JoinPath(endpoint).String()
-	log.Infof("Sending HTTP request to %s", url)
+	url := c.URL.JoinPath(endpoint)
+	url.RawQuery = values.Encode()
 
-	req, err := http.NewRequest("GET", url, nil)
+	log.Infof("Sending HTTP request to %s", url.String())
+
+	req, err := http.NewRequest("GET", url.String(), nil)
 	if err != nil {
 		return fmt.Errorf("Failed to create HTTP Request(%s): %w", url, err)
 	}
