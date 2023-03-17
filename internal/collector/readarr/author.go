@@ -7,7 +7,7 @@ import (
 	"github.com/onedr0p/exportarr/internal/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
-	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 )
 
 type readarrCollector struct {
@@ -119,9 +119,10 @@ func (c *readarrCollector) Describe(ch chan<- *prometheus.Desc) {
 
 func (collector *readarrCollector) Collect(ch chan<- prometheus.Metric) {
 	total := time.Now()
+	log := zap.S().With("collector", "readarr")
 	c, err := client.NewClient(collector.config)
 	if err != nil {
-		log.Errorf("Error creating client: %s", err)
+		log.Errorw("Error creating client", "error", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 		return
 	}
@@ -141,7 +142,7 @@ func (collector *readarrCollector) Collect(ch chan<- prometheus.Metric) {
 
 	authors := model.Author{}
 	if err := c.DoRequest("author", &authors); err != nil {
-		log.Errorf("Error getting authors: %s", err)
+		log.Errorw("Error getting authors", "error", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 		return
 	}
@@ -164,12 +165,15 @@ func (collector *readarrCollector) Collect(ch chan<- prometheus.Metric) {
 		}
 		b := time.Since(tauthor)
 		tauthors = append(tauthors, b)
-		log.Debugf("TIME :: author %s took %s", a.AuthorName, b)
+		log.Debugw("author metrics retrieved",
+			"author", a.AuthorName,
+			"duration", b)
 	}
 
 	books := model.Book{}
 	if err := c.DoRequest("book", &books); err != nil {
-		log.Errorf("Error getting books: %s", err)
+		log.Errorw("Error getting books",
+			"error", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 		return
 	}
@@ -199,8 +203,8 @@ func (collector *readarrCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(collector.bookUnmonitoredMetric, prometheus.GaugeValue, float64(booksUnmonitored))
 	ch <- prometheus.MustNewConstMetric(collector.bookMissingMetric, prometheus.GaugeValue, float64(booksMissing))
 
-	log.Debugf("TIME :: total took %s with author timings as %s",
-		time.Since(total),
-		tauthors,
+	log.Debugf("collector cycle completed",
+		"duration", time.Since(total),
+		"author_durations", tauthors,
 	)
 }

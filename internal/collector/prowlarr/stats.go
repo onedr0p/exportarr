@@ -8,7 +8,7 @@ import (
 	"github.com/onedr0p/exportarr/internal/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
-	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 )
 
 type indexerStatCache struct {
@@ -245,6 +245,7 @@ func (collector *prowlarrCollector) Describe(ch chan<- *prometheus.Desc) {
 
 func (collector *prowlarrCollector) Collect(ch chan<- prometheus.Metric) {
 	total := time.Now()
+	log := zap.S().With("collector", "prowlarr")
 	c, err := client.NewClient(collector.config)
 	if err != nil {
 		log.Errorf("Error creating client: %s", err)

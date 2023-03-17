@@ -7,7 +7,7 @@ import (
 	"github.com/onedr0p/exportarr/internal/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
-	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 )
 
 type systemHealthCollector struct {
@@ -39,6 +39,7 @@ func (collector *systemHealthCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *systemHealthCollector) Collect(ch chan<- prometheus.Metric) {
+	log := zap.S().With("collector", "systemHealth")
 	c, err := client.NewClient(collector.config)
 	if err != nil {
 		log.Errorf("Error creating client: %s", err)

@@ -30,6 +30,7 @@ func TestLoadConfig_Defaults(t *testing.T) {
 	config, err := LoadConfig(&pflag.FlagSet{})
 	require.NoError(err)
 	require.Equal("info", config.LogLevel)
+	require.Equal("console", config.LogFormat)
 	require.Equal("v3", config.ApiVersion)
 	require.Equal(8081, config.Port)
 	require.Equal("0.0.0.0", config.Interface)
@@ -248,6 +249,18 @@ func TestValidate(t *testing.T) {
 				ApiVersion: "v3",
 				Port:       1234,
 				Interface:  "0.0.0",
+			},
+			shouldError: true,
+		},
+		{
+			name: "bad-log-level",
+			config: &Config{
+				LogLevel:   "asdf",
+				URL:        "http://localhost",
+				ApiKey:     "abcdef0123456789abcdef0123456789",
+				ApiVersion: "v3",
+				Port:       1234,
+				Interface:  "0.0.0.0",
 			},
 			shouldError: true,
 		},

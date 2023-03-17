@@ -13,11 +13,14 @@ import (
 	"github.com/knadh/koanf/providers/posflag"
 	"github.com/knadh/koanf/v2"
 	flag "github.com/spf13/pflag"
+	"go.uber.org/zap/zapcore"
+	"golang.org/x/exp/slices"
 )
 
 type Config struct {
 	Arr                     string `koanf:"arr"`
-	LogLevel                string `koanf:"log-level"`
+	LogLevel                string `koanf:"log-level" validate:"ValidateLogLevel"`
+	LogFormat               string `koanf:"log-format" validate:"in:console,json"`
 	URL                     string `koanf:"url" validate:"required|url"`
 	ApiKey                  string `koanf:"api-key" validate:"required|regex:([a-z0-9]{32})"`
 	ApiKeyFile              string `koanf:"api-key-file"`
@@ -60,6 +63,7 @@ func LoadConfig(flags *flag.FlagSet) (*Config, error) {
 	// Defaults
 	err := k.Load(confmap.Provider(map[string]interface{}{
 		"log-level":   "info",
+		"log-format":  "console",
 		"api-version": "v3",
 		"port":        "8081",
 		"interface":   "0.0.0.0",
@@ -109,6 +113,16 @@ func LoadConfig(flags *flag.FlagSet) (*Config, error) {
 	return &out, nil
 }
 
+// ValidateLogLevel validates that the log level is one of the valid log levels
+// gookit/Validate is pretty opinionated, and requires that this is not a pointer method.
+func (c Config) ValidateLogLevel(val string) bool {
+	validLogLevels := []string{}
+	for i := zapcore.DebugLevel; i < zapcore.InvalidLevel; i++ {
+		validLogLevels = append(validLogLevels, i.String())
+	}
+	return slices.Contains(validLogLevels, val)
+
+}
 func (c *Config) Validate() error {
 	v := validate.Struct(c)
 	if !v.Validate() {
@@ -124,4 +138,11 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("auth-username and auth-password are required when form-auth is set")
 	}
 	return nil
+}
+
+func (c *Config) Messages() map[string]string {
+	return validate.MS{
+		"ApiKey.regex":              "API Key must be a 32 character hex string",
+		"LogLevel.validateLogLevel": "Log Level must be one of: debug, info, warn, error, dpanic, panic, fatal",
+	}
 }

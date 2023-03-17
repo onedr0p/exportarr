@@ -7,7 +7,7 @@ import (
 	"github.com/onedr0p/exportarr/internal/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
-	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 )
 
 type lidarrCollector struct {
@@ -127,9 +127,10 @@ func (collector *lidarrCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
+	log := zap.S().With("collector", "lidarr")
 	c, err := client.NewClient(collector.config)
 	if err != nil {
-		log.Errorf("Error creating client: %s", err)
+		log.Errorf("Error creating client", "error", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 		return
 	}
@@ -147,7 +148,7 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 
 	artists := model.Artist{}
 	if err := c.DoRequest("artist", &artists); err != nil {
-		log.Errorf("Error creating client: %s", err)
+		log.Errorw("Error creating client", "error", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 		return
 	}
@@ -169,7 +170,7 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 			songFile := model.SongFile{}
 			params := map[string]string{"artistid": fmt.Sprintf("%d", s.Id)}
 			if err := c.DoRequest("trackfile", &songFile, params); err != nil {
-				log.Errorf("Error getting trackfile: %s", err)
+				log.Errorw("Error getting trackfile", "error", err)
 				ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 				return
 			}
@@ -182,7 +183,7 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 			album := model.Album{}
 			params = map[string]string{"artistid": fmt.Sprintf("%d", s.Id)}
 			if err := c.DoRequest("album", &album, params); err != nil {
-				log.Errorf("Error getting album: %s", err)
+				log.Errorw("Error getting album", "error", err)
 				ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 				return
 			}
@@ -199,7 +200,7 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 
 	songMissing := model.Missing{}
 	if err := c.DoRequest("wanted/missing", &songMissing); err != nil {
-		log.Errorf("Error getting missing: %s", err)
+		log.Errorw("Error getting missing", "error", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 		return
 	}
