@@ -4,34 +4,32 @@ import (
 	"fmt"
 
 	"github.com/onedr0p/exportarr/internal/client"
+	"github.com/onedr0p/exportarr/internal/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
 )
 
 type rootFolderCollector struct {
-	config           *cli.Context     // App configuration
-	configFile       *model.Config    // *arr configuration from config.xml
+	config           *config.Config   // App configuration
 	rootFolderMetric *prometheus.Desc // Total number of root folders
 	errorMetric      *prometheus.Desc // Error Description for use with InvalidMetric
 }
 
-func NewRootFolderCollector(c *cli.Context, cf *model.Config) *rootFolderCollector {
+func NewRootFolderCollector(c *config.Config) *rootFolderCollector {
 	return &rootFolderCollector{
-		config:     c,
-		configFile: cf,
+		config: c,
 		rootFolderMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_rootfolder_freespace_bytes", c.Command.Name),
+			fmt.Sprintf("%s_rootfolder_freespace_bytes", c.Arr),
 			"Root folder space in bytes by path",
 			[]string{"path"},
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		errorMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_rootfolder_collector_error", c.Command.Name),
+			fmt.Sprintf("%s_rootfolder_collector_error", c.Arr),
 			"Error while collecting metrics",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 	}
 }
@@ -41,7 +39,7 @@ func (collector *rootFolderCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *rootFolderCollector) Collect(ch chan<- prometheus.Metric) {
-	c, err := client.NewClient(collector.config, collector.configFile)
+	c, err := client.NewClient(collector.config)
 	if err != nil {
 		log.Errorf("Error creating client: %s", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)

@@ -4,15 +4,14 @@ import (
 	"time"
 
 	"github.com/onedr0p/exportarr/internal/client"
+	"github.com/onedr0p/exportarr/internal/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
 )
 
 type readarrCollector struct {
-	config                  *cli.Context     // App configuration
-	configFile              *model.Config    // *arr configuration from config.xml
+	config                  *config.Config   // App configuration
 	authorMetric            *prometheus.Desc // Total number of authors
 	authorDownloadedMetric  *prometheus.Desc // Total number of downloaded authors
 	authorMonitoredMetric   *prometheus.Desc // Total number of monitored authors
@@ -27,81 +26,80 @@ type readarrCollector struct {
 	errorMetric             *prometheus.Desc // Error Description for use with InvalidMetric
 }
 
-func NewReadarrCollector(c *cli.Context, cf *model.Config) *readarrCollector {
+func NewReadarrCollector(c *config.Config) *readarrCollector {
 	return &readarrCollector{
-		config:     c,
-		configFile: cf,
+		config: c,
 		authorMetric: prometheus.NewDesc(
 			"readarr_author_total",
 			"Total number of authors",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		authorDownloadedMetric: prometheus.NewDesc(
 			"readarr_author_downloaded_total",
 			"Total number of downloaded authors",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		authorMonitoredMetric: prometheus.NewDesc(
 			"readarr_author_monitored_total",
 			"Total number of monitored authors",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		authorUnmonitoredMetric: prometheus.NewDesc(
 			"readarr_author_unmonitored_total",
 			"Total number of unmonitored authors",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		authorFileSizeMetric: prometheus.NewDesc(
 			"readarr_author_filesize_bytes",
 			"Total filesize of all authors in bytes",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		bookMetric: prometheus.NewDesc(
 			"readarr_book_total",
 			"Total number of books",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		bookGrabbedMetric: prometheus.NewDesc(
 			"readarr_book_grabbed_total",
 			"Total number of grabbed books",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		bookDownloadedMetric: prometheus.NewDesc(
 			"readarr_book_downloaded_total",
 			"Total number of downloaded books",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		bookMonitoredMetric: prometheus.NewDesc(
 			"readarr_book_monitored_total",
 			"Total number of monitored books",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		bookUnmonitoredMetric: prometheus.NewDesc(
 			"readarr_book_unmonitored_total",
 			"Total number of unmonitored books",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		bookMissingMetric: prometheus.NewDesc(
 			"readarr_book_missing_total",
 			"Total number of missing books",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		errorMetric: prometheus.NewDesc(
 			"readarr_collector_error",
 			"Error while collecting metrics",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 	}
 }
@@ -121,7 +119,7 @@ func (c *readarrCollector) Describe(ch chan<- *prometheus.Desc) {
 
 func (collector *readarrCollector) Collect(ch chan<- prometheus.Metric) {
 	total := time.Now()
-	c, err := client.NewClient(collector.config, collector.configFile)
+	c, err := client.NewClient(collector.config)
 	if err != nil {
 		log.Errorf("Error creating client: %s", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)

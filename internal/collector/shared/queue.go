@@ -4,34 +4,32 @@ import (
 	"fmt"
 
 	"github.com/onedr0p/exportarr/internal/client"
+	"github.com/onedr0p/exportarr/internal/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
 )
 
 type queueCollector struct {
-	config      *cli.Context     // App configuration
-	configFile  *model.Config    // *arr configuration from config.xml
+	config      *config.Config   // App configuration
 	queueMetric *prometheus.Desc // Total number of queue items
 	errorMetric *prometheus.Desc // Error Description for use with InvalidMetric
 }
 
-func NewQueueCollector(c *cli.Context, cf *model.Config) *queueCollector {
+func NewQueueCollector(c *config.Config) *queueCollector {
 	return &queueCollector{
-		config:     c,
-		configFile: cf,
+		config: c,
 		queueMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_queue_total", c.Command.Name),
+			fmt.Sprintf("%s_queue_total", c.Arr),
 			"Total number of items in the queue by status, download_status, and download_state",
 			[]string{"status", "download_status", "download_state"},
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		errorMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_queue_collector_error", c.Command.Name),
+			fmt.Sprintf("%s_queue_collector_error", c.Arr),
 			"Error while collecting metrics",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 	}
 }
@@ -41,7 +39,7 @@ func (collector *queueCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *queueCollector) Collect(ch chan<- prometheus.Metric) {
-	c, err := client.NewClient(collector.config, collector.configFile)
+	c, err := client.NewClient(collector.config)
 	if err != nil {
 		log.Errorf("Error creating client: %s", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
@@ -49,10 +47,10 @@ func (collector *queueCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	params := map[string]string{"page": "1"}
-	if collector.config.Bool("enable-unknown-queue-items") {
-		if collector.config.Command.Name == "sonarr" {
+	if collector.config.EnableUnknownQueueItems {
+		if collector.config.Arr == "sonarr" {
 			params["includeUnknownSeriesItems"] = "true"
-		} else if collector.config.Command.Name == "radarr" {
+		} else if collector.config.Arr == "radarr" {
 			params["includeUnknownMovieItems"] = "true"
 		}
 	}
