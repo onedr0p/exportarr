@@ -357,7 +357,7 @@ func flags(arr string) []cli.Flag {
 			Aliases:  []string{"basic-auth-password"},
 			Usage:    "Provide the password for basic or form auth",
 			Required: false,
-			EnvVars:  []string{"AUTH_USERNAME", "BASIC_AUTH_PASSWORD"},
+			EnvVars:  []string{"AUTH_PASSWORD", "BASIC_AUTH_PASSWORD"},
 		},
 		&cli.BoolFlag{
 			Name:     "form-auth",
