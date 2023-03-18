@@ -6,11 +6,9 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 
-	"github.com/onedr0p/exportarr/internal/model"
+	"github.com/onedr0p/exportarr/internal/config"
 	log "github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
 )
 
 // Client struct is a Radarr client to request an instance of a Radarr
@@ -20,64 +18,36 @@ type Client struct {
 }
 
 // NewClient method initializes a new Radarr client.
-func NewClient(c *cli.Context, cf *model.Config) (*Client, error) {
-	var apiKey string
-	var baseURL *url.URL
+func NewClient(config *config.Config) (*Client, error) {
 
-	apiVersion := cf.ApiVersion
-
-	if c.String("config") != "" {
-		var err error
-		baseURL, err = baseURL.Parse(c.String("url") + ":" + cf.Port)
-		if err != nil {
-			return nil, fmt.Errorf("Couldn't parse URL: %w", err)
-		}
-		baseURL = baseURL.JoinPath(cf.UrlBase)
-		apiKey = cf.ApiKey
-
-	} else {
-		// Otherwise use the value provided in the api-key flag
-		var err error
-		baseURL, err = baseURL.Parse(c.String("url"))
-		if err != nil {
-			return nil, fmt.Errorf("Couldn't parse URL: %w", err)
-		}
-
-		if c.String("api-key") != "" {
-			apiKey = c.String("api-key")
-		} else if c.String("api-key-file") != "" {
-			data, err := os.ReadFile(c.String("api-key-file"))
-			if err != nil {
-				return nil, fmt.Errorf("Couldn't Read API Key file %w", err)
-			}
-
-			apiKey = string(data)
-		}
+	baseURL, err := url.Parse(config.URL)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to parse URL(%s): %w", config.URL, err)
 	}
 
 	baseTransport := http.DefaultTransport
-	if c.Bool("disable-ssl-verify") {
+	if config.DisableSSLVerify {
 		baseTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	}
 
 	var auth Authenticator
-	if c.Bool("form-auth") {
+	if config.UseFormAuth() {
 		auth = &FormAuth{
-			Username:    c.String("auth-username"),
-			Password:    c.String("auth-password"),
-			ApiKey:      apiKey,
+			Username:    config.AuthUsername,
+			Password:    config.AuthPassword,
+			ApiKey:      config.ApiKey,
 			AuthBaseURL: baseURL,
 			Transport:   baseTransport,
 		}
-	} else if c.String("username") != "" && c.String("password") != "" {
+	} else if config.UseBasicAuth() {
 		auth = &BasicAuth{
-			Username: c.String("auth-username"),
-			Password: c.String("auth-password"),
-			ApiKey:   apiKey,
+			Username: config.AuthUsername,
+			Password: config.AuthPassword,
+			ApiKey:   config.ApiKey,
 		}
 	} else {
 		auth = &ApiKeyAuth{
-			ApiKey: apiKey,
+			ApiKey: config.ApiKey,
 		}
 	}
 
@@ -88,7 +58,7 @@ func NewClient(c *cli.Context, cf *model.Config) (*Client, error) {
 			},
 			Transport: NewArrTransport(auth, baseTransport),
 		},
-		URL: *baseURL.JoinPath("api", apiVersion),
+		URL: *baseURL.JoinPath("api", config.ApiVersion),
 	}, nil
 }
 

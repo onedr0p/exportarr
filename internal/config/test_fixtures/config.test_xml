@@ -1,0 +1,5 @@
+<Config>
+  <UrlBase>/asdf</UrlBase>
+  <ApiKey>abcdef0123456789abcdef0123456789</ApiKey>
+  <Port>7878</Port>
+</Config>

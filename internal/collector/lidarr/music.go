@@ -4,15 +4,14 @@ import (
 	"fmt"
 
 	"github.com/onedr0p/exportarr/internal/client"
+	"github.com/onedr0p/exportarr/internal/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
 )
 
 type lidarrCollector struct {
-	config                 *cli.Context     // App configuration
-	configFile             *model.Config    // *arr configuration from config.xml
+	config                 *config.Config   // App configuration
 	artistsMetric          *prometheus.Desc // Total number of artists
 	artistsMonitoredMetric *prometheus.Desc // Total number of monitored artists
 	artistGenresMetric     *prometheus.Desc // Total number of artists by genre
@@ -28,87 +27,86 @@ type lidarrCollector struct {
 	errorMetric            *prometheus.Desc // Error Description for use with InvalidMetric
 }
 
-func NewLidarrCollector(c *cli.Context, cf *model.Config) *lidarrCollector {
+func NewLidarrCollector(c *config.Config) *lidarrCollector {
 	return &lidarrCollector{
-		config:     c,
-		configFile: cf,
+		config: c,
 		artistsMetric: prometheus.NewDesc(
 			"lidarr_artists_total",
 			"Total number of artists",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		artistsMonitoredMetric: prometheus.NewDesc(
 			"lidarr_artists_monitored_total",
 			"Total number of monitored artists",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		artistGenresMetric: prometheus.NewDesc(
 			"lidarr_artists_genres_total",
 			"Total number of artists by genre",
 			[]string{"genre"},
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		artistsFileSizeMetric: prometheus.NewDesc(
 			"lidarr_artists_filesize_bytes",
 			"Total fizesize of all artists in bytes",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		albumsMetric: prometheus.NewDesc(
 			"lidarr_albums_total",
 			"Total number of albums",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		albumsMonitoredMetric: prometheus.NewDesc(
 			"lidarr_albums_monitored_total",
 			"Total number of albums",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		albumsGenresMetric: prometheus.NewDesc(
 			"lidarr_albums_genres_total",
 			"Total number of albums by genre",
 			[]string{"genre"},
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		songsMetric: prometheus.NewDesc(
 			"lidarr_songs_total",
 			"Total number of songs",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		songsMonitoredMetric: prometheus.NewDesc(
 			"lidarr_songs_monitored_total",
 			"Total number of monitored songs",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		songsDownloadedMetric: prometheus.NewDesc(
 			"lidarr_songs_downloaded_total",
 			"Total number of downloaded songs",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		songsMissingMetric: prometheus.NewDesc(
 			"lidarr_songs_missing_total",
 			"Total number of missing songs",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		songsQualitiesMetric: prometheus.NewDesc(
 			"lidarr_songs_quality_total",
 			"Total number of downloaded songs by quality",
 			[]string{"quality"},
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		errorMetric: prometheus.NewDesc(
 			"lidarr_collector_error",
 			"Error while collecting metrics",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 	}
 }
@@ -129,7 +127,7 @@ func (collector *lidarrCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
-	c, err := client.NewClient(collector.config, collector.configFile)
+	c, err := client.NewClient(collector.config)
 	if err != nil {
 		log.Errorf("Error creating client: %s", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
@@ -167,7 +165,7 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 			artistGenres[genre]++
 		}
 
-		if collector.config.Bool("enable-additional-metrics") {
+		if collector.config.EnableAdditionalMetrics {
 			songFile := model.SongFile{}
 			params := map[string]string{"artistid": fmt.Sprintf("%d", s.Id)}
 			if err := c.DoRequest("trackfile", &songFile, params); err != nil {
@@ -220,7 +218,7 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 		}
 	}
 
-	if collector.config.Bool("enable-additional-metrics") {
+	if collector.config.EnableAdditionalMetrics {
 		ch <- prometheus.MustNewConstMetric(collector.albumsMonitoredMetric, prometheus.GaugeValue, float64(albumsMonitored))
 
 		if len(songsQualities) > 0 {

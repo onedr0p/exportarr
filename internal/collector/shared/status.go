@@ -4,34 +4,33 @@ import (
 	"fmt"
 
 	"github.com/onedr0p/exportarr/internal/client"
+	"github.com/onedr0p/exportarr/internal/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
 )
 
 type systemStatusCollector struct {
-	config       *cli.Context     // App configuration
+	config       *config.Config   // App configuration
 	configFile   *model.Config    // *arr configuration from config.xml
 	systemStatus *prometheus.Desc // Total number of system statuses
 	errorMetric  *prometheus.Desc // Error Description for use with InvalidMetric
 }
 
-func NewSystemStatusCollector(c *cli.Context, cf *model.Config) *systemStatusCollector {
+func NewSystemStatusCollector(c *config.Config) *systemStatusCollector {
 	return &systemStatusCollector{
-		config:     c,
-		configFile: cf,
+		config: c,
 		systemStatus: prometheus.NewDesc(
-			fmt.Sprintf("%s_system_status", c.Command.Name),
+			fmt.Sprintf("%s_system_status", c.Arr),
 			"System Status",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 		errorMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_status_collector_error", c.Command.Name),
+			fmt.Sprintf("%s_status_collector_error", c.Arr),
 			"Error while collecting metrics",
 			nil,
-			prometheus.Labels{"url": c.String("url")},
+			prometheus.Labels{"url": c.URLLabel()},
 		),
 	}
 }
@@ -41,7 +40,7 @@ func (collector *systemStatusCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *systemStatusCollector) Collect(ch chan<- prometheus.Metric) {
-	c, err := client.NewClient(collector.config, collector.configFile)
+	c, err := client.NewClient(collector.config)
 	if err != nil {
 		log.Errorf("Error creating client: %s", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
