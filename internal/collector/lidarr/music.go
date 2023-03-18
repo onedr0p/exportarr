@@ -19,10 +19,10 @@ type lidarrCollector struct {
 	albumsMetric           *prometheus.Desc // Total number of albums
 	albumsMonitoredMetric  *prometheus.Desc // Total number of monitored albums
 	albumsGenresMetric     *prometheus.Desc // Total number of albums by genre
+	albumsMissingMetric    *prometheus.Desc // Total number of missing albums
 	songsMetric            *prometheus.Desc // Total number of songs
 	songsMonitoredMetric   *prometheus.Desc // Total number of monitored songs
 	songsDownloadedMetric  *prometheus.Desc // Total number of downloaded songs
-	songsMissingMetric     *prometheus.Desc // Total number of missing songs
 	songsQualitiesMetric   *prometheus.Desc // Total number of songs by quality
 	errorMetric            *prometheus.Desc // Error Description for use with InvalidMetric
 }
@@ -72,6 +72,12 @@ func NewLidarrCollector(c *config.Config) *lidarrCollector {
 			[]string{"genre"},
 			prometheus.Labels{"url": c.URLLabel()},
 		),
+		albumsMissingMetric: prometheus.NewDesc(
+			"lidarr_albums_missing_total",
+			"Total number of missing albums",
+			nil,
+			prometheus.Labels{"url": c.URLLabel()},
+		),
 		songsMetric: prometheus.NewDesc(
 			"lidarr_songs_total",
 			"Total number of songs",
@@ -87,12 +93,6 @@ func NewLidarrCollector(c *config.Config) *lidarrCollector {
 		songsDownloadedMetric: prometheus.NewDesc(
 			"lidarr_songs_downloaded_total",
 			"Total number of downloaded songs",
-			nil,
-			prometheus.Labels{"url": c.URLLabel()},
-		),
-		songsMissingMetric: prometheus.NewDesc(
-			"lidarr_songs_missing_total",
-			"Total number of missing songs",
 			nil,
 			prometheus.Labels{"url": c.URLLabel()},
 		),
@@ -119,10 +119,10 @@ func (collector *lidarrCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.albumsMetric
 	ch <- collector.albumsMonitoredMetric
 	ch <- collector.albumsGenresMetric
+	ch <- collector.albumsMissingMetric
 	ch <- collector.songsMetric
 	ch <- collector.songsMonitoredMetric
 	ch <- collector.songsDownloadedMetric
-	ch <- collector.songsMissingMetric
 	ch <- collector.songsQualitiesMetric
 }
 
@@ -198,9 +198,9 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 		}
 	}
 
-	songMissing := model.Missing{}
-	if err := c.DoRequest("wanted/missing", &songMissing); err != nil {
-		log.Errorw("Error getting missing", "error", err)
+	albumsMissing := model.Missing{}
+	if err := c.DoRequest("wanted/missing", &albumsMissing); err != nil {
+		log.Errorw("Error getting missing albums", "error", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 		return
 	}
@@ -209,9 +209,9 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(collector.artistsMonitoredMetric, prometheus.GaugeValue, float64(artistsMonitored))
 	ch <- prometheus.MustNewConstMetric(collector.artistsFileSizeMetric, prometheus.GaugeValue, float64(artistsFileSize))
 	ch <- prometheus.MustNewConstMetric(collector.albumsMetric, prometheus.GaugeValue, float64(albums))
+	ch <- prometheus.MustNewConstMetric(collector.albumsMissingMetric, prometheus.GaugeValue, float64(albumsMissing.TotalRecords))
 	ch <- prometheus.MustNewConstMetric(collector.songsMetric, prometheus.GaugeValue, float64(songs))
 	ch <- prometheus.MustNewConstMetric(collector.songsDownloadedMetric, prometheus.GaugeValue, float64(songsDownloaded))
-	ch <- prometheus.MustNewConstMetric(collector.songsMissingMetric, prometheus.GaugeValue, float64(songMissing.TotalRecords))
 
 	if len(artistGenres) > 0 {
 		for genre, count := range artistGenres {
