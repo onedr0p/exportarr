@@ -12,6 +12,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
@@ -45,16 +46,21 @@ func init() {
 	rootCmd.PersistentFlags().String("log-format", "console", "Log format (console, json)")
 	rootCmd.PersistentFlags().StringP("config", "c", "", "*arr config.xml file for parsing authentication information")
 	rootCmd.PersistentFlags().StringP("url", "u", "", "URL to *arr instance")
-	rootCmd.PersistentFlags().StringP("api-key", "k", "", "API Key for *arr instance")
-	rootCmd.PersistentFlags().StringP("api-key-file", "f", "", "File containing API Key for *arr instance")
-	rootCmd.PersistentFlags().Int("port", 0, "Port to listen on")
+	rootCmd.PersistentFlags().StringP("api-key", "a", "", "API Key for *arr instance")
+	rootCmd.PersistentFlags().String("api-key-file", "", "File containing API Key for *arr instance")
+	rootCmd.PersistentFlags().IntP("port", "p", 0, "Port to listen on")
 	rootCmd.PersistentFlags().StringP("interface", "i", "", "IP address to listen on")
 	rootCmd.PersistentFlags().Bool("disable-ssl-verify", false, "Disable SSL verification")
-	rootCmd.PersistentFlags().String("auth-username", "", "Username for basic auth")
-	rootCmd.PersistentFlags().String("auth-password", "", "Password for basic auth")
+	rootCmd.PersistentFlags().String("auth-username", "", "Username for basic or form auth")
+	rootCmd.PersistentFlags().String("auth-password", "", "Password for basic or form auth")
 	rootCmd.PersistentFlags().Bool("form-auth", false, "Use form based authentication")
 	rootCmd.PersistentFlags().Bool("enable-unknown-queue-items", false, "Enable unknown queue items")
-	rootCmd.PersistentFlags().Bool("enable-additional-metric", false, "Enable additional metric")
+	rootCmd.PersistentFlags().Bool("enable-additional-metrics", false, "Enable additional metrics")
+
+	// Backwards Compatibility - normalize function will hide these from --help. remove in v2.0.0
+	rootCmd.PersistentFlags().String("basic-auth-username", "", "Username for basic or form auth")
+	rootCmd.PersistentFlags().String("basic-auth-password", "", "Password for basic or form auth")
+	rootCmd.PersistentFlags().SetNormalizeFunc(backwardsCompatibilityNormalizeFunc)
 }
 
 func initConfig() {
@@ -153,4 +159,14 @@ func logRequest(handler http.Handler) http.Handler {
 			"url", r.URL)
 		handler.ServeHTTP(w, r)
 	})
+}
+
+func backwardsCompatibilityNormalizeFunc(f *flag.FlagSet, name string) flag.NormalizedName {
+	if name == "basic-auth-username" {
+		return flag.NormalizedName("auth-username")
+	}
+	if name == "basic-auth-password" {
+		return flag.NormalizedName("auth-password")
+	}
+	return flag.NormalizedName(name)
 }

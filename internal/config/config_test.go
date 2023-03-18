@@ -21,7 +21,7 @@ func testFlagSet() *pflag.FlagSet {
 	out.String("auth-password", "", "Password for basic auth")
 	out.Bool("form-auth", false, "Use form based authentication")
 	out.Bool("enable-unknown-queue-items", false, "Enable unknown queue items")
-	out.Bool("enable-additional-metric", false, "Enable additional metric")
+	out.Bool("enable-additional-metrics", false, "Enable additional metrics")
 	return out
 }
 func TestLoadConfig_Defaults(t *testing.T) {
@@ -48,7 +48,7 @@ func TestLoadConfig_Flags(t *testing.T) {
 	flags.Set("auth-password", "pass")
 	flags.Set("form-auth", "true")
 	flags.Set("enable-unknown-queue-items", "true")
-	flags.Set("enable-additional-metric", "true")
+	flags.Set("enable-additional-metrics", "true")
 
 	require := require.New(t)
 	config, err := LoadConfig(flags)
@@ -90,7 +90,7 @@ func TestLoadConfig_Environment(t *testing.T) {
 	t.Setenv("AUTH_PASSWORD", "pass")
 	t.Setenv("FORM_AUTH", "true")
 	t.Setenv("ENABLE_UNKNOWN_QUEUE_ITEMS", "true")
-	t.Setenv("ENABLE_ADDITIONAL_METRIC", "true")
+	t.Setenv("ENABLE_ADDITIONAL_METRICS", "true")
 
 	config, err := LoadConfig(&pflag.FlagSet{})
 	require.NoError(err)
@@ -107,6 +107,24 @@ func TestLoadConfig_Environment(t *testing.T) {
 	require.True(config.EnableAdditionalMetrics)
 	// Defaults fall through
 	require.Equal("v3", config.ApiVersion)
+}
+
+func TestLoadConfig_BackwardsCompatibility(t *testing.T) {
+	require := require.New(t)
+
+	// Set environment variables
+	t.Setenv("URL", "http://localhost:8989")
+	t.Setenv("APIKEY_FILE", "./test_fixtures/api_key")
+	t.Setenv("PORT", "1234")
+	t.Setenv("BASIC_AUTH_USERNAME", "user")
+	t.Setenv("BASIC_AUTH_PASSWORD", "pass")
+
+	config, err := LoadConfig(&pflag.FlagSet{})
+	require.NoError(err)
+
+	require.Equal("abcdef0123456789abcdef0123456783", config.ApiKey)
+	require.Equal("user", config.AuthUsername)
+	require.Equal("pass", config.AuthPassword)
 }
 
 func TestLoadConfig_XMLConfig(t *testing.T) {
