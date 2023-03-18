@@ -13,9 +13,10 @@ func init() {
 }
 
 var radarrCmd = &cobra.Command{
-	Use:   "radarr",
-	Short: "Prometheus Exporter for Radarr",
-	Long:  "Prometheus Exporter for Radarr.",
+	Use:     "radarr",
+	Aliases: []string{"r"},
+	Short:   "Prometheus Exporter for Radarr",
+	Long:    "Prometheus Exporter for Radarr.",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		conf.Arr = "radarr"
 		serveHttp(func(r *prometheus.Registry) {

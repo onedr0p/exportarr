@@ -178,6 +178,8 @@ func backwardsCompatibilityTransforms(s string) string {
 	switch s {
 	case "apikey-file":
 		return "api-key-file"
+	case "apikey":
+		return "api-key"
 	case "basic-auth-username":
 		return "auth-username"
 	case "basic-auth-password":
