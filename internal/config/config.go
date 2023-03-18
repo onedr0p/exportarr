@@ -33,7 +33,7 @@ type Config struct {
 	AuthPassword            string         `koanf:"auth-password"`
 	FormAuth                bool           `koanf:"form-auth"`
 	EnableUnknownQueueItems bool           `koanf:"enable-unknown-queue-items"`
-	EnableAdditionalMetrics bool           `koanf:"enable-additional-metric"`
+	EnableAdditionalMetrics bool           `koanf:"enable-additional-metrics"`
 	Prowlarr                ProwlarrConfig `koanf:"prowlarr"`
 	k                       *koanf.Koanf
 }

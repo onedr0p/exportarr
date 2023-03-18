@@ -55,7 +55,7 @@ func init() {
 	rootCmd.PersistentFlags().String("auth-password", "", "Password for basic or form auth")
 	rootCmd.PersistentFlags().Bool("form-auth", false, "Use form based authentication")
 	rootCmd.PersistentFlags().Bool("enable-unknown-queue-items", false, "Enable unknown queue items")
-	rootCmd.PersistentFlags().Bool("enable-additional-metric", false, "Enable additional metric")
+	rootCmd.PersistentFlags().Bool("enable-additional-metrics", false, "Enable additional metrics")
 
 	// Backwards Compatibility - normalize function will hide these from --help. remove in v2.0.0
 	rootCmd.PersistentFlags().String("basic-auth-username", "", "Username for basic or form auth")
