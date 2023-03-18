@@ -80,7 +80,7 @@ func LoadConfig(flags *flag.FlagSet) (*Config, error) {
 		s = strings.ToLower(s)
 		s = strings.Replace(s, "__", ".", -1)
 		s = strings.Replace(s, "_", "-", -1)
-		return s
+		return backwardsCompatibilityTransforms(s)
 	}), nil)
 	if err != nil {
 		return nil, err
@@ -170,5 +170,19 @@ func (c *Config) Translates() map[string]string {
 		"FormAuth":                "form-auth",
 		"EnableUnknownQueueItems": "enable-unknown-queue-items",
 		"EnableAdditionalMetrics": "enable-additional-metric",
+	}
+}
+
+// Remove in v2.0.0
+func backwardsCompatibilityTransforms(s string) string {
+	switch s {
+	case "apikey-file":
+		return "api-key-file"
+	case "basic-auth-username":
+		return "auth-username"
+	case "basic-auth-password":
+		return "auth-password"
+	default:
+		return s
 	}
 }
