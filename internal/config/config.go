@@ -18,22 +18,24 @@ import (
 )
 
 type Config struct {
-	Arr                     string `koanf:"arr"`
-	LogLevel                string `koanf:"log-level" validate:"ValidateLogLevel"`
-	LogFormat               string `koanf:"log-format" validate:"in:console,json"`
-	URL                     string `koanf:"url" validate:"required|url"`
-	ApiKey                  string `koanf:"api-key" validate:"required|regex:([a-z0-9]{32})"`
-	ApiKeyFile              string `koanf:"api-key-file"`
-	ApiVersion              string `koanf:"api-version" validate:"required|in:v3,v4"`
-	XMLConfig               string `koanf:"config"`
-	Port                    int    `koanf:"port" validate:"required"`
-	Interface               string `koanf:"interface" validate:"required|ip"`
-	DisableSSLVerify        bool   `koanf:"disable-ssl-verify"`
-	AuthUsername            string `koanf:"auth-username"`
-	AuthPassword            string `koanf:"auth-password"`
-	FormAuth                bool   `koanf:"form-auth"`
-	EnableUnknownQueueItems bool   `koanf:"enable-unknown-queue-items"`
-	EnableAdditionalMetrics bool   `koanf:"enable-additional-metric"`
+	Arr                     string         `koanf:"arr"`
+	LogLevel                string         `koanf:"log-level" validate:"ValidateLogLevel"`
+	LogFormat               string         `koanf:"log-format" validate:"in:console,json"`
+	URL                     string         `koanf:"url" validate:"required|url"`
+	ApiKey                  string         `koanf:"api-key" validate:"required|regex:([a-z0-9]{32})"`
+	ApiKeyFile              string         `koanf:"api-key-file"`
+	ApiVersion              string         `koanf:"api-version" validate:"required|in:v3,v4"`
+	XMLConfig               string         `koanf:"config"`
+	Port                    int            `koanf:"port" validate:"required"`
+	Interface               string         `koanf:"interface" validate:"required|ip"`
+	DisableSSLVerify        bool           `koanf:"disable-ssl-verify"`
+	AuthUsername            string         `koanf:"auth-username"`
+	AuthPassword            string         `koanf:"auth-password"`
+	FormAuth                bool           `koanf:"form-auth"`
+	EnableUnknownQueueItems bool           `koanf:"enable-unknown-queue-items"`
+	EnableAdditionalMetrics bool           `koanf:"enable-additional-metric"`
+	Prowlarr                ProwlarrConfig `koanf:"prowlarr"`
+	k                       *koanf.Koanf
 }
 
 func (c *Config) UseBasicAuth() bool {
@@ -57,6 +59,7 @@ func (c *Config) URLLabel() string {
 	}
 	return c.URL
 }
+
 func LoadConfig(flags *flag.FlagSet) (*Config, error) {
 	k := koanf.New(".")
 
@@ -74,7 +77,10 @@ func LoadConfig(flags *flag.FlagSet) (*Config, error) {
 
 	// Environment
 	err = k.Load(env.Provider("", ".", func(s string) string {
-		return strings.Replace(strings.ToLower(s), "_", "-", -1)
+		s = strings.ToLower(s)
+		s = strings.Replace(s, "__", ".", -1)
+		s = strings.Replace(s, "_", "-", -1)
+		return s
 	}), nil)
 	if err != nil {
 		return nil, err
@@ -109,7 +115,7 @@ func LoadConfig(flags *flag.FlagSet) (*Config, error) {
 	if err := k.Unmarshal("", &out); err != nil {
 		return nil, err
 	}
-
+	out.k = k
 	return &out, nil
 }
 
@@ -144,5 +150,25 @@ func (c *Config) Messages() map[string]string {
 	return validate.MS{
 		"ApiKey.regex":              "API Key must be a 32 character hex string",
 		"LogLevel.validateLogLevel": "Log Level must be one of: debug, info, warn, error, dpanic, panic, fatal",
+	}
+}
+
+func (c *Config) Translates() map[string]string {
+	return validate.MS{
+		"LogLevel":                "log-level",
+		"LogFormat":               "log-format",
+		"URL":                     "url",
+		"ApiKey":                  "api-key",
+		"ApiKeyFile":              "api-key-file",
+		"ApiVersion":              "api-version",
+		"XMLConfig":               "config",
+		"Port":                    "port",
+		"Interface":               "interface",
+		"DisableSSLVerify":        "disable-ssl-verify",
+		"AuthUsername":            "auth-username",
+		"AuthPassword":            "auth-password",
+		"FormAuth":                "form-auth",
+		"EnableUnknownQueueItems": "enable-unknown-queue-items",
+		"EnableAdditionalMetrics": "enable-additional-metric",
 	}
 }

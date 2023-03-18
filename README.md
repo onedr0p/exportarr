@@ -146,8 +146,14 @@ Visit http://127.0.0.1:9709/metrics to see Radarr metrics
 ./exportarr prowlarr \
   --port 9710 \
   --url http://x.x.x.x:9696 \
-  --api-key amlmndfb503rfqaa5ln5hj5qkmu3hy18
+  --api-key amlmndfb503rfqaa5ln5hj5qkmu3hy18 \
+  --backfill \
+  --backfill-since-date 2023-03-01
 ```
+
+Backfill options are optional.
+
+Visit http://127.0.0.1:9710/metrics to see Prowlarr metrics
 
 #### Readarr (Experimental)
 
@@ -160,7 +166,7 @@ Visit http://127.0.0.1:9709/metrics to see Radarr metrics
   --api-key amlmndfb503rfqaa5ln5hj5qkmu3hy18
 ```
 
-Visit http://127.0.0.1:9710/metrics to see Prowlarr metrics
+Visit http://127.0.0.1:9711/metrics to see Readarr metrics
 
 ## Configuration
 
@@ -169,18 +175,25 @@ Visit http://127.0.0.1:9710/metrics to see Prowlarr metrics
 | `PORT`                       | `--port` or `-p`               | The port exportarr will listen on                              |           | ✅       |
 | `URL`                        | `--url` or `-u`                | The full URL to Sonarr, Radarr, or Lidarr                      |           | ✅       |
 | `APIKEY`                     | `--api-key` or `-a`            | API Key for Sonarr, Radarr or Lidarr                           |           | ❌       |
-| `APIKEY_FILE`                | `--api-key-file`               | API Key file location for Sonarr, Radarr or Lidarr             |           | ❌       |
+| `API_KEY_FILE`                | `--api-key-file`               | API Key file location for Sonarr, Radarr or Lidarr             |           | ❌       |
 | `CONFIG`                     | `--config` or `-c`             | Path to Sonarr, Radarr or Lidarr's `config.xml` (advanced)     |           | ❌       |
 | `INTERFACE`                  | `--interface` or `-i`          | The interface IP exportarr will listen on                      | `0.0.0.0` | ❌       |
 | `LOG_LEVEL`                  | `--log-level` or `-l`          | Set the default Log Level                                      | `INFO`    | ❌       |
 | `DISABLE_SSL_VERIFY`         | `--disable-ssl-verify`         | Set to `true` to disable SSL verification                      | `false`   | ❌       |
-| `BASIC_AUTH_PASSWORD`        | `--basic-auth-password`        | Set to your basic auth password                                |           | ❌       |
-| `BASIC_AUTH_USERNAME`        | `--basic-auth-username`        | Set to your basic auth username                                |           | ❌       |
+| `AUTH_PASSWORD`        | `--auth-password`        | Set to your basic or form auth password                                |           | ❌       |
+| `AUTH_USERNAME`        | `--auth-username`        | Set to your basic or form auth username                                |           | ❌       |
+| `FORM_AUTH`            | `--form-auth`            | Use Form Auth instead of basic auth                                        | `false` | ❌       |
 | `ENABLE_ADDITIONAL_METRICS`  | `--enable-additional-metrics`  | Set to `true` to enable gathering of additional metrics (slow) | `false`   | ❌       |
 | `ENABLE_UNKNOWN_QUEUE_ITEMS` | `--enable-unknown-queue-items` | Set to `true` to enable gathering unknown queue items          | `false`   | ❌       |
+| `PROWLARR__BACKFILL`         | `--backfill`                   | Set to `true` to enable backfill of historical metrics         | `false`   | ❌                |
+| `PROWLARR__BACKFILL_SINCE_DATE` | `--backfill-since-date`      | Set a date from which to start the backfill                    | `1970-01-01` (epoch) | ❌                |
 
 ### Prowlarr Backfill
 
-The prowlarr collector is a little different than other collectors as it's hitting an actual "stats" endpoint, collecting counters of events that happened in a small time window, rather than getting all-time statistics like the other collectors. This means that by default, when you start the prowlarr collector, collected stats will start from that moment (all counters will start from zero). `ENABLE_ADDITIONAL_METRIC` will tell the collector that it should backfill all-time metrics the first time it's queried. The actual API call this makes is *really* slow. On my prowlarr instance which is only a few months old, this took more than 5 seconds, so if you have a very active or very old prowlarr server this might time out, and need to be turned off.
+The prowlarr collector is a little different than other collectors as it's hitting an actual "stats" endpoint, collecting counters of events that happened in a small time window, rather than getting all-time statistics like the other collectors. This means that by default, when you start the prowlarr collector, collected stats will start from that moment (all counters will start from zero).
 
-Note that if you have to turn off backfill that your counters will reset to zero every time you restart the collector. This isn't a huge problem, prometheus expects counters to reset on restart, so normal aggregations like `rate()`, `increase()`, `irate()`, etc will all still work fine. The only thing that will be tough will be getting all-time stats (you can still do it, but you'll have to do something like `increase(stat_you_want_to_see[<timeserverhasbeenalive>])`, which will likely be slow)
+To backill all Prowlarr Data, either use `PROWLARR__BACKFILL` or `--backfill`.
+
+Note that the first request can be extremely slow, depending on how long your prowlarr instance has been running. You can also specify a start date to limit the backfill if the backfill is timing out:
+
+`PROWLARR__BACKFILL_DATE_SINCE=2023-03-01` or `--backfill-date-since=2023-03-01`

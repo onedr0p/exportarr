@@ -10,6 +10,9 @@ import (
 
 func init() {
 	rootCmd.AddCommand(prowlarrCmd)
+
+	prowlarrCmd.PersistentFlags().Bool("backfill", false, "Backfill Prowlarr")
+	prowlarrCmd.PersistentFlags().String("backfill-since-date", "", "Date from which to start Prowlarr Backfill")
 }
 
 var prowlarrCmd = &cobra.Command{
@@ -19,6 +22,10 @@ var prowlarrCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		conf.Arr = "prowlarr"
 		conf.ApiVersion = "v1"
+		conf.LoadProwlarrFlags(cmd.PersistentFlags())
+		if err := conf.Prowlarr.Validate(); err != nil {
+			return err
+		}
 		serveHttp(func(r *prometheus.Registry) {
 			r.MustRegister(
 				prowlarrCollector.NewProwlarrCollector(conf),
