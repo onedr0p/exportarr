@@ -5,7 +5,7 @@ import (
 	"github.com/onedr0p/exportarr/internal/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
-	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 )
 
 type radarrCollector struct {
@@ -93,9 +93,10 @@ func (collector *radarrCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
+	log := zap.S().With("collector", "radarr")
 	c, err := client.NewClient(collector.config)
 	if err != nil {
-		log.Errorf("Error creating client: %s", err)
+		log.Errorw("Error creating client", "error", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 		return
 	}
@@ -111,7 +112,7 @@ func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
 	movies := model.Movie{}
 	// https://radarr.video/docs/api/#/Movie/get_api_v3_movie
 	if err := c.DoRequest("movie", &movies); err != nil {
-		log.Errorf("Error getting movies: %s", err)
+		log.Errorw("Error getting movies", "error", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 		return
 	}

@@ -7,7 +7,7 @@ import (
 	"github.com/onedr0p/exportarr/internal/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
-	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 )
 
 type historyCollector struct {
@@ -39,15 +39,18 @@ func (collector *historyCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *historyCollector) Collect(ch chan<- prometheus.Metric) {
+	log := zap.S().With("collector", "history")
 	c, err := client.NewClient(collector.config)
 	if err != nil {
-		log.Errorf("Error creating client: %s", err)
+		log.Errorw("Error creating client",
+			"error", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 		return
 	}
 	history := model.History{}
 	if err := c.DoRequest("history", &history); err != nil {
-		log.Errorf("Error getting history: %s", err)
+		log.Errorw("Error getting history",
+			"error", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 		return
 	}

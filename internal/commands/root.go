@@ -11,8 +11,9 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 
 	"github.com/onedr0p/exportarr/internal/config"
 	"github.com/onedr0p/exportarr/internal/handlers"
@@ -37,9 +38,11 @@ func Execute() error {
 }
 
 func init() {
-	cobra.OnInitialize(initConfig)
+	cobra.OnInitialize(initConfig, initLogger)
+	cobra.OnFinalize(finalizeLogger)
 
 	rootCmd.PersistentFlags().StringP("log-level", "l", "info", "Log level (debug, info, warn, error, fatal, panic)")
+	rootCmd.PersistentFlags().String("log-format", "console", "Log format (console, json)")
 	rootCmd.PersistentFlags().StringP("config", "c", "", "*arr config.xml file for parsing authentication information")
 	rootCmd.PersistentFlags().StringP("url", "u", "", "URL to *arr instance")
 	rootCmd.PersistentFlags().StringP("api-key", "k", "", "API Key for *arr instance")
@@ -58,18 +61,42 @@ func initConfig() {
 	var err error
 	conf, err = config.LoadConfig(rootCmd.PersistentFlags())
 	if err != nil {
-		log.Fatal(err)
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
 
 	if err := conf.Validate(); err != nil {
-		log.Fatal(err)
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
-	level, err := log.ParseLevel(conf.LogLevel)
+}
+
+func initLogger() {
+	atom := zap.NewAtomicLevel()
+
+	encoder := zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig())
+	if conf.LogFormat == "json" {
+		encoder = zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig())
+	}
+
+	logger := zap.New(zapcore.NewCore(encoder, zapcore.Lock(os.Stdout), atom))
+	// Create a logger with a default level first to ensure config failures are loggable.
+	atom.SetLevel(zapcore.InfoLevel)
+	zap.ReplaceGlobals(logger)
+
+	lvl, err := zapcore.ParseLevel(conf.LogLevel)
 	if err != nil {
-		log.Errorf("Invalid log level %s, using default level: info", conf.LogLevel)
-		level = log.InfoLevel
+		zap.S().Errorf("Invalid log level %s, using default level: info", conf.LogLevel)
+		lvl = zapcore.InfoLevel
 	}
-	log.SetLevel(level)
+	atom.SetLevel(lvl)
+
+	zap.S().Debug("Logger initialized")
+}
+
+func finalizeLogger() {
+	// Flushes buffered log messages
+	zap.S().Sync()
 }
 
 type registerFunc func(registry *prometheus.Registry)
@@ -83,13 +110,15 @@ func serveHttp(fn registerFunc) {
 		signal.Notify(sigchan, os.Interrupt)
 		signal.Notify(sigchan, syscall.SIGTERM)
 		sig := <-sigchan
-		log.Infof("Received signal %s, shutting down", sig)
+		zap.S().Infof(
+			"Shutting down due to signal: %s", sig)
 
 		ctx, cancel := context.WithTimeout(context.Background(), GRACEFUL_TIMEOUT)
 		defer cancel()
 
 		if err := srv.Shutdown(ctx); err != nil {
-			log.Fatalf("Server shutdown failed: %v", err)
+			zap.S().Fatalw("Server shutdown failed",
+				"error", err)
 		}
 		close(idleConnsClosed)
 	}()
@@ -102,12 +131,15 @@ func serveHttp(fn registerFunc) {
 	http.HandleFunc("/healthz", handlers.HealthzHandler)
 	http.Handle("/metrics", handler)
 
-	log.Infof("Listening on %s:%d", conf.Interface, conf.Port)
+	zap.S().Infow("Starting HTTP Server",
+		"interface", conf.Interface,
+		"port", conf.Port)
 	srv.Addr = fmt.Sprintf("%s:%d", conf.Interface, conf.Port)
 	srv.Handler = logRequest(http.DefaultServeMux)
 
 	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-		log.Fatalf("Failed to Start HTTP Server: %v", err)
+		zap.S().Fatalw("Failed to Start HTTP Server",
+			"error", err)
 	}
 	<-idleConnsClosed
 }
@@ -115,7 +147,10 @@ func serveHttp(fn registerFunc) {
 // Log internal request to stdout
 func logRequest(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Debugf("%s %s %s\n", r.RemoteAddr, r.Method, r.URL)
+		zap.S().Debugw("Request Received",
+			"remote_addr", r.RemoteAddr,
+			"method", r.Method,
+			"url", r.URL)
 		handler.ServeHTTP(w, r)
 	})
 }

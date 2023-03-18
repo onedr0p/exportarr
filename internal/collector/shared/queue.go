@@ -7,7 +7,7 @@ import (
 	"github.com/onedr0p/exportarr/internal/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
-	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 )
 
 type queueCollector struct {
@@ -39,9 +39,11 @@ func (collector *queueCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *queueCollector) Collect(ch chan<- prometheus.Metric) {
+	log := zap.S().With("collector", "queue")
 	c, err := client.NewClient(collector.config)
 	if err != nil {
-		log.Errorf("Error creating client: %s", err)
+		log.Errorw("Error creating client",
+			"error", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 		return
 	}
@@ -57,7 +59,8 @@ func (collector *queueCollector) Collect(ch chan<- prometheus.Metric) {
 
 	queue := model.Queue{}
 	if err := c.DoRequest("queue", &queue, params); err != nil {
-		log.Errorf("Error getting queue: %s", err)
+		log.Errorw("Error getting queue",
+			"error", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 		return
 	}
@@ -70,7 +73,9 @@ func (collector *queueCollector) Collect(ch chan<- prometheus.Metric) {
 		for page := 2; page <= totalPages; page++ {
 			params["page"] = fmt.Sprintf("%d", page)
 			if err := c.DoRequest("queue", &queue, params); err != nil {
-				log.Errorf("Error getting queue (page %d): %s", page, err)
+				log.Errorw("Error getting queue page",
+					"page", page,
+					"error", err)
 				ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 				return
 			}

@@ -7,7 +7,7 @@ import (
 	"github.com/onedr0p/exportarr/internal/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
-	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 )
 
 type rootFolderCollector struct {
@@ -39,15 +39,18 @@ func (collector *rootFolderCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *rootFolderCollector) Collect(ch chan<- prometheus.Metric) {
+	log := zap.S().With("collector", "rootfolder")
 	c, err := client.NewClient(collector.config)
 	if err != nil {
-		log.Errorf("Error creating client: %s", err)
+		log.Errorw("Error creating client",
+			"error", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 		return
 	}
 	rootFolders := model.RootFolder{}
 	if err := c.DoRequest("rootfolder", &rootFolders); err != nil {
-		log.Errorf("Error getting rootfolder: %s", err)
+		log.Errorw("Error getting rootfolder",
+			"error", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 		return
 	}

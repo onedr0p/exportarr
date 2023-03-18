@@ -8,16 +8,16 @@ import (
 	"net/url"
 
 	"github.com/onedr0p/exportarr/internal/config"
-	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 )
 
-// Client struct is a Radarr client to request an instance of a Radarr
+// Client struct is an *Arr client.
 type Client struct {
 	httpClient http.Client
 	URL        url.URL
 }
 
-// NewClient method initializes a new Radarr client.
+// NewClient method initializes a new *Arr client.
 func NewClient(config *config.Config) (*Client, error) {
 
 	baseURL, err := url.Parse(config.URL)
@@ -72,8 +72,8 @@ func (c *Client) DoRequest(endpoint string, target interface{}, queryParams ...m
 	}
 	url := c.URL.JoinPath(endpoint)
 	url.RawQuery = values.Encode()
-
-	log.Infof("Sending HTTP request to %s", url.String())
+	zap.S().Infow("Sending HTTP request",
+		"url", url)
 
 	req, err := http.NewRequest("GET", url.String(), nil)
 	if err != nil {

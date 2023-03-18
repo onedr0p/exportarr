@@ -8,7 +8,7 @@ import (
 	"github.com/onedr0p/exportarr/internal/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
-	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 )
 
 type sonarrCollector struct {
@@ -153,9 +153,11 @@ func (collector *sonarrCollector) Describe(ch chan<- *prometheus.Desc) {
 
 func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 	total := time.Now()
+	log := zap.S().With("collector", "sonarr")
 	c, err := client.NewClient(collector.config)
 	if err != nil {
-		log.Errorf("Error creating client: %s", err)
+		log.Errorw("Error creating client",
+			"error", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 		return
 	}
@@ -178,7 +180,8 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 	cseries := []time.Duration{}
 	series := model.Series{}
 	if err := c.DoRequest("series", &series); err != nil {
-		log.Errorf("Error getting series: %s", err)
+		log.Errorw("Error getting series",
+			"error", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 		return
 	}
@@ -218,7 +221,8 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 			episodeFile := model.EpisodeFile{}
 			params := map[string]string{"seriesId": fmt.Sprintf("%d", s.Id)}
 			if err := c.DoRequest("episodefile", &episodeFile, params); err != nil {
-				log.Errorf("Error getting episodefile: %s", err)
+				log.Errorw("Error getting episodefile",
+					"error", err)
 				ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 				return
 			}
@@ -230,7 +234,8 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 
 			episode := model.Episode{}
 			if err := c.DoRequest("episode", &episode, params); err != nil {
-				log.Errorf("Error getting episode: %s", err)
+				log.Errorw("Error getting episode",
+					"error", err)
 				ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 				return
 			}
@@ -241,17 +246,21 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 					episodesMonitored++
 				}
 			}
-			log.Debugf("TIME :: Extra options took %s", time.Since(textra))
+			log.Debugw("Extra options completed",
+				"duration", time.Since(textra))
 		}
 		e := time.Since(tseries)
 		cseries = append(cseries, e)
-		log.Debugf("TIME :: series %d took %s", s.Id, e)
+		log.Debugw("series completed",
+			"series_id", s.Id,
+			"duration", e)
 	}
 
 	episodesMissing := model.Missing{}
 	params := map[string]string{"sortKey": "airDateUtc"}
 	if err := c.DoRequest("wanted/missing", &episodesMissing, params); err != nil {
-		log.Errorf("Error getting missing: %s", err)
+		log.Errorw("Error getting missing",
+			"error", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 		return
 	}
@@ -281,9 +290,9 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 			}
 		}
 	}
-	log.Debugf("TIME :: total took %s with series timings as %s",
-		time.Since(total),
-		cseries,
+	log.Debugw("Sonarr cycle completed",
+		"duration", time.Since(total),
+		"series_durations", cseries,
 	)
 
 }
