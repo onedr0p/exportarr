@@ -174,7 +174,7 @@ Visit http://127.0.0.1:9711/metrics to see Readarr metrics
 |:----------------------------:|--------------------------------|----------------------------------------------------------------|-----------|:--------:|
 | `PORT`                       | `--port` or `-p`               | The port exportarr will listen on                              |           | ✅       |
 | `URL`                        | `--url` or `-u`                | The full URL to Sonarr, Radarr, or Lidarr                      |           | ✅       |
-| `APIKEY`                     | `--api-key` or `-a`            | API Key for Sonarr, Radarr or Lidarr                           |           | ❌       |
+| `API_KEY`                     | `--api-key` or `-a`            | API Key for Sonarr, Radarr or Lidarr                           |           | ❌       |
 | `API_KEY_FILE`                | `--api-key-file`               | API Key file location for Sonarr, Radarr or Lidarr             |           | ❌       |
 | `CONFIG`                     | `--config` or `-c`             | Path to Sonarr, Radarr or Lidarr's `config.xml` (advanced)     |           | ❌       |
 | `INTERFACE`                  | `--interface` or `-i`          | The interface IP exportarr will listen on                      | `0.0.0.0` | ❌       |

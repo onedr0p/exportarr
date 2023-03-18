@@ -13,9 +13,10 @@ func init() {
 }
 
 var readarrCmd = &cobra.Command{
-	Use:   "readarr",
-	Short: "Prometheus Exporter for Readarr",
-	Long:  "Prometheus Exporter for Readarr.",
+	Use:     "readarr",
+	Aliases: []string{"b"},
+	Short:   "Prometheus Exporter for Readarr",
+	Long:    "Prometheus Exporter for Readarr.",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		conf.Arr = "readarr"
 		conf.ApiVersion = "v1"

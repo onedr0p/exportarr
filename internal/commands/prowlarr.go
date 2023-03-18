@@ -16,9 +16,10 @@ func init() {
 }
 
 var prowlarrCmd = &cobra.Command{
-	Use:   "prowlarr",
-	Short: "Prometheus Exporter for Prowlarr",
-	Long:  "Prometheus Exporter for Prowlarr.",
+	Use:     "prowlarr",
+	Aliases: []string{"p"},
+	Short:   "Prometheus Exporter for Prowlarr",
+	Long:    "Prometheus Exporter for Prowlarr.",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		conf.Arr = "prowlarr"
 		conf.ApiVersion = "v1"

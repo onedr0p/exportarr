@@ -109,7 +109,7 @@ func TestLoadConfig_Environment(t *testing.T) {
 	require.Equal("v3", config.ApiVersion)
 }
 
-func TestLoadConfig_BackwardsCompatibility(t *testing.T) {
+func TestLoadConfig_BackwardsCompatibility_ApiKeyFile(t *testing.T) {
 	require := require.New(t)
 
 	// Set environment variables
@@ -127,6 +127,19 @@ func TestLoadConfig_BackwardsCompatibility(t *testing.T) {
 	require.Equal("pass", config.AuthPassword)
 }
 
+func TestLoadConfig_BackwardsCompatibility_ApiKey(t *testing.T) {
+	require := require.New(t)
+
+	// Set environment variables
+	t.Setenv("URL", "http://localhost:8989")
+	t.Setenv("APIKEY", "abcdef0123456789abcdef0123456780")
+	t.Setenv("PORT", "1234")
+
+	config, err := LoadConfig(&pflag.FlagSet{})
+	require.NoError(err)
+
+	require.Equal("abcdef0123456789abcdef0123456780", config.ApiKey)
+}
 func TestLoadConfig_XMLConfig(t *testing.T) {
 	flags := testFlagSet()
 	flags.Set("config", "test_fixtures/config.test_xml")
