@@ -18,6 +18,8 @@ builds:
       - "freebsd"
       - "openbsd"
     ignore:
+      - goos: darwin
+        goarch: arm
       - goos: freebsd
         goarch: arm
       - goos: openbsd
