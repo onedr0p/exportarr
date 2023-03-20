@@ -22,7 +22,7 @@ type Config struct {
 	LogLevel                string         `koanf:"log-level" validate:"ValidateLogLevel"`
 	LogFormat               string         `koanf:"log-format" validate:"in:console,json"`
 	URL                     string         `koanf:"url" validate:"required|url"`
-	ApiKey                  string         `koanf:"api-key" validate:"required|regex:([a-z0-9]{32})"`
+	ApiKey                  string         `koanf:"api-key" validate:"required|regex:(^[a-z0-9]{32}$)"`
 	ApiKeyFile              string         `koanf:"api-key-file"`
 	ApiVersion              string         `koanf:"api-version" validate:"required|in:v3,v4"`
 	XMLConfig               string         `koanf:"config"`
@@ -148,12 +148,12 @@ func (c *Config) Validate() error {
 
 func (c Config) Messages() map[string]string {
 	return validate.MS{
-		"ApiKey.regex":              "API Key must be a 32 character hex string",
-		"LogLevel.validateLogLevel": "Log Level must be one of: debug, info, warn, error, dpanic, panic, fatal",
+		"ApiKey.regex":              "api-key must be a 32 character hex string",
+		"LogLevel.ValidateLogLevel": "log-level must be one of: debug, info, warn, error, dpanic, panic, fatal",
 	}
 }
 
-func (c *Config) Translates() map[string]string {
+func (c Config) Translates() map[string]string {
 	return validate.MS{
 		"LogLevel":                "log-level",
 		"LogFormat":               "log-format",

@@ -30,7 +30,7 @@ func (p ProwlarrConfig) Validate() error {
 
 func (p ProwlarrConfig) Messages() map[string]string {
 	return validate.MS{
-		"backfill-since-date": "backfill-since-date is not a valid date",
+		"BackfillSinceDate.date": "backfill-since-date must be in the format YYYY-MM-DD",
 	}
 }
 

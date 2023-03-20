@@ -68,11 +68,13 @@ func initConfig() {
 	conf, err = config.LoadConfig(rootCmd.PersistentFlags())
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
+		rootCmd.Usage()
 		os.Exit(1)
 	}
 
 	if err := conf.Validate(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
+		rootCmd.Usage()
 		os.Exit(1)
 	}
 }
