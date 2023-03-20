@@ -146,7 +146,7 @@ func (c *Config) Validate() error {
 	return nil
 }
 
-func (c *Config) Messages() map[string]string {
+func (c Config) Messages() map[string]string {
 	return validate.MS{
 		"ApiKey.regex":              "API Key must be a 32 character hex string",
 		"LogLevel.validateLogLevel": "Log Level must be one of: debug, info, warn, error, dpanic, panic, fatal",
