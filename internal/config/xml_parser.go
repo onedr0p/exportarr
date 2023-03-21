@@ -38,7 +38,6 @@ func (p *XML) Marshal(o map[string]interface{}) ([]byte, error) {
 
 func (p *XML) Merge(src, dest map[string]interface{}) error {
 	dest["api-key"] = src["api-key"]
-	dest["api-version"] = src["api-version"]
 
 	u, err := url.Parse(dest["url"].(string))
 	if err != nil {

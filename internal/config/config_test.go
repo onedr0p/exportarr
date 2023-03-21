@@ -109,6 +109,32 @@ func TestLoadConfig_Environment(t *testing.T) {
 	require.Equal("v3", config.ApiVersion)
 }
 
+func TestLoadConfig_PartialEnvironment(t *testing.T) {
+	flags := testFlagSet()
+	flags.Set("url", "http://localhost:8989")
+	flags.Set("interface", "1.2.3.4")
+
+	t.Setenv("API_KEY", "abcdef0123456789abcdef0123456789")
+	t.Setenv("PORT", "1234")
+
+	require := require.New(t)
+	config, err := LoadConfig(flags)
+	require.NoError(err)
+
+	// Env
+	require.Equal("http://localhost:8989", config.URL)
+	require.Equal("1.2.3.4", config.Interface)
+
+	// Flags
+	require.Equal("abcdef0123456789abcdef0123456789", config.ApiKey)
+	require.Equal(1234, config.Port)
+
+	// Defaults
+	require.Equal("v3", config.ApiVersion)
+	require.Equal("info", config.LogLevel)
+	require.Equal("console", config.LogFormat)
+}
+
 func TestLoadConfig_BackwardsCompatibility_ApiKeyFile(t *testing.T) {
 	require := require.New(t)
 
@@ -151,6 +177,14 @@ func TestLoadConfig_XMLConfig(t *testing.T) {
 
 	require.Equal("http://localhost:7878/asdf", config.URL)
 	require.Equal("abcdef0123456789abcdef0123456789", config.ApiKey)
+
+	// test defaults survive when not set in config
+	require.Equal("info", config.LogLevel)
+	require.Equal("console", config.LogFormat)
+	require.Equal("v3", config.ApiVersion)
+	require.Equal(8081, config.Port)
+	require.Equal("0.0.0.0", config.Interface)
+
 }
 
 func TestLoadConfig_ApiKeyFile(t *testing.T) {
