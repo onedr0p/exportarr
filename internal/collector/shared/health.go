@@ -59,5 +59,7 @@ func (collector *systemHealthCollector) Collect(ch chan<- prometheus.Metric) {
 				s.Source, s.Type, s.Message, s.WikiURL,
 			)
 		}
+	} else {
+		ch <- prometheus.MustNewConstMetric(collector.systemHealthMetric, prometheus.GaugeValue, float64(0), "", "", "", "")
 	}
 }
