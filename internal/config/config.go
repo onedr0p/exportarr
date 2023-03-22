@@ -169,7 +169,7 @@ func (c Config) Translates() map[string]string {
 		"AuthPassword":            "auth-password",
 		"FormAuth":                "form-auth",
 		"EnableUnknownQueueItems": "enable-unknown-queue-items",
-		"EnableAdditionalMetrics": "enable-additional-metric",
+		"EnableAdditionalMetrics": "enable-additional-metrics",
 	}
 }
 
