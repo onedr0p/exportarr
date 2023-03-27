@@ -46,7 +46,6 @@ var radarrCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		c.App = "radarr"
 		c.ApiVersion = "v3"
 		UsageOnError(cmd, c.Validate())
 
@@ -74,7 +73,6 @@ var sonarrCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		c.App = "sonarr"
 		c.ApiVersion = "v3"
 		UsageOnError(cmd, c.Validate())
 
@@ -101,7 +99,6 @@ var lidarrCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		c.App = "lidarr"
 		c.ApiVersion = "v1"
 		UsageOnError(cmd, c.Validate())
 
@@ -129,7 +126,6 @@ var readarrCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		c.App = "readarr"
 		c.ApiVersion = "v1"
 		UsageOnError(cmd, c.Validate())
 
@@ -157,7 +153,6 @@ var prowlarrCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		c.App = "prowlarr"
 		c.ApiVersion = "v1"
 		c.LoadProwlarrConfig(cmd.PersistentFlags())
 		if err := c.Prowlarr.Validate(); err != nil {

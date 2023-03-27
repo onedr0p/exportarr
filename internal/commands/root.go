@@ -30,6 +30,9 @@ var (
 		Long: `exportarr is a Prometheus exporter for *arr applications.
 It can export metrics from Radarr, Sonarr, Lidarr, Readarr, and Prowlarr.
 More information available at the Github Repo (https://github.com/onedr0p/exportarr)`,
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			conf.App = cmd.Name()
+		},
 	}
 )
 
@@ -115,31 +118,25 @@ func serveHttp(fn registerFunc) {
 	registry := prometheus.NewRegistry()
 	fn(registry)
 
-	handler := promhttp.HandlerFor(registry, promhttp.HandlerOpts{})
-	http.HandleFunc("/", handlers.IndexHandler)
-	http.HandleFunc("/healthz", handlers.HealthzHandler)
-	http.Handle("/metrics", handler)
+	mux := http.NewServeMux()
+	mux.Handle("/metrics", promhttp.HandlerFor(registry, promhttp.HandlerOpts{}))
+	mux.HandleFunc("/", handlers.IndexHandler)
+	mux.HandleFunc("/healthz", handlers.HealthzHandler)
 
 	zap.S().Infow("Starting HTTP Server",
 		"interface", conf.Interface,
 		"port", conf.Port)
 	srv.Addr = fmt.Sprintf("%s:%d", conf.Interface, conf.Port)
-	srv.Handler = logRequest(http.DefaultServeMux)
+
+	wrappedMux := handlers.RecoveryHandler(mux)
+	wrappedMux = handlers.MetricsHandler(conf, registry, wrappedMux)
+	wrappedMux = handlers.LogHandler(wrappedMux)
+
+	srv.Handler = wrappedMux
 
 	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
 		zap.S().Fatalw("Failed to Start HTTP Server",
 			"error", err)
 	}
 	<-idleConnsClosed
-}
-
-// Log internal request to stdout
-func logRequest(handler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		zap.S().Debugw("Request Received",
-			"remote_addr", r.RemoteAddr,
-			"method", r.Method,
-			"url", r.URL)
-		handler.ServeHTTP(w, r)
-	})
 }
