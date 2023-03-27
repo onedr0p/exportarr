@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/onedr0p/exportarr/internal/client"
+	"github.com/onedr0p/exportarr/internal/collector/arr/client"
 	"github.com/onedr0p/exportarr/internal/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
@@ -216,7 +216,7 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 			}
 		}
 
-		if collector.config.EnableAdditionalMetrics {
+		if collector.config.Arr.EnableAdditionalMetrics {
 			textra := time.Now()
 			episodeFile := model.EpisodeFile{}
 			params := map[string]string{"seriesId": fmt.Sprintf("%d", s.Id)}
@@ -278,7 +278,7 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(collector.episodeDownloadedMetric, prometheus.GaugeValue, float64(episodesDownloaded))
 	ch <- prometheus.MustNewConstMetric(collector.episodeMissingMetric, prometheus.GaugeValue, float64(episodesMissing.TotalRecords))
 
-	if collector.config.EnableAdditionalMetrics {
+	if collector.config.Arr.EnableAdditionalMetrics {
 		ch <- prometheus.MustNewConstMetric(collector.episodeMonitoredMetric, prometheus.GaugeValue, float64(episodesMonitored))
 		ch <- prometheus.MustNewConstMetric(collector.episodeUnmonitoredMetric, prometheus.GaugeValue, float64(episodesUnmonitored))
 

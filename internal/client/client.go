@@ -18,37 +18,11 @@ type Client struct {
 }
 
 // NewClient method initializes a new *Arr client.
-func NewClient(config *config.Config) (*Client, error) {
+func NewClient(config *config.Config, auth Authenticator) (*Client, error) {
 
 	baseURL, err := url.Parse(config.URL)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to parse URL(%s): %w", config.URL, err)
-	}
-
-	baseTransport := http.DefaultTransport
-	if config.DisableSSLVerify {
-		baseTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-	}
-
-	var auth Authenticator
-	if config.UseFormAuth() {
-		auth = &FormAuth{
-			Username:    config.AuthUsername,
-			Password:    config.AuthPassword,
-			ApiKey:      config.ApiKey,
-			AuthBaseURL: baseURL,
-			Transport:   baseTransport,
-		}
-	} else if config.UseBasicAuth() {
-		auth = &BasicAuth{
-			Username: config.AuthUsername,
-			Password: config.AuthPassword,
-			ApiKey:   config.ApiKey,
-		}
-	} else {
-		auth = &ApiKeyAuth{
-			ApiKey: config.ApiKey,
-		}
 	}
 
 	return &Client{
@@ -56,9 +30,9 @@ func NewClient(config *config.Config) (*Client, error) {
 			CheckRedirect: func(req *http.Request, via []*http.Request) error {
 				return http.ErrUseLastResponse
 			},
-			Transport: NewArrTransport(auth, baseTransport),
+			Transport: NewExportarrTransport(BaseTransport(config), auth),
 		},
-		URL: *baseURL.JoinPath("api", config.ApiVersion),
+		URL: *baseURL,
 	}, nil
 }
 
@@ -85,4 +59,12 @@ func (c *Client) DoRequest(endpoint string, target interface{}, queryParams ...m
 	}
 	defer resp.Body.Close()
 	return json.NewDecoder(resp.Body).Decode(target)
+}
+
+func BaseTransport(config *config.Config) http.RoundTripper {
+	baseTransport := http.DefaultTransport
+	if config.DisableSSLVerify {
+		baseTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	}
+	return baseTransport
 }

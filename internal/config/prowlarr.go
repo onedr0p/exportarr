@@ -42,17 +42,17 @@ func (p ProwlarrConfig) Translates() map[string]string {
 
 func (c *Config) LoadProwlarrFlags(flags *flag.FlagSet) error {
 	err := c.k.Load(posflag.Provider(flags, ".", c.k), nil, koanf.WithMergeFunc(func(src, dest map[string]interface{}) error {
-		dest["prowlarr"] = src
+		dest["arr.prowlarr"] = src
 		return nil
 	}))
 	if err != nil {
 		return err
 	}
 
-	err = c.k.Unmarshal("prowlarr", &c.Prowlarr)
-	c.Prowlarr.BackfillSinceTime = c.k.Time("prowlarr.backfill-since-date", "2006-01-02")
+	err = c.k.Unmarshal("arr.prowlarr", &c.Prowlarr)
 	if err != nil {
 		return err
 	}
+	c.Prowlarr.BackfillSinceTime = c.k.Time("prowlarr.backfill-since-date", "2006-01-02")
 	return nil
 }

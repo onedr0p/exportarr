@@ -4,12 +4,14 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/spf13/cobra"
 
-	sharedCollector "github.com/onedr0p/exportarr/internal/collector/shared"
-	sonarrCollector "github.com/onedr0p/exportarr/internal/collector/sonarr"
+	sharedCollector "github.com/onedr0p/exportarr/internal/collector/arr/shared"
+	sonarrCollector "github.com/onedr0p/exportarr/internal/collector/arr/sonarr"
+	"github.com/onedr0p/exportarr/internal/config"
 )
 
 func init() {
 	rootCmd.AddCommand(sonarrCmd)
+	config.RegisterArrFlags(sonarrCmd.PersistentFlags())
 }
 
 var sonarrCmd = &cobra.Command{
@@ -18,7 +20,8 @@ var sonarrCmd = &cobra.Command{
 	Short:   "Prometheus Exporter for Sonarr",
 	Long:    "Prometheus Exporter for Sonarr.",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		conf.Arr = "sonarr"
+		conf.Arr.App = "sonarr"
+		conf.LoadArrFlags(cmd.PersistentFlags())
 		serveHttp(func(r *prometheus.Registry) {
 			r.MustRegister(
 				sonarrCollector.NewSonarrCollector(conf),

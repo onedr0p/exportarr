@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/onedr0p/exportarr/internal/client"
+	"github.com/onedr0p/exportarr/internal/collector/arr/client"
 	"github.com/onedr0p/exportarr/internal/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"

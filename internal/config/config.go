@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"net/url"
 	"os"
 	"strings"
 
@@ -17,47 +16,29 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+func RegisterConfigFlags(flags *flag.FlagSet) {
+	flags.StringP("log-level", "l", "info", "Log level (debug, info, warn, error, fatal, panic)")
+	flags.String("log-format", "console", "Log format (console, json)")
+	flags.StringP("config", "c", "", "*arr config.xml file for parsing authentication information")
+	flags.StringP("url", "u", "", "URL to *arr instance")
+	flags.StringP("api-key", "a", "", "API Key for *arr instance")
+	flags.String("api-key-file", "", "File containing API Key for *arr instance")
+	flags.IntP("port", "p", 0, "Port to listen on")
+}
+
 type Config struct {
-	Arr                     string         `koanf:"arr"`
-	LogLevel                string         `koanf:"log-level" validate:"ValidateLogLevel"`
-	LogFormat               string         `koanf:"log-format" validate:"in:console,json"`
-	URL                     string         `koanf:"url" validate:"required|url"`
-	ApiKey                  string         `koanf:"api-key" validate:"required|regex:(^[a-z0-9]{32}$)"`
-	ApiKeyFile              string         `koanf:"api-key-file"`
-	ApiVersion              string         `koanf:"api-version" validate:"required|in:v3,v4"`
-	XMLConfig               string         `koanf:"config"`
-	Port                    int            `koanf:"port" validate:"required"`
-	Interface               string         `koanf:"interface" validate:"required|ip"`
-	DisableSSLVerify        bool           `koanf:"disable-ssl-verify"`
-	AuthUsername            string         `koanf:"auth-username"`
-	AuthPassword            string         `koanf:"auth-password"`
-	FormAuth                bool           `koanf:"form-auth"`
-	EnableUnknownQueueItems bool           `koanf:"enable-unknown-queue-items"`
-	EnableAdditionalMetrics bool           `koanf:"enable-additional-metrics"`
-	Prowlarr                ProwlarrConfig `koanf:"prowlarr"`
-	k                       *koanf.Koanf
-}
+	LogLevel         string    `koanf:"log-level" validate:"ValidateLogLevel"`
+	LogFormat        string    `koanf:"log-format" validate:"in:console,json"`
+	URL              string    `koanf:"url" validate:"required|url"`
+	ApiKey           string    `koanf:"api-key" validate:"required|regex:(^[a-z0-9]{32}$)"`
+	ApiKeyFile       string    `koanf:"api-key-file"`
+	Port             int       `koanf:"port" validate:"required"`
+	Interface        string    `koanf:"interface" validate:"required|ip"`
+	DisableSSLVerify bool      `koanf:"disable-ssl-verify"`
+	Arr              ArrConfig `koanf:"arr"`
 
-func (c *Config) UseBasicAuth() bool {
-	return !c.FormAuth && c.AuthUsername != "" && c.AuthPassword != ""
-}
-
-func (c *Config) UseFormAuth() bool {
-	return c.FormAuth
-}
-
-// URLLabel() exists for backwards compatibility -- prior versions built the URL in the client,
-// meaning that the "url" metric label was missing the Port & base path that the XMLConfig provided.
-func (c *Config) URLLabel() string {
-	if c.XMLConfig != "" {
-		u, err := url.Parse(c.URL)
-		if err != nil {
-			// Should be unreachable as long as we validate that the URL is valid in LoadConfig/Validate
-			return "Could Not Parse URL"
-		}
-		return u.Scheme + "://" + u.Host
-	}
-	return c.URL
+	Prowlarr ProwlarrConfig `koanf:"prowlarr"`
+	k        *koanf.Koanf
 }
 
 func LoadConfig(flags *flag.FlagSet) (*Config, error) {
@@ -134,15 +115,6 @@ func (c *Config) Validate() error {
 	if !v.Validate() {
 		return v.Errors
 	}
-	if c.AuthPassword != "" && c.AuthUsername == "" {
-		return fmt.Errorf("auth-username is required when auth-password is set")
-	}
-	if c.AuthUsername != "" && c.AuthPassword == "" {
-		return fmt.Errorf("auth-password is required when auth-username is set")
-	}
-	if c.FormAuth && (c.AuthUsername == "" || c.AuthPassword == "") {
-		return fmt.Errorf("auth-username and auth-password are required when form-auth is set")
-	}
 	return nil
 }
 
@@ -155,35 +127,40 @@ func (c Config) Messages() map[string]string {
 
 func (c Config) Translates() map[string]string {
 	return validate.MS{
-		"LogLevel":                "log-level",
-		"LogFormat":               "log-format",
-		"URL":                     "url",
-		"ApiKey":                  "api-key",
-		"ApiKeyFile":              "api-key-file",
-		"ApiVersion":              "api-version",
-		"XMLConfig":               "config",
-		"Port":                    "port",
-		"Interface":               "interface",
-		"DisableSSLVerify":        "disable-ssl-verify",
-		"AuthUsername":            "auth-username",
-		"AuthPassword":            "auth-password",
-		"FormAuth":                "form-auth",
-		"EnableUnknownQueueItems": "enable-unknown-queue-items",
-		"EnableAdditionalMetrics": "enable-additional-metrics",
+		"LogLevel":         "log-level",
+		"LogFormat":        "log-format",
+		"URL":              "url",
+		"ApiKey":           "api-key",
+		"ApiKeyFile":       "api-key-file",
+		"ApiVersion":       "api-version",
+		"Port":             "port",
+		"Interface":        "interface",
+		"DisableSSLVerify": "disable-ssl-verify",
 	}
+}
+
+// Remove in v2.0.0
+func backwardsCompatibilityNormalizeFunc(f *flag.FlagSet, name string) flag.NormalizedName {
+	if name == "basic-auth-username" {
+		return flag.NormalizedName("auth-username")
+	}
+	if name == "basic-auth-password" {
+		return flag.NormalizedName("auth-password")
+	}
+	return flag.NormalizedName(name)
 }
 
 // Remove in v2.0.0
 func backwardsCompatibilityTransforms(s string) string {
 	switch s {
-	case "apikey-file":
-		return "api-key-file"
-	case "apikey":
-		return "api-key"
 	case "basic-auth-username":
 		return "auth-username"
 	case "basic-auth-password":
 		return "auth-password"
+	case "apikey-file":
+		return "api-key-file"
+	case "apikey":
+		return "api-key"
 	default:
 		return s
 	}

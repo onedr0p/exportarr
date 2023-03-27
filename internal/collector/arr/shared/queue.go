@@ -3,7 +3,7 @@ package collector
 import (
 	"fmt"
 
-	"github.com/onedr0p/exportarr/internal/client"
+	"github.com/onedr0p/exportarr/internal/collector/arr/client"
 	"github.com/onedr0p/exportarr/internal/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
@@ -49,10 +49,10 @@ func (collector *queueCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	params := map[string]string{"page": "1"}
-	if collector.config.EnableUnknownQueueItems {
-		if collector.config.Arr == "sonarr" {
+	if collector.config.Arr.EnableUnknownQueueItems {
+		if collector.config.Arr.App == "sonarr" {
 			params["includeUnknownSeriesItems"] = "true"
-		} else if collector.config.Arr == "radarr" {
+		} else if collector.config.Arr.App == "radarr" {
 			params["includeUnknownMovieItems"] = "true"
 		}
 	}

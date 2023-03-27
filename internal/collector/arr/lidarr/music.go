@@ -3,7 +3,7 @@ package collector
 import (
 	"fmt"
 
-	"github.com/onedr0p/exportarr/internal/client"
+	"github.com/onedr0p/exportarr/internal/collector/arr/client"
 	"github.com/onedr0p/exportarr/internal/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
@@ -166,7 +166,7 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 			artistGenres[genre]++
 		}
 
-		if collector.config.EnableAdditionalMetrics {
+		if collector.config.Arr.EnableAdditionalMetrics {
 			songFile := model.SongFile{}
 			params := map[string]string{"artistid": fmt.Sprintf("%d", s.Id)}
 			if err := c.DoRequest("trackfile", &songFile, params); err != nil {
@@ -219,7 +219,7 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 		}
 	}
 
-	if collector.config.EnableAdditionalMetrics {
+	if collector.config.Arr.EnableAdditionalMetrics {
 		ch <- prometheus.MustNewConstMetric(collector.albumsMonitoredMetric, prometheus.GaugeValue, float64(albumsMonitored))
 
 		if len(songsQualities) > 0 {
