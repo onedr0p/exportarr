@@ -9,7 +9,6 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/onedr0p/exportarr/internal/config"
 	"go.uber.org/zap"
 )
 
@@ -20,37 +19,11 @@ type Client struct {
 }
 
 // NewClient method initializes a new *Arr client.
-func NewClient(config *config.Config) (*Client, error) {
+func NewClient(baseURL string, insecureSkipVerify bool, auth Authenticator) (*Client, error) {
 
-	baseURL, err := url.Parse(config.URL)
+	u, err := url.Parse(baseURL)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to parse URL(%s): %w", config.URL, err)
-	}
-
-	baseTransport := http.DefaultTransport
-	if config.DisableSSLVerify {
-		baseTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-	}
-
-	var auth Authenticator
-	if config.UseFormAuth() {
-		auth = &FormAuth{
-			Username:    config.AuthUsername,
-			Password:    config.AuthPassword,
-			ApiKey:      config.ApiKey,
-			AuthBaseURL: baseURL,
-			Transport:   baseTransport,
-		}
-	} else if config.UseBasicAuth() {
-		auth = &BasicAuth{
-			Username: config.AuthUsername,
-			Password: config.AuthPassword,
-			ApiKey:   config.ApiKey,
-		}
-	} else {
-		auth = &ApiKeyAuth{
-			ApiKey: config.ApiKey,
-		}
+		return nil, fmt.Errorf("Failed to parse URL(%s): %w", baseURL, err)
 	}
 
 	return &Client{
@@ -58,9 +31,9 @@ func NewClient(config *config.Config) (*Client, error) {
 			CheckRedirect: func(req *http.Request, via []*http.Request) error {
 				return http.ErrUseLastResponse
 			},
-			Transport: NewArrTransport(auth, baseTransport),
+			Transport: NewExportarrTransport(BaseTransport(insecureSkipVerify), auth),
 		},
-		URL: *baseURL.JoinPath("api", config.ApiVersion),
+		URL: *u,
 	}, nil
 }
 
@@ -111,4 +84,12 @@ func (c *Client) DoRequest(endpoint string, target interface{}, queryParams ...m
 	}
 	defer resp.Body.Close()
 	return c.unmarshalBody(resp.Body, target)
+}
+
+func BaseTransport(insecureSkipVerify bool) http.RoundTripper {
+	baseTransport := http.DefaultTransport
+	if insecureSkipVerify {
+		baseTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	}
+	return baseTransport
 }
