@@ -4,8 +4,10 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/onedr0p/exportarr/internal/config"
 	"go.uber.org/zap"
@@ -36,6 +38,30 @@ func NewClient(config *config.Config, auth Authenticator) (*Client, error) {
 	}, nil
 }
 
+func (c *Client) unmarshalBody(b io.Reader, target interface{}) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			// return recovered panic as error
+			err = fmt.Errorf("Recovered from panic: %s", r)
+
+			log := zap.S()
+			if zap.S().Level() == zap.DebugLevel {
+				s := new(strings.Builder)
+				_, copyErr := io.Copy(s, b)
+				if copyErr != nil {
+					zap.S().Errorw("Failed to copy body to string in recover",
+						"error", err, "recover", r)
+				}
+				log = log.With("body", s.String())
+			}
+			log.Errorw("Recovered while unmarshalling response", "error", r)
+
+		}
+	}()
+	err = json.NewDecoder(b).Decode(target)
+	return
+}
+
 // DoRequest - Take a HTTP Request and return Unmarshaled data
 func (c *Client) DoRequest(endpoint string, target interface{}, queryParams ...map[string]string) error {
 	values := c.URL.Query()
@@ -58,7 +84,7 @@ func (c *Client) DoRequest(endpoint string, target interface{}, queryParams ...m
 		return fmt.Errorf("Failed to execute HTTP Request(%s): %w", url, err)
 	}
 	defer resp.Body.Close()
-	return json.NewDecoder(resp.Body).Decode(target)
+	return c.unmarshalBody(resp.Body, target)
 }
 
 func BaseTransport(config *config.Config) http.RoundTripper {
