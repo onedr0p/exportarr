@@ -64,23 +64,28 @@ func NewClient(config *config.Config) (*Client, error) {
 	}, nil
 }
 
-func (c *Client) unmarshalBody(b io.Reader, target interface{}) error {
+func (c *Client) unmarshalBody(b io.Reader, target interface{}) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			// Debug log to make sure we can catch the error if io.Copy fails.
-			zap.S().Debugw("Recovered from panic",
-				"error", r)
-			s := new(strings.Builder)
+			// return recovered panic as error
+			err = fmt.Errorf("Recovered from panic: %s", r)
 
-			_, err := io.Copy(s, b)
-			if err != nil {
-				zap.S().Errorw("Failed to copy body to string in recover",
-					"error", err, "recover", r)
+			log := zap.S()
+			if zap.S().Level() == zap.DebugLevel {
+				s := new(strings.Builder)
+				_, copyErr := io.Copy(s, b)
+				if copyErr != nil {
+					zap.S().Errorw("Failed to copy body to string in recover",
+						"error", err, "recover", r)
+				}
+				log = log.With("body", s.String())
 			}
-			zap.S().Errorw("Recovered while unmarshalling response", "body", s.String(), "error", r)
+			log.Errorw("Recovered while unmarshalling response", "error", r)
+
 		}
 	}()
-	return json.NewDecoder(b).Decode(target)
+	err = json.NewDecoder(b).Decode(target)
+	return
 }
 
 // DoRequest - Take a HTTP Request and return Unmarshaled data
