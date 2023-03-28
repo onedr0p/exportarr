@@ -13,7 +13,7 @@ type radarrCollector struct {
 	movieMetric            *prometheus.Desc // Total number of movies
 	movieDownloadedMetric  *prometheus.Desc // Total number of downloaded movies
 	movieMonitoredMetric   *prometheus.Desc // Total number of monitored movies
-	movieUnmonitoredMetric *prometheus.Desc // Total number of monitored movies
+	movieUnmonitoredMetric *prometheus.Desc // Total number of unmonitored movies
 	movieWantedMetric      *prometheus.Desc // Total number of wanted movies
 	movieMissingMetric     *prometheus.Desc // Total number of missing movies
 	movieQualitiesMetric   *prometheus.Desc // Total number of movies by quality
