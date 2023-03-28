@@ -21,7 +21,7 @@ type sonarrCollector struct {
 	seasonMetric             *prometheus.Desc // Total number of seasons
 	seasonDownloadedMetric   *prometheus.Desc // Total number of downloaded seasons
 	seasonMonitoredMetric    *prometheus.Desc // Total number of monitored seasons
-	seasonUnmonitoredMetric  *prometheus.Desc // Total number of monitored seasons
+	seasonUnmonitoredMetric  *prometheus.Desc // Total number of unmonitored seasons
 	episodeMetric            *prometheus.Desc // Total number of episodes
 	episodeMonitoredMetric   *prometheus.Desc // Total number of monitored episodes
 	episodeUnmonitoredMetric *prometheus.Desc // Total number of unmonitored episodes
@@ -189,7 +189,7 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 	for _, s := range series {
 		tseries := time.Now()
 
-		if !s.Monitored {
+		if s.Monitored {
 			seriesMonitored++
 		} else {
 			seriesUnmonitored++
@@ -205,10 +205,10 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 		seriesFileSize += s.Statistics.SizeOnDisk
 
 		for _, e := range s.Seasons {
-			if !e.Monitored {
-				seasonsUnmonitored++
-			} else {
+			if e.Monitored {
 				seasonsMonitored++
+			} else {
+				seasonsUnmonitored++
 			}
 
 			if e.Statistics.PercentOfEpisodes == 100 {
@@ -240,10 +240,10 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 				return
 			}
 			for _, e := range episode {
-				if !e.Monitored {
-					episodesUnmonitored++
-				} else {
+				if e.Monitored {
 					episodesMonitored++
+				} else {
+					episodesUnmonitored++
 				}
 			}
 			log.Debugw("Extra options completed",
