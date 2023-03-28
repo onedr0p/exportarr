@@ -4,8 +4,10 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/onedr0p/exportarr/internal/config"
 	"go.uber.org/zap"
@@ -62,6 +64,25 @@ func NewClient(config *config.Config) (*Client, error) {
 	}, nil
 }
 
+func (c *Client) unmarshalBody(b io.Reader, target interface{}) error {
+	defer func() {
+		if r := recover(); r != nil {
+			// Debug log to make sure we can catch the error if io.Copy fails.
+			zap.S().Debugw("Recovered from panic",
+				"error", r)
+			s := new(strings.Builder)
+
+			_, err := io.Copy(s, b)
+			if err != nil {
+				zap.S().Errorw("Failed to copy body to string in recover",
+					"error", err, "recover", r)
+			}
+			zap.S().Errorw("Recovered while unmarshalling response", "body", s.String(), "error", r)
+		}
+	}()
+	return json.NewDecoder(b).Decode(target)
+}
+
 // DoRequest - Take a HTTP Request and return Unmarshaled data
 func (c *Client) DoRequest(endpoint string, target interface{}, queryParams ...map[string]string) error {
 	values := c.URL.Query()
@@ -84,5 +105,5 @@ func (c *Client) DoRequest(endpoint string, target interface{}, queryParams ...m
 		return fmt.Errorf("Failed to execute HTTP Request(%s): %w", url, err)
 	}
 	defer resp.Body.Close()
-	return json.NewDecoder(resp.Body).Decode(target)
+	return c.unmarshalBody(resp.Body, target)
 }
