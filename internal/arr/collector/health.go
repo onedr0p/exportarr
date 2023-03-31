@@ -3,30 +3,30 @@ package collector
 import (
 	"fmt"
 
-	"github.com/onedr0p/exportarr/internal/collector/arr/client"
-	"github.com/onedr0p/exportarr/internal/config"
+	"github.com/onedr0p/exportarr/internal/arr/client"
+	"github.com/onedr0p/exportarr/internal/arr/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
 )
 
 type systemHealthCollector struct {
-	config             *config.Config   // App configuration
-	systemHealthMetric *prometheus.Desc // Total number of health issues
-	errorMetric        *prometheus.Desc // Error Description for use with InvalidMetric
+	config             *config.ArrConfig // App configuration
+	systemHealthMetric *prometheus.Desc  // Total number of health issues
+	errorMetric        *prometheus.Desc  // Error Description for use with InvalidMetric
 }
 
-func NewSystemHealthCollector(c *config.Config) *systemHealthCollector {
+func NewSystemHealthCollector(c *config.ArrConfig) *systemHealthCollector {
 	return &systemHealthCollector{
 		config: c,
 		systemHealthMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_system_health_issues", c.Arr),
+			fmt.Sprintf("%s_system_health_issues", c.App),
 			"Total number of health issues by source, type, message and wikiurl",
 			[]string{"source", "type", "message", "wikiurl"},
 			prometheus.Labels{"url": c.URLLabel()},
 		),
 		errorMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_health_collector_error", c.Arr),
+			fmt.Sprintf("%s_health_collector_error", c.App),
 			"Error while collecting metrics",
 			nil,
 			prometheus.Labels{"url": c.URLLabel()},

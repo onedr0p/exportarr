@@ -3,31 +3,31 @@ package collector
 import (
 	"fmt"
 
-	"github.com/onedr0p/exportarr/internal/collector/arr/client"
-	"github.com/onedr0p/exportarr/internal/config"
+	"github.com/onedr0p/exportarr/internal/arr/client"
+	"github.com/onedr0p/exportarr/internal/arr/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
 )
 
 type lidarrCollector struct {
-	config                 *config.Config   // App configuration
-	artistsMetric          *prometheus.Desc // Total number of artists
-	artistsMonitoredMetric *prometheus.Desc // Total number of monitored artists
-	artistGenresMetric     *prometheus.Desc // Total number of artists by genre
-	artistsFileSizeMetric  *prometheus.Desc // Total fizesize of all artists in bytes
-	albumsMetric           *prometheus.Desc // Total number of albums
-	albumsMonitoredMetric  *prometheus.Desc // Total number of monitored albums
-	albumsGenresMetric     *prometheus.Desc // Total number of albums by genre
-	albumsMissingMetric    *prometheus.Desc // Total number of missing albums
-	songsMetric            *prometheus.Desc // Total number of songs
-	songsMonitoredMetric   *prometheus.Desc // Total number of monitored songs
-	songsDownloadedMetric  *prometheus.Desc // Total number of downloaded songs
-	songsQualitiesMetric   *prometheus.Desc // Total number of songs by quality
-	errorMetric            *prometheus.Desc // Error Description for use with InvalidMetric
+	config                 *config.ArrConfig // App configuration
+	artistsMetric          *prometheus.Desc  // Total number of artists
+	artistsMonitoredMetric *prometheus.Desc  // Total number of monitored artists
+	artistGenresMetric     *prometheus.Desc  // Total number of artists by genre
+	artistsFileSizeMetric  *prometheus.Desc  // Total fizesize of all artists in bytes
+	albumsMetric           *prometheus.Desc  // Total number of albums
+	albumsMonitoredMetric  *prometheus.Desc  // Total number of monitored albums
+	albumsGenresMetric     *prometheus.Desc  // Total number of albums by genre
+	albumsMissingMetric    *prometheus.Desc  // Total number of missing albums
+	songsMetric            *prometheus.Desc  // Total number of songs
+	songsMonitoredMetric   *prometheus.Desc  // Total number of monitored songs
+	songsDownloadedMetric  *prometheus.Desc  // Total number of downloaded songs
+	songsQualitiesMetric   *prometheus.Desc  // Total number of songs by quality
+	errorMetric            *prometheus.Desc  // Error Description for use with InvalidMetric
 }
 
-func NewLidarrCollector(c *config.Config) *lidarrCollector {
+func NewLidarrCollector(c *config.ArrConfig) *lidarrCollector {
 	return &lidarrCollector{
 		config: c,
 		artistsMetric: prometheus.NewDesc(
@@ -166,7 +166,7 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 			artistGenres[genre]++
 		}
 
-		if collector.config.Arr.EnableAdditionalMetrics {
+		if collector.config.EnableAdditionalMetrics {
 			songFile := model.SongFile{}
 			params := map[string]string{"artistid": fmt.Sprintf("%d", s.Id)}
 			if err := c.DoRequest("trackfile", &songFile, params); err != nil {
@@ -219,7 +219,7 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 		}
 	}
 
-	if collector.config.Arr.EnableAdditionalMetrics {
+	if collector.config.EnableAdditionalMetrics {
 		ch <- prometheus.MustNewConstMetric(collector.albumsMonitoredMetric, prometheus.GaugeValue, float64(albumsMonitored))
 
 		if len(songsQualities) > 0 {

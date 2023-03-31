@@ -7,9 +7,12 @@ import (
 
 	"github.com/gookit/validate"
 	"github.com/knadh/koanf/providers/env"
+	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/providers/posflag"
 	"github.com/knadh/koanf/v2"
 	flag "github.com/spf13/pflag"
+
+	base_config "github.com/onedr0p/exportarr/internal/config"
 )
 
 func RegisterArrFlags(flags *flag.FlagSet) {
@@ -37,21 +40,10 @@ type ArrConfig struct {
 	EnableUnknownQueueItems bool           `koanf:"enable-unknown-queue-items"`
 	EnableAdditionalMetrics bool           `koanf:"enable-additional-metrics"`
 	URL                     string         `koanf:"-"` // stores rendered Arr URL (with api version)
+	ApiKey                  string         `koanf:"-"` // stores the API key
+	DisableSSLVerify        bool           `koanf:"-"` // stores the disable SSL verify flag
 	Prowlarr                ProwlarrConfig `koanf:"prowlarr"`
-}
-
-// URLLabel() exists for backwards compatibility -- prior versions built the URL in the client,
-// meaning that the "url" metric label was missing the Port & base path that the XMLConfig provided.
-func (c *Config) URLLabel() string {
-	if c.Arr.XMLConfig != "" {
-		u, err := url.Parse(c.URL)
-		if err != nil {
-			// Should be unreachable as long as we validate that the URL is valid in LoadConfig/Validate
-			return "Could Not Parse URL"
-		}
-		return u.Scheme + "://" + u.Host
-	}
-	return c.URL
+	k                       *koanf.Koanf
 }
 
 func (c *ArrConfig) UseBasicAuth() bool {
@@ -62,37 +54,67 @@ func (c *ArrConfig) UseFormAuth() bool {
 	return c.FormAuth
 }
 
+// URLLabel() exists for backwards compatibility -- prior versions built the URL in the client,
+// meaning that the "url" metric label was missing the Port & base path that the XMLConfig provided.
+func (c *ArrConfig) URLLabel() string {
+	if c.XMLConfig != "" {
+		u, err := url.Parse(c.URL)
+		if err != nil {
+			// Should be unreachable as long as we validate that the URL is valid in LoadConfig/Validate
+			return "Could Not Parse URL"
+		}
+		return u.Scheme + "://" + u.Host
+	}
+	return c.URL
+}
+
 func arrMergeFunc(src, dest map[string]interface{}) error {
 	dest["arr"] = src
 	return nil
 }
 
-func (c *Config) LoadArrFlags(flags *flag.FlagSet) error {
-	err := c.k.Load(posflag.Provider(flags, ".", c.k), nil, koanf.WithMergeFunc(arrMergeFunc))
-	if err != nil {
-		return err
+func LoadArrConfig(conf base_config.Config, flags *flag.FlagSet) (*ArrConfig, error) {
+	k := koanf.New(".")
+	if err := k.Load(posflag.Provider(flags, ".", k), nil); err != nil {
+		return nil, err
 	}
 
-	err = c.k.Load(env.Provider("", ".", func(s string) string {
+	// XMLConfig
+	xmlConfig := k.String("config")
+	if xmlConfig != "" {
+		err := k.Load(file.Provider(xmlConfig), XMLParser(), koanf.WithMergeFunc(XMLParser().Merge))
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	err := k.Load(env.Provider("", ".", func(s string) string {
 		s = strings.ToLower(s)
 		s = strings.Replace(s, "__", ".", -1)
 		s = strings.Replace(s, "_", "-", -1)
 		return backwardsCompatibilityTransforms(s)
 	}), nil, koanf.WithMergeFunc(arrMergeFunc))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	if err := c.k.Unmarshal("arr", &c.Arr); err != nil {
-		return err
+	out := &ArrConfig{
+		URL:              conf.URL,
+		ApiKey:           conf.ApiKey,
+		DisableSSLVerify: conf.DisableSSLVerify,
+		k:                k,
 	}
 
-	u, err := url.JoinPath(c.URL, "api", c.Arr.ApiVersion)
+	if err = k.Unmarshal("arr", out); err != nil {
+		return nil, err
+	}
+
+	u, err := url.JoinPath(out.URL, "api", out.ApiVersion)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	c.Arr.URL = u
-	return nil
+	out.URL = u
+	return out, nil
 }
 
 func (c *ArrConfig) Validate() error {
@@ -130,5 +152,28 @@ func (c ArrConfig) Translates() map[string]string {
 		"FormAuth":                "form-auth",
 		"EnableUnknownQueueItems": "enable-unknown-queue-items",
 		"EnableAdditionalMetrics": "enable-additional-metrics",
+	}
+}
+
+// Remove in v2.0.0
+func backwardsCompatibilityNormalizeFunc(f *flag.FlagSet, name string) flag.NormalizedName {
+	if name == "basic-auth-username" {
+		return flag.NormalizedName("auth-username")
+	}
+	if name == "basic-auth-password" {
+		return flag.NormalizedName("auth-password")
+	}
+	return flag.NormalizedName(name)
+}
+
+// Remove in v2.0.0
+func backwardsCompatibilityTransforms(s string) string {
+	switch s {
+	case "basic-auth-username":
+		return "auth-username"
+	case "basic-auth-password":
+		return "auth-password"
+	default:
+		return s
 	}
 }

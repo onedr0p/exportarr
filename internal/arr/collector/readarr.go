@@ -3,30 +3,30 @@ package collector
 import (
 	"time"
 
-	"github.com/onedr0p/exportarr/internal/collector/arr/client"
-	"github.com/onedr0p/exportarr/internal/config"
+	"github.com/onedr0p/exportarr/internal/arr/client"
+	"github.com/onedr0p/exportarr/internal/arr/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
 )
 
 type readarrCollector struct {
-	config                  *config.Config   // App configuration
-	authorMetric            *prometheus.Desc // Total number of authors
-	authorDownloadedMetric  *prometheus.Desc // Total number of downloaded authors
-	authorMonitoredMetric   *prometheus.Desc // Total number of monitored authors
-	authorUnmonitoredMetric *prometheus.Desc // Total number of unmonitored authors
-	authorFileSizeMetric    *prometheus.Desc // Total filesize of all authors in bytes
-	bookMetric              *prometheus.Desc // Total number of monitored books
-	bookGrabbedMetric       *prometheus.Desc // Total number of grabbed books
-	bookDownloadedMetric    *prometheus.Desc // Total number of downloaded books
-	bookMonitoredMetric     *prometheus.Desc // Total number of monitored books
-	bookUnmonitoredMetric   *prometheus.Desc // Total number of unmonitored books
-	bookMissingMetric       *prometheus.Desc // Total number of missing books
-	errorMetric             *prometheus.Desc // Error Description for use with InvalidMetric
+	config                  *config.ArrConfig // App configuration
+	authorMetric            *prometheus.Desc  // Total number of authors
+	authorDownloadedMetric  *prometheus.Desc  // Total number of downloaded authors
+	authorMonitoredMetric   *prometheus.Desc  // Total number of monitored authors
+	authorUnmonitoredMetric *prometheus.Desc  // Total number of unmonitored authors
+	authorFileSizeMetric    *prometheus.Desc  // Total filesize of all authors in bytes
+	bookMetric              *prometheus.Desc  // Total number of monitored books
+	bookGrabbedMetric       *prometheus.Desc  // Total number of grabbed books
+	bookDownloadedMetric    *prometheus.Desc  // Total number of downloaded books
+	bookMonitoredMetric     *prometheus.Desc  // Total number of monitored books
+	bookUnmonitoredMetric   *prometheus.Desc  // Total number of unmonitored books
+	bookMissingMetric       *prometheus.Desc  // Total number of missing books
+	errorMetric             *prometheus.Desc  // Error Description for use with InvalidMetric
 }
 
-func NewReadarrCollector(c *config.Config) *readarrCollector {
+func NewReadarrCollector(c *config.ArrConfig) *readarrCollector {
 	return &readarrCollector{
 		config: c,
 		authorMetric: prometheus.NewDesc(

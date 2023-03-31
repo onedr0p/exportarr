@@ -3,30 +3,30 @@ package collector
 import (
 	"fmt"
 
-	"github.com/onedr0p/exportarr/internal/collector/arr/client"
-	"github.com/onedr0p/exportarr/internal/config"
+	"github.com/onedr0p/exportarr/internal/arr/client"
+	"github.com/onedr0p/exportarr/internal/arr/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
 )
 
 type rootFolderCollector struct {
-	config           *config.Config   // App configuration
-	rootFolderMetric *prometheus.Desc // Total number of root folders
-	errorMetric      *prometheus.Desc // Error Description for use with InvalidMetric
+	config           *config.ArrConfig // App configuration
+	rootFolderMetric *prometheus.Desc  // Total number of root folders
+	errorMetric      *prometheus.Desc  // Error Description for use with InvalidMetric
 }
 
-func NewRootFolderCollector(c *config.Config) *rootFolderCollector {
+func NewRootFolderCollector(c *config.ArrConfig) *rootFolderCollector {
 	return &rootFolderCollector{
 		config: c,
 		rootFolderMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_rootfolder_freespace_bytes", c.Arr),
+			fmt.Sprintf("%s_rootfolder_freespace_bytes", c.App),
 			"Root folder space in bytes by path",
 			[]string{"path"},
 			prometheus.Labels{"url": c.URLLabel()},
 		),
 		errorMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_rootfolder_collector_error", c.Arr),
+			fmt.Sprintf("%s_rootfolder_collector_error", c.App),
 			"Error while collecting metrics",
 			nil,
 			prometheus.Labels{"url": c.URLLabel()},

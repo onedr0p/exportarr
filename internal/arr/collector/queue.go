@@ -3,30 +3,30 @@ package collector
 import (
 	"fmt"
 
-	"github.com/onedr0p/exportarr/internal/collector/arr/client"
-	"github.com/onedr0p/exportarr/internal/config"
+	"github.com/onedr0p/exportarr/internal/arr/client"
+	"github.com/onedr0p/exportarr/internal/arr/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
 )
 
 type queueCollector struct {
-	config      *config.Config   // App configuration
-	queueMetric *prometheus.Desc // Total number of queue items
-	errorMetric *prometheus.Desc // Error Description for use with InvalidMetric
+	config      *config.ArrConfig // App configuration
+	queueMetric *prometheus.Desc  // Total number of queue items
+	errorMetric *prometheus.Desc  // Error Description for use with InvalidMetric
 }
 
-func NewQueueCollector(c *config.Config) *queueCollector {
+func NewQueueCollector(c *config.ArrConfig) *queueCollector {
 	return &queueCollector{
 		config: c,
 		queueMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_queue_total", c.Arr),
+			fmt.Sprintf("%s_queue_total", c.App),
 			"Total number of items in the queue by status, download_status, and download_state",
 			[]string{"status", "download_status", "download_state"},
 			prometheus.Labels{"url": c.URLLabel()},
 		),
 		errorMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_queue_collector_error", c.Arr),
+			fmt.Sprintf("%s_queue_collector_error", c.App),
 			"Error while collecting metrics",
 			nil,
 			prometheus.Labels{"url": c.URLLabel()},
@@ -49,10 +49,10 @@ func (collector *queueCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	params := map[string]string{"page": "1"}
-	if collector.config.Arr.EnableUnknownQueueItems {
-		if collector.config.Arr.App == "sonarr" {
+	if collector.config.EnableUnknownQueueItems {
+		if collector.config.App == "sonarr" {
 			params["includeUnknownSeriesItems"] = "true"
-		} else if collector.config.Arr.App == "radarr" {
+		} else if collector.config.App == "radarr" {
 			params["includeUnknownMovieItems"] = "true"
 		}
 	}

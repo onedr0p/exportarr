@@ -1,27 +1,27 @@
 package collector
 
 import (
-	"github.com/onedr0p/exportarr/internal/collector/arr/client"
-	"github.com/onedr0p/exportarr/internal/config"
+	"github.com/onedr0p/exportarr/internal/arr/client"
+	"github.com/onedr0p/exportarr/internal/arr/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
 )
 
 type radarrCollector struct {
-	config                 *config.Config   // App configuration
-	movieMetric            *prometheus.Desc // Total number of movies
-	movieDownloadedMetric  *prometheus.Desc // Total number of downloaded movies
-	movieMonitoredMetric   *prometheus.Desc // Total number of monitored movies
-	movieUnmonitoredMetric *prometheus.Desc // Total number of unmonitored movies
-	movieWantedMetric      *prometheus.Desc // Total number of wanted movies
-	movieMissingMetric     *prometheus.Desc // Total number of missing movies
-	movieQualitiesMetric   *prometheus.Desc // Total number of movies by quality
-	movieFileSizeMetric    *prometheus.Desc // Total fizesize of all movies in bytes
-	errorMetric            *prometheus.Desc // Error Description for use with InvalidMetric
+	config                 *config.ArrConfig // App configuration
+	movieMetric            *prometheus.Desc  // Total number of movies
+	movieDownloadedMetric  *prometheus.Desc  // Total number of downloaded movies
+	movieMonitoredMetric   *prometheus.Desc  // Total number of monitored movies
+	movieUnmonitoredMetric *prometheus.Desc  // Total number of unmonitored movies
+	movieWantedMetric      *prometheus.Desc  // Total number of wanted movies
+	movieMissingMetric     *prometheus.Desc  // Total number of missing movies
+	movieQualitiesMetric   *prometheus.Desc  // Total number of movies by quality
+	movieFileSizeMetric    *prometheus.Desc  // Total fizesize of all movies in bytes
+	errorMetric            *prometheus.Desc  // Error Description for use with InvalidMetric
 }
 
-func NewRadarrCollector(c *config.Config) *radarrCollector {
+func NewRadarrCollector(c *config.ArrConfig) *radarrCollector {
 	return &radarrCollector{
 		config: c,
 		movieMetric: prometheus.NewDesc(

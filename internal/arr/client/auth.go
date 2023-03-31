@@ -7,29 +7,38 @@ import (
 	"strings"
 	"time"
 
+	"github.com/onedr0p/exportarr/internal/arr/config"
 	"github.com/onedr0p/exportarr/internal/client"
-	"github.com/onedr0p/exportarr/internal/config"
+	base_client "github.com/onedr0p/exportarr/internal/client"
 )
 
-func NewAuth(config *config.Config) (client.Authenticator, error) {
+func NewClient(config *config.ArrConfig) (*base_client.Client, error) {
+	auth, err := NewAuth(config)
+	if err != nil {
+		return nil, err
+	}
+	return base_client.NewClient(config.URL, config.DisableSSLVerify, auth)
+}
+
+func NewAuth(config *config.ArrConfig) (client.Authenticator, error) {
 	var auth client.Authenticator
 
 	u, err := url.Parse(config.URL)
 	if err != nil {
 		return nil, err
 	}
-	if config.Arr.UseFormAuth() {
+	if config.UseFormAuth() {
 		auth = &FormAuth{
-			Username:    config.Arr.AuthUsername,
-			Password:    config.Arr.AuthPassword,
+			Username:    config.AuthUsername,
+			Password:    config.AuthPassword,
 			ApiKey:      config.ApiKey,
 			AuthBaseURL: u,
-			Transport:   client.BaseTransport(config),
+			Transport:   client.BaseTransport(config.DisableSSLVerify),
 		}
-	} else if config.Arr.UseBasicAuth() {
+	} else if config.UseBasicAuth() {
 		auth = &BasicAuth{
-			Username: config.Arr.AuthUsername,
-			Password: config.Arr.AuthPassword,
+			Username: config.AuthUsername,
+			Password: config.AuthPassword,
 			ApiKey:   config.ApiKey,
 		}
 	} else {

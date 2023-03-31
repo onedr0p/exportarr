@@ -4,8 +4,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/onedr0p/exportarr/internal/collector/arr/client"
-	"github.com/onedr0p/exportarr/internal/config"
+	"github.com/onedr0p/exportarr/internal/arr/client"
+	"github.com/onedr0p/exportarr/internal/arr/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
@@ -92,7 +92,7 @@ func (u *userAgentStatCache) UpdateKey(key string, value model.UserAgentStats) m
 }
 
 type prowlarrCollector struct {
-	config                           *config.Config     // App configuration
+	config                           *config.ArrConfig  // App configuration
 	indexerStatCache                 indexerStatCache   // Cache of indexer stats
 	userAgentStatCache               userAgentStatCache // Cache of user agent stats
 	lastStatUpdate                   time.Time          // Last time stat caches were updated
@@ -115,7 +115,7 @@ type prowlarrCollector struct {
 
 }
 
-func NewProwlarrCollector(c *config.Config) *prowlarrCollector {
+func NewProwlarrCollector(c *config.ArrConfig) *prowlarrCollector {
 	lastStatUpdate := time.Now()
 	if c.Prowlarr.Backfill || !c.Prowlarr.BackfillSinceTime.IsZero() {
 		lastStatUpdate = c.Prowlarr.BackfillSinceTime

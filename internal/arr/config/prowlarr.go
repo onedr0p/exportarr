@@ -40,16 +40,16 @@ func (p ProwlarrConfig) Translates() map[string]string {
 	}
 }
 
-func (c *Config) LoadProwlarrFlags(flags *flag.FlagSet) error {
+func (c *ArrConfig) LoadProwlarrFlags(flags *flag.FlagSet) error {
 	err := c.k.Load(posflag.Provider(flags, ".", c.k), nil, koanf.WithMergeFunc(func(src, dest map[string]interface{}) error {
-		dest["arr.prowlarr"] = src
+		dest["prowlarr"] = src
 		return nil
 	}))
 	if err != nil {
 		return err
 	}
 
-	err = c.k.Unmarshal("arr.prowlarr", &c.Prowlarr)
+	err = c.k.Unmarshal("prowlarr", &c.Prowlarr)
 	if err != nil {
 		return err
 	}

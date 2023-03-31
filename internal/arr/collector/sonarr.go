@@ -4,34 +4,34 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/onedr0p/exportarr/internal/collector/arr/client"
-	"github.com/onedr0p/exportarr/internal/config"
+	"github.com/onedr0p/exportarr/internal/arr/client"
+	"github.com/onedr0p/exportarr/internal/arr/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
 )
 
 type sonarrCollector struct {
-	config                   *config.Config   // App configuration
-	seriesMetric             *prometheus.Desc // Total number of series
-	seriesDownloadedMetric   *prometheus.Desc // Total number of downloaded series
-	seriesMonitoredMetric    *prometheus.Desc // Total number of monitored series
-	seriesUnmonitoredMetric  *prometheus.Desc // Total number of unmonitored series
-	seriesFileSizeMetric     *prometheus.Desc // Total fizesize of all series in bytes
-	seasonMetric             *prometheus.Desc // Total number of seasons
-	seasonDownloadedMetric   *prometheus.Desc // Total number of downloaded seasons
-	seasonMonitoredMetric    *prometheus.Desc // Total number of monitored seasons
-	seasonUnmonitoredMetric  *prometheus.Desc // Total number of unmonitored seasons
-	episodeMetric            *prometheus.Desc // Total number of episodes
-	episodeMonitoredMetric   *prometheus.Desc // Total number of monitored episodes
-	episodeUnmonitoredMetric *prometheus.Desc // Total number of unmonitored episodes
-	episodeDownloadedMetric  *prometheus.Desc // Total number of downloaded episodes
-	episodeMissingMetric     *prometheus.Desc // Total number of missing episodes
-	episodeQualitiesMetric   *prometheus.Desc // Total number of episodes by quality
-	errorMetric              *prometheus.Desc // Error Description for use with InvalidMetric
+	config                   *config.ArrConfig // App configuration
+	seriesMetric             *prometheus.Desc  // Total number of series
+	seriesDownloadedMetric   *prometheus.Desc  // Total number of downloaded series
+	seriesMonitoredMetric    *prometheus.Desc  // Total number of monitored series
+	seriesUnmonitoredMetric  *prometheus.Desc  // Total number of unmonitored series
+	seriesFileSizeMetric     *prometheus.Desc  // Total fizesize of all series in bytes
+	seasonMetric             *prometheus.Desc  // Total number of seasons
+	seasonDownloadedMetric   *prometheus.Desc  // Total number of downloaded seasons
+	seasonMonitoredMetric    *prometheus.Desc  // Total number of monitored seasons
+	seasonUnmonitoredMetric  *prometheus.Desc  // Total number of unmonitored seasons
+	episodeMetric            *prometheus.Desc  // Total number of episodes
+	episodeMonitoredMetric   *prometheus.Desc  // Total number of monitored episodes
+	episodeUnmonitoredMetric *prometheus.Desc  // Total number of unmonitored episodes
+	episodeDownloadedMetric  *prometheus.Desc  // Total number of downloaded episodes
+	episodeMissingMetric     *prometheus.Desc  // Total number of missing episodes
+	episodeQualitiesMetric   *prometheus.Desc  // Total number of episodes by quality
+	errorMetric              *prometheus.Desc  // Error Description for use with InvalidMetric
 }
 
-func NewSonarrCollector(conf *config.Config) *sonarrCollector {
+func NewSonarrCollector(conf *config.ArrConfig) *sonarrCollector {
 	return &sonarrCollector{
 		config: conf,
 		seriesMetric: prometheus.NewDesc(
@@ -216,7 +216,7 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 			}
 		}
 
-		if collector.config.Arr.EnableAdditionalMetrics {
+		if collector.config.EnableAdditionalMetrics {
 			textra := time.Now()
 			episodeFile := model.EpisodeFile{}
 			params := map[string]string{"seriesId": fmt.Sprintf("%d", s.Id)}
@@ -278,7 +278,7 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(collector.episodeDownloadedMetric, prometheus.GaugeValue, float64(episodesDownloaded))
 	ch <- prometheus.MustNewConstMetric(collector.episodeMissingMetric, prometheus.GaugeValue, float64(episodesMissing.TotalRecords))
 
-	if collector.config.Arr.EnableAdditionalMetrics {
+	if collector.config.EnableAdditionalMetrics {
 		ch <- prometheus.MustNewConstMetric(collector.episodeMonitoredMetric, prometheus.GaugeValue, float64(episodesMonitored))
 		ch <- prometheus.MustNewConstMetric(collector.episodeUnmonitoredMetric, prometheus.GaugeValue, float64(episodesUnmonitored))
 

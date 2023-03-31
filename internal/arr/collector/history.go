@@ -3,30 +3,30 @@ package collector
 import (
 	"fmt"
 
-	"github.com/onedr0p/exportarr/internal/collector/arr/client"
-	"github.com/onedr0p/exportarr/internal/config"
+	"github.com/onedr0p/exportarr/internal/arr/client"
+	"github.com/onedr0p/exportarr/internal/arr/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
 )
 
 type historyCollector struct {
-	config        *config.Config   // App configuration
-	historyMetric *prometheus.Desc // Total number of history items
-	errorMetric   *prometheus.Desc // Error Description for use with InvalidMetric
+	config        *config.ArrConfig // App configuration
+	historyMetric *prometheus.Desc  // Total number of history items
+	errorMetric   *prometheus.Desc  // Error Description for use with InvalidMetric
 }
 
-func NewHistoryCollector(c *config.Config) *historyCollector {
+func NewHistoryCollector(c *config.ArrConfig) *historyCollector {
 	return &historyCollector{
 		config: c,
 		historyMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_history_total", c.Arr),
+			fmt.Sprintf("%s_history_total", c.App),
 			"Total number of item in the history",
 			nil,
 			prometheus.Labels{"url": c.URLLabel()},
 		),
 		errorMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_history_collector_error", c.Arr),
+			fmt.Sprintf("%s_history_collector_error", c.App),
 			"Error while collecting metrics",
 			nil,
 			prometheus.Labels{"url": c.URLLabel()},

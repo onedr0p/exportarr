@@ -176,9 +176,10 @@ type SabnzbdExporter struct {
 	baseURL string
 }
 
+// TODO: Add a sab-specific config struct to abstract away the config parsing
 func NewSabnzbdExporter(config *config.Config) (*SabnzbdExporter, error) {
 	auth := ApiKeyAuth{config.ApiKey}
-	client, err := client.NewClient(config, auth)
+	client, err := client.NewClient(config.URL, config.DisableSSLVerify, auth)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to build client: %w", err)
 	}

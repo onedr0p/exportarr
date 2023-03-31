@@ -3,31 +3,31 @@ package collector
 import (
 	"fmt"
 
-	"github.com/onedr0p/exportarr/internal/collector/arr/client"
-	"github.com/onedr0p/exportarr/internal/config"
+	"github.com/onedr0p/exportarr/internal/arr/client"
+	"github.com/onedr0p/exportarr/internal/arr/config"
 	"github.com/onedr0p/exportarr/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
 )
 
 type systemStatusCollector struct {
-	config       *config.Config   // App configuration
-	configFile   *model.Config    // *arr configuration from config.xml
-	systemStatus *prometheus.Desc // Total number of system statuses
-	errorMetric  *prometheus.Desc // Error Description for use with InvalidMetric
+	config       *config.ArrConfig // App configuration
+	configFile   *model.Config     // *arr configuration from config.xml
+	systemStatus *prometheus.Desc  // Total number of system statuses
+	errorMetric  *prometheus.Desc  // Error Description for use with InvalidMetric
 }
 
-func NewSystemStatusCollector(c *config.Config) *systemStatusCollector {
+func NewSystemStatusCollector(c *config.ArrConfig) *systemStatusCollector {
 	return &systemStatusCollector{
 		config: c,
 		systemStatus: prometheus.NewDesc(
-			fmt.Sprintf("%s_system_status", c.Arr),
+			fmt.Sprintf("%s_system_status", c.App),
 			"System Status",
 			nil,
 			prometheus.Labels{"url": c.URLLabel()},
 		),
 		errorMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_status_collector_error", c.Arr),
+			fmt.Sprintf("%s_status_collector_error", c.App),
 			"Error while collecting metrics",
 			nil,
 			prometheus.Labels{"url": c.URLLabel()},

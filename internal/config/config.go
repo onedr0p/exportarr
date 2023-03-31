@@ -8,7 +8,6 @@ import (
 	"github.com/gookit/validate"
 	"github.com/knadh/koanf/providers/confmap"
 	"github.com/knadh/koanf/providers/env"
-	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/providers/posflag"
 	"github.com/knadh/koanf/v2"
 	flag "github.com/spf13/pflag"
@@ -27,18 +26,15 @@ func RegisterConfigFlags(flags *flag.FlagSet) {
 }
 
 type Config struct {
-	LogLevel         string    `koanf:"log-level" validate:"ValidateLogLevel"`
-	LogFormat        string    `koanf:"log-format" validate:"in:console,json"`
-	URL              string    `koanf:"url" validate:"required|url"`
-	ApiKey           string    `koanf:"api-key" validate:"required|regex:(^[a-z0-9]{32}$)"`
-	ApiKeyFile       string    `koanf:"api-key-file"`
-	Port             int       `koanf:"port" validate:"required"`
-	Interface        string    `koanf:"interface" validate:"required|ip"`
-	DisableSSLVerify bool      `koanf:"disable-ssl-verify"`
-	Arr              ArrConfig `koanf:"arr"`
-
-	Prowlarr ProwlarrConfig `koanf:"prowlarr"`
-	k        *koanf.Koanf
+	LogLevel         string `koanf:"log-level" validate:"ValidateLogLevel"`
+	LogFormat        string `koanf:"log-format" validate:"in:console,json"`
+	URL              string `koanf:"url" validate:"required|url"`
+	ApiKey           string `koanf:"api-key" validate:"required|regex:(^[a-z0-9]{32}$)"`
+	ApiKeyFile       string `koanf:"api-key-file"`
+	Port             int    `koanf:"port" validate:"required"`
+	Interface        string `koanf:"interface" validate:"required|ip"`
+	DisableSSLVerify bool   `koanf:"disable-ssl-verify"`
+	k                *koanf.Koanf
 }
 
 func LoadConfig(flags *flag.FlagSet) (*Config, error) {
@@ -70,15 +66,6 @@ func LoadConfig(flags *flag.FlagSet) (*Config, error) {
 	// Flags
 	if err = k.Load(posflag.Provider(flags, ".", k), nil); err != nil {
 		return nil, err
-	}
-
-	// XMLConfig
-	xmlConfig := k.String("config")
-	if xmlConfig != "" {
-		err = k.Load(file.Provider(xmlConfig), XMLParser(), koanf.WithMergeFunc(XMLParser().Merge))
-		if err != nil {
-			return nil, err
-		}
 	}
 
 	// API Key File
@@ -140,23 +127,8 @@ func (c Config) Translates() map[string]string {
 }
 
 // Remove in v2.0.0
-func backwardsCompatibilityNormalizeFunc(f *flag.FlagSet, name string) flag.NormalizedName {
-	if name == "basic-auth-username" {
-		return flag.NormalizedName("auth-username")
-	}
-	if name == "basic-auth-password" {
-		return flag.NormalizedName("auth-password")
-	}
-	return flag.NormalizedName(name)
-}
-
-// Remove in v2.0.0
 func backwardsCompatibilityTransforms(s string) string {
 	switch s {
-	case "basic-auth-username":
-		return "auth-username"
-	case "basic-auth-password":
-		return "auth-password"
 	case "apikey-file":
 		return "api-key-file"
 	case "apikey":
