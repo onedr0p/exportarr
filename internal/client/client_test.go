@@ -8,24 +8,17 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-
-	"github.com/onedr0p/exportarr/internal/config"
 )
 
 func TestNewClient(t *testing.T) {
-	require := require.New(t)
-	c := &config.Config{
-		URL:        "http://localhost:7878",
-		ApiKey:     "abcdef0123456789abcdef0123456789",
-		ApiVersion: "v3",
-	}
+	u := "http://localhost"
 
-	client, err := NewClient(c)
-	_, ok := client.httpClient.Transport.(*ArrTransport).auth.(*ApiKeyAuth)
-	require.True(ok, "NewClient should return a client with an ApiKeyAuth authenticator")
-	require.Nil(err, "NewClient should not return an error")
-	require.NotNil(client, "NewClient should return a client")
-	require.Equal(client.URL.String(), "http://localhost:7878/api/v3", "NewClient should return a client with the correct URL")
+	require := require.New(t)
+	c, err := NewClient(u, true, nil)
+	require.NoError(err, "NewClient should not return an error")
+	require.NotNil(c, "NewClient should return a client")
+	require.Equal(u, c.URL.String(), "NewClient should set the correct URL")
+	require.True(c.httpClient.Transport.(*ExportarrTransport).inner.(*http.Transport).TLSClientConfig.InsecureSkipVerify)
 }
 
 // Need tests for FormAuth & BasicAuth
@@ -40,7 +33,7 @@ func TestDoRequest(t *testing.T) {
 		{
 			name:        "noParams",
 			endpoint:    "queue",
-			expectedURL: "/api/v3/queue",
+			expectedURL: "/queue",
 		},
 		{
 			name:     "params",
@@ -49,7 +42,7 @@ func TestDoRequest(t *testing.T) {
 				"page":      "1",
 				"testParam": "asdf",
 			},
-			expectedURL: "/api/v3/test?page=1&testParam=asdf",
+			expectedURL: "/test?page=1&testParam=asdf",
 		},
 	}
 	for _, param := range parameters {
@@ -61,17 +54,15 @@ func TestDoRequest(t *testing.T) {
 			}))
 			defer ts.Close()
 
-			c := &config.Config{
-				URL:        ts.URL,
-				ApiVersion: "v3",
-			}
-
 			target := struct {
 				Test string `json:"test"`
 			}{}
 			expected := target
 			expected.Test = "asdf2"
-			client, err := NewClient(c)
+			client, err := NewClient(ts.URL, false, nil)
+			if err != nil {
+				panic(err)
+			}
 			require.Nil(err, "NewClient should not return an error")
 			require.NotNil(client, "NewClient should return a client")
 			err = client.DoRequest(param.endpoint, &target, param.queryParams)
@@ -99,12 +90,7 @@ func TestDoRequest_PanicRecovery(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	c := &config.Config{
-		URL:        ts.URL,
-		ApiVersion: "v3",
-	}
-
-	client, err := NewClient(c)
+	client, err := NewClient(ts.URL, false, nil)
 	require.Nil(err, "NewClient should not return an error")
 	require.NotNil(client, "NewClient should return a client")
 

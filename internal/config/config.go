@@ -2,14 +2,12 @@ package config
 
 import (
 	"fmt"
-	"net/url"
 	"os"
 	"strings"
 
 	"github.com/gookit/validate"
 	"github.com/knadh/koanf/providers/confmap"
 	"github.com/knadh/koanf/providers/env"
-	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/providers/posflag"
 	"github.com/knadh/koanf/v2"
 	flag "github.com/spf13/pflag"
@@ -17,47 +15,27 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+func RegisterConfigFlags(flags *flag.FlagSet) {
+	flags.StringP("log-level", "l", "info", "Log level (debug, info, warn, error, fatal, panic)")
+	flags.String("log-format", "console", "Log format (console, json)")
+	flags.StringP("url", "u", "", "URL to *arr instance")
+	flags.StringP("api-key", "a", "", "API Key for *arr instance")
+	flags.String("api-key-file", "", "File containing API Key for *arr instance")
+	flags.Bool("disable-ssl-verify", false, "Disable SSL verification")
+	flags.StringP("interface", "i", "", "IP address to listen on")
+	flags.IntP("port", "p", 0, "Port to listen on")
+}
+
 type Config struct {
-	Arr                     string         `koanf:"arr"`
-	LogLevel                string         `koanf:"log-level" validate:"ValidateLogLevel"`
-	LogFormat               string         `koanf:"log-format" validate:"in:console,json"`
-	URL                     string         `koanf:"url" validate:"required|url"`
-	ApiKey                  string         `koanf:"api-key" validate:"required|regex:(^[a-z0-9]{32}$)"`
-	ApiKeyFile              string         `koanf:"api-key-file"`
-	ApiVersion              string         `koanf:"api-version" validate:"required|in:v3,v4"`
-	XMLConfig               string         `koanf:"config"`
-	Port                    int            `koanf:"port" validate:"required"`
-	Interface               string         `koanf:"interface" validate:"required|ip"`
-	DisableSSLVerify        bool           `koanf:"disable-ssl-verify"`
-	AuthUsername            string         `koanf:"auth-username"`
-	AuthPassword            string         `koanf:"auth-password"`
-	FormAuth                bool           `koanf:"form-auth"`
-	EnableUnknownQueueItems bool           `koanf:"enable-unknown-queue-items"`
-	EnableAdditionalMetrics bool           `koanf:"enable-additional-metrics"`
-	Prowlarr                ProwlarrConfig `koanf:"prowlarr"`
-	k                       *koanf.Koanf
-}
-
-func (c *Config) UseBasicAuth() bool {
-	return !c.FormAuth && c.AuthUsername != "" && c.AuthPassword != ""
-}
-
-func (c *Config) UseFormAuth() bool {
-	return c.FormAuth
-}
-
-// URLLabel() exists for backwards compatibility -- prior versions built the URL in the client,
-// meaning that the "url" metric label was missing the Port & base path that the XMLConfig provided.
-func (c *Config) URLLabel() string {
-	if c.XMLConfig != "" {
-		u, err := url.Parse(c.URL)
-		if err != nil {
-			// Should be unreachable as long as we validate that the URL is valid in LoadConfig/Validate
-			return "Could Not Parse URL"
-		}
-		return u.Scheme + "://" + u.Host
-	}
-	return c.URL
+	LogLevel         string `koanf:"log-level" validate:"ValidateLogLevel"`
+	LogFormat        string `koanf:"log-format" validate:"in:console,json"`
+	URL              string `koanf:"url" validate:"required|url"`
+	ApiKey           string `koanf:"api-key" validate:"required"`
+	ApiKeyFile       string `koanf:"api-key-file"`
+	Port             int    `koanf:"port" validate:"required"`
+	Interface        string `koanf:"interface" validate:"required|ip"`
+	DisableSSLVerify bool   `koanf:"disable-ssl-verify"`
+	k                *koanf.Koanf
 }
 
 func LoadConfig(flags *flag.FlagSet) (*Config, error) {
@@ -89,15 +67,6 @@ func LoadConfig(flags *flag.FlagSet) (*Config, error) {
 	// Flags
 	if err = k.Load(posflag.Provider(flags, ".", k), nil); err != nil {
 		return nil, err
-	}
-
-	// XMLConfig
-	xmlConfig := k.String("config")
-	if xmlConfig != "" {
-		err = k.Load(file.Provider(xmlConfig), XMLParser(), koanf.WithMergeFunc(XMLParser().Merge))
-		if err != nil {
-			return nil, err
-		}
 	}
 
 	// API Key File
@@ -134,15 +103,6 @@ func (c *Config) Validate() error {
 	if !v.Validate() {
 		return v.Errors
 	}
-	if c.AuthPassword != "" && c.AuthUsername == "" {
-		return fmt.Errorf("auth-username is required when auth-password is set")
-	}
-	if c.AuthUsername != "" && c.AuthPassword == "" {
-		return fmt.Errorf("auth-password is required when auth-username is set")
-	}
-	if c.FormAuth && (c.AuthUsername == "" || c.AuthPassword == "") {
-		return fmt.Errorf("auth-username and auth-password are required when form-auth is set")
-	}
 	return nil
 }
 
@@ -155,21 +115,15 @@ func (c Config) Messages() map[string]string {
 
 func (c Config) Translates() map[string]string {
 	return validate.MS{
-		"LogLevel":                "log-level",
-		"LogFormat":               "log-format",
-		"URL":                     "url",
-		"ApiKey":                  "api-key",
-		"ApiKeyFile":              "api-key-file",
-		"ApiVersion":              "api-version",
-		"XMLConfig":               "config",
-		"Port":                    "port",
-		"Interface":               "interface",
-		"DisableSSLVerify":        "disable-ssl-verify",
-		"AuthUsername":            "auth-username",
-		"AuthPassword":            "auth-password",
-		"FormAuth":                "form-auth",
-		"EnableUnknownQueueItems": "enable-unknown-queue-items",
-		"EnableAdditionalMetrics": "enable-additional-metrics",
+		"LogLevel":         "log-level",
+		"LogFormat":        "log-format",
+		"URL":              "url",
+		"ApiKey":           "api-key",
+		"ApiKeyFile":       "api-key-file",
+		"ApiVersion":       "api-version",
+		"Port":             "port",
+		"Interface":        "interface",
+		"DisableSSLVerify": "disable-ssl-verify",
 	}
 }
 
@@ -180,10 +134,6 @@ func backwardsCompatibilityTransforms(s string) string {
 		return "api-key-file"
 	case "apikey":
 		return "api-key"
-	case "basic-auth-username":
-		return "auth-username"
-	case "basic-auth-password":
-		return "auth-password"
 	default:
 		return s
 	}
