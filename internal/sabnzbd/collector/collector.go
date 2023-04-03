@@ -177,6 +177,7 @@ type SabnzbdCollector struct {
 	baseURL string
 }
 
+// TODO: Add a sab-specific config struct to abstract away the config parsing
 func NewSabnzbdCollector(config *config.SabnzbdConfig) (*SabnzbdCollector, error) {
 	auther := auth.ApiKeyAuth{ApiKey: config.ApiKey}
 	client, err := client.NewClient(config.URL, config.DisableSSLVerify, auther)
@@ -243,7 +244,7 @@ func (e *SabnzbdCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (e *SabnzbdCollector) Collect(ch chan<- prometheus.Metric) {
-	log := zap.S().With("collector", "systemHealth")
+	log := zap.S().With("collector", "sabnzbd")
 	start := time.Now()
 	defer func() { //nolint:wsl
 		ch <- prometheus.MustNewConstMetric(scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds(), e.baseURL)
