@@ -31,7 +31,7 @@ func RegisterArrFlags(flags *flag.FlagSet) {
 }
 
 type ArrConfig struct {
-	App                     string         `koanf:"arr"`
+	App                     string         `koanf:"app"`
 	ApiVersion              string         `koanf:"api-version" validate:"required|in:v1,v3"`
 	XMLConfig               string         `koanf:"config"`
 	AuthUsername            string         `koanf:"auth-username"`
@@ -96,6 +96,7 @@ func LoadArrConfig(conf base_config.Config, flags *flag.FlagSet) (*ArrConfig, er
 	}
 
 	out := &ArrConfig{
+		App:              conf.App,
 		URL:              conf.URL,
 		ApiKey:           conf.ApiKey,
 		DisableSSLVerify: conf.DisableSSLVerify,

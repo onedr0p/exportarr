@@ -143,12 +143,6 @@ var (
 		[]string{"target"},
 		nil,
 	)
-	scrapeDuration = prometheus.NewDesc(
-		prometheus.BuildFQName(METRIC_PREFIX, "", "scrape_duration_seconds"),
-		"Duration of the SabnzbD scrape",
-		[]string{"target"},
-		nil,
-	)
 	queueQueryDuration = prometheus.NewDesc(
 		prometheus.BuildFQName(METRIC_PREFIX, "", "queue_query_duration_seconds"),
 		"Duration querying the queue endpoint of SabnzbD",
@@ -238,17 +232,12 @@ func (e *SabnzbdCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- serverArticlesTotal
 	ch <- serverArticlesSuccess
 	ch <- warnings
-	ch <- scrapeDuration
 	ch <- queueQueryDuration
 	ch <- serverStatsQueryDuration
 }
 
 func (e *SabnzbdCollector) Collect(ch chan<- prometheus.Metric) {
 	log := zap.S().With("collector", "sabnzbd")
-	start := time.Now()
-	defer func() { //nolint:wsl
-		ch <- prometheus.MustNewConstMetric(scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds(), e.baseURL)
-	}()
 
 	queueStats := &model.QueueStats{}
 	serverStats := &model.ServerStats{}

@@ -27,6 +27,7 @@ func RegisterConfigFlags(flags *flag.FlagSet) {
 }
 
 type Config struct {
+	App              string `koanf:"-"`
 	LogLevel         string `koanf:"log-level" validate:"ValidateLogLevel"`
 	LogFormat        string `koanf:"log-format" validate:"in:console,json"`
 	URL              string `koanf:"url" validate:"required|url"`
