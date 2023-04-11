@@ -6,12 +6,12 @@ sabnzbd_article_cache_articles{target="http://127.0.0.1:39965"} 0
 sabnzbd_article_cache_bytes{target="http://127.0.0.1:39965"} 0
 # HELP sabnzbd_disk_total_bytes Total Bytes on the SabnzbD instance's disk
 # TYPE sabnzbd_disk_total_bytes gauge
-sabnzbd_disk_total_bytes{folder="complete",target="http://127.0.0.1:39965"} 4.4972376064e+10
-sabnzbd_disk_total_bytes{folder="download",target="http://127.0.0.1:39965"} 4.4971327488e+10
+sabnzbd_disk_total_bytes{folder="complete",target="http://127.0.0.1:39965"} 4.6051713089536e+13
+sabnzbd_disk_total_bytes{folder="download",target="http://127.0.0.1:39965"} 4.6050639347712e+13
 # HELP sabnzbd_disk_used_bytes Used Bytes Used on the SabnzbD instance's disk
 # TYPE sabnzbd_disk_used_bytes gauge
-sabnzbd_disk_used_bytes{folder="complete",target="http://127.0.0.1:39965"} 3.64061392896e+10
-sabnzbd_disk_used_bytes{folder="download",target="http://127.0.0.1:39965"} 3.64627623936e+10
+sabnzbd_disk_used_bytes{folder="complete",target="http://127.0.0.1:39965"} 3.72798866325504e+13
+sabnzbd_disk_used_bytes{folder="download",target="http://127.0.0.1:39965"} 3.73378686910464e+13
 # HELP sabnzbd_downloaded_bytes Total Bytes Downloaded by SABnzbd
 # TYPE sabnzbd_downloaded_bytes counter
 sabnzbd_downloaded_bytes{target="http://127.0.0.1:39965"} 5.869995742788e+12

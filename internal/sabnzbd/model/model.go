@@ -15,6 +15,7 @@ type Status int
 const (
 	KB = 1024
 	MB = 1024 * KB
+	GB = 1024 * MB
 )
 
 const (
@@ -152,10 +153,10 @@ func (q *QueueStats) UnmarshalJSON(data []byte) error {
 		return fmt.Errorf("Error parsing queue stats: %w", err)
 	}
 
-	q.DownloadDirDiskspaceUsed *= MB
-	q.DownloadDirDiskspaceTotal *= MB
-	q.CompletedDirDiskspaceUsed *= MB
-	q.CompletedDirDiskspaceTotal *= MB
+	q.DownloadDirDiskspaceUsed *= GB
+	q.DownloadDirDiskspaceTotal *= GB
+	q.CompletedDirDiskspaceUsed *= GB
+	q.CompletedDirDiskspaceTotal *= GB
 	q.Speed *= KB
 	q.RemainingSize *= MB
 	q.Size *= MB
