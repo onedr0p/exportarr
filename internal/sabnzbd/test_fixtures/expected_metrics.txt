@@ -10,8 +10,8 @@ sabnzbd_disk_total_bytes{folder="complete",target="http://127.0.0.1:39965"} 4.60
 sabnzbd_disk_total_bytes{folder="download",target="http://127.0.0.1:39965"} 4.6050639347712e+13
 # HELP sabnzbd_disk_used_bytes Used Bytes Used on the SabnzbD instance's disk
 # TYPE sabnzbd_disk_used_bytes gauge
-sabnzbd_disk_used_bytes{folder="complete",target="http://127.0.0.1:39965"} 3.72798866325504e+13
-sabnzbd_disk_used_bytes{folder="download",target="http://127.0.0.1:39965"} 3.73378686910464e+13
+sabnzbd_disk_used_bytes{folder="complete",target="http://127.0.0.1:39965"} 8.771826456985602e+12
+sabnzbd_disk_used_bytes{folder="download",target="http://127.0.0.1:39965"} 8.712770656665602e+12
 # HELP sabnzbd_downloaded_bytes Total Bytes Downloaded by SABnzbd
 # TYPE sabnzbd_downloaded_bytes counter
 sabnzbd_downloaded_bytes{target="http://127.0.0.1:39965"} 5.869995742788e+12
