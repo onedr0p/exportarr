@@ -133,9 +133,9 @@ func (q *QueueStats) UnmarshalJSON(data []byte) error {
 
 	var err error
 	q.PauseDuration, err = parseDuration(queue["pause_int"], err)
-	q.DownloadDirDiskspaceUsed, err = parseFloat(queue["diskspace1"], err)
+	downloadDirDiskspaceFree, err := parseFloat(queue["diskspace1"], err)
+	completedDirDiskspaceFree, err := parseFloat(queue["diskspace2"], err)
 	q.DownloadDirDiskspaceTotal, err = parseFloat(queue["diskspacetotal1"], err)
-	q.CompletedDirDiskspaceUsed, err = parseFloat(queue["diskspace2"], err)
 	q.CompletedDirDiskspaceTotal, err = parseFloat(queue["diskspacetotal2"], err)
 	q.SpeedLimit, err = parseSize(queue["speedlimit"], err)
 	q.SpeedLimitAbs, err = parseSize(queue["speedlimit_abs"], err)
@@ -153,10 +153,11 @@ func (q *QueueStats) UnmarshalJSON(data []byte) error {
 		return fmt.Errorf("Error parsing queue stats: %w", err)
 	}
 
-	q.DownloadDirDiskspaceUsed *= GB
 	q.DownloadDirDiskspaceTotal *= GB
-	q.CompletedDirDiskspaceUsed *= GB
+
 	q.CompletedDirDiskspaceTotal *= GB
+	q.DownloadDirDiskspaceUsed = q.DownloadDirDiskspaceTotal - (downloadDirDiskspaceFree * GB)
+	q.CompletedDirDiskspaceUsed = q.CompletedDirDiskspaceTotal - (completedDirDiskspaceFree * GB)
 	q.Speed *= KB
 	q.RemainingSize *= MB
 	q.Size *= MB
