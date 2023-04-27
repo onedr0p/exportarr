@@ -42,8 +42,10 @@ type History struct {
 	TotalRecords int `json:"totalRecords"`
 }
 
+type SystemHealth []SystemHealthMessage
+
 // SystemHealth - Stores struct of JSON response
-type SystemHealth []struct {
+type SystemHealthMessage struct {
 	Source  string `json:"source"`
 	Type    string `json:"type"`
 	Message string `json:"message"`

@@ -1,6 +1,7 @@
 package collector
 
 import (
+	"strings"
 	"sync"
 	"time"
 
@@ -89,6 +90,42 @@ func (u *userAgentStatCache) UpdateKey(key string, value model.UserAgentStats) m
 	entry.NumberOfGrabs += value.NumberOfGrabs
 	u.cache[key] = entry
 	return entry
+}
+
+type UnavailableIndexerEmitter struct {
+	url string
+}
+
+func NewUnavailableIndexerEmitter(url string) *UnavailableIndexerEmitter {
+	return &UnavailableIndexerEmitter{
+		url: url,
+	}
+}
+
+func (e *UnavailableIndexerEmitter) Describe() *prometheus.Desc {
+	return prometheus.NewDesc(
+		"prowlarr_indexer_unavailable",
+		"Indexers marked unavailable due to repeated errors",
+		[]string{"indexer"},
+		prometheus.Labels{"url": e.url},
+	)
+}
+
+func (e *UnavailableIndexerEmitter) Emit(msg model.SystemHealthMessage) []prometheus.Metric {
+	ret := []prometheus.Metric{}
+	if msg.Source == "IndexerStatusCheck" || msg.Source == "IndexerLongTermStatusCheck" {
+		parts := strings.Split(msg.Message, ":")
+		svrs := parts[len(parts)-1]
+		for _, svr := range strings.Split(svrs, ",") {
+			ret = append(ret, prometheus.MustNewConstMetric(
+				e.Describe(),
+				prometheus.GaugeValue,
+				1,
+				strings.TrimSpace(svr),
+			))
+		}
+	}
+	return ret
 }
 
 type prowlarrCollector struct {
