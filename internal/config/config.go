@@ -30,8 +30,8 @@ type Config struct {
 	App              string `koanf:"-"`
 	LogLevel         string `koanf:"log-level" validate:"ValidateLogLevel"`
 	LogFormat        string `koanf:"log-format" validate:"in:console,json"`
-	URL              string `koanf:"url" validate:"required|url"`
-	ApiKey           string `koanf:"api-key" validate:"required"`
+	URL              string `koanf:"url"`
+	ApiKey           string `koanf:"api-key"`
 	ApiKeyFile       string `koanf:"api-key-file"`
 	Port             int    `koanf:"port" validate:"required"`
 	Interface        string `koanf:"interface" validate:"required|ip"`

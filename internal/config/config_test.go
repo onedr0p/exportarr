@@ -9,14 +9,7 @@ import (
 
 func testFlagSet() *pflag.FlagSet {
 	out := pflag.NewFlagSet("test", pflag.ContinueOnError)
-	out.StringP("log-level", "l", "info", "Log level (debug, info, warn, error, fatal, panic)")
-	out.StringP("config", "c", "", "*arr config.xml file for parsing authentication information")
-	out.StringP("url", "u", "", "URL to *arr instance")
-	out.StringP("api-key", "k", "", "API Key for *arr instance")
-	out.StringP("api-key-file", "f", "", "File containing API Key for *arr instance")
-	out.Int("port", 0, "Port to listen on")
-	out.StringP("interface", "i", "", "IP address to listen on")
-	out.Bool("disable-ssl-verify", false, "Disable SSL verification")
+	RegisterConfigFlags(out)
 	return out
 }
 func TestLoadConfig_Defaults(t *testing.T) {

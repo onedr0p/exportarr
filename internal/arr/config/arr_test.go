@@ -163,6 +163,23 @@ func TestLoadConfig_XMLConfig(t *testing.T) {
 	require.Equal("abcdef0123456789abcdef0123456789", config.ApiKey)
 }
 
+func TestLoadConfig_XMLConfigEnv(t *testing.T) {
+	flags := testFlagSet()
+	t.Setenv("CONFIG", "test_fixtures/config.test_xml")
+	c := base_config.Config{
+		URL: "http://localhost",
+	}
+
+	config, err := LoadArrConfig(c, flags)
+
+	require := require.New(t)
+	require.NoError(err)
+
+	// schema/host from config, port, and asdf from xml, api & version defaulted in LoadConfig.
+	require.Equal("http://localhost:7878/asdf", config.URL)
+	require.Equal("abcdef0123456789abcdef0123456789", config.ApiKey)
+}
+
 func TestValidate(t *testing.T) {
 	params := []struct {
 		name   string
