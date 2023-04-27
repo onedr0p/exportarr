@@ -20,139 +20,139 @@ var (
 	downloadedBytes = prometheus.NewDesc(
 		prometheus.BuildFQName(METRIC_PREFIX, "", "downloaded_bytes"),
 		"Total Bytes Downloaded by SABnzbd",
-		[]string{"target"},
+		[]string{"url"},
 		nil,
 	)
 	serverDownloadedBytes = prometheus.NewDesc(
 		prometheus.BuildFQName(METRIC_PREFIX, "", "server_downloaded_bytes"),
 		"Total Bytes Downloaded from UseNet Server",
-		[]string{"target", "server"},
+		[]string{"url", "server"},
 		nil,
 	)
 	serverArticlesTotal = prometheus.NewDesc(
 		prometheus.BuildFQName(METRIC_PREFIX, "", "server_articles_total"),
 		"Total Articles Attempted to download from UseNet Server",
-		[]string{"target", "server"},
+		[]string{"url", "server"},
 		nil,
 	)
 	serverArticlesSuccess = prometheus.NewDesc(
 		prometheus.BuildFQName(METRIC_PREFIX, "", "server_articles_success"),
 		"Total Articles Successfully downloaded from UseNet Server",
-		[]string{"target", "server"},
+		[]string{"url", "server"},
 		nil,
 	)
 	info = prometheus.NewDesc(
 		prometheus.BuildFQName(METRIC_PREFIX, "", "info"),
 		"Info about the target SabnzbD instance",
-		[]string{"target", "version", "status"},
+		[]string{"url", "version", "status"},
 		nil,
 	)
 	paused = prometheus.NewDesc(
 		prometheus.BuildFQName(METRIC_PREFIX, "", "paused"),
 		"Is the target SabnzbD instance paused",
-		[]string{"target"},
+		[]string{"url"},
 		nil,
 	)
 	pausedAll = prometheus.NewDesc(
 		prometheus.BuildFQName(METRIC_PREFIX, "", "paused_all"),
 		"Are all the target SabnzbD instance's queues paused",
-		[]string{"target"},
+		[]string{"url"},
 		nil,
 	)
 	pauseDuration = prometheus.NewDesc(
 		prometheus.BuildFQName(METRIC_PREFIX, "", "pause_duration_seconds"),
 		"Duration until the SabnzbD instance is unpaused",
-		[]string{"target"},
+		[]string{"url"},
 		nil,
 	)
 	diskUsed = prometheus.NewDesc(
 		prometheus.BuildFQName(METRIC_PREFIX, "", "disk_used_bytes"),
 		"Used Bytes Used on the SabnzbD instance's disk",
-		[]string{"target", "folder"},
+		[]string{"url", "folder"},
 		nil,
 	)
 	diskTotal = prometheus.NewDesc(
 		prometheus.BuildFQName(METRIC_PREFIX, "", "disk_total_bytes"),
 		"Total Bytes on the SabnzbD instance's disk",
-		[]string{"target", "folder"},
+		[]string{"url", "folder"},
 		nil,
 	)
 	remainingQuota = prometheus.NewDesc(
 		prometheus.BuildFQName(METRIC_PREFIX, "", "remaining_quota_bytes"),
 		"Total Bytes Left in the SabnzbD instance's quota",
-		[]string{"target"},
+		[]string{"url"},
 		nil,
 	)
 	quota = prometheus.NewDesc(
 		prometheus.BuildFQName(METRIC_PREFIX, "", "quota_bytes"),
 		"Total Bytes in the SabnzbD instance's quota",
-		[]string{"target"},
+		[]string{"url"},
 		nil,
 	)
 	cachedArticles = prometheus.NewDesc(
 		prometheus.BuildFQName(METRIC_PREFIX, "", "article_cache_articles"),
 		"Total Articles Cached in the SabnzbD instance",
-		[]string{"target"},
+		[]string{"url"},
 		nil,
 	)
 	cachedBytes = prometheus.NewDesc(
 		prometheus.BuildFQName(METRIC_PREFIX, "", "article_cache_bytes"),
 		"Total Bytes Cached in the SabnzbD instance Article Cache",
-		[]string{"target"},
+		[]string{"url"},
 		nil,
 	)
 	speed = prometheus.NewDesc(
 		prometheus.BuildFQName(METRIC_PREFIX, "", "speed_bps"),
 		"Total Bytes Downloaded per Second by the SabnzbD instance",
-		[]string{"target"},
+		[]string{"url"},
 		nil,
 	)
 	bytesRemaining = prometheus.NewDesc(
 		prometheus.BuildFQName(METRIC_PREFIX, "", "remaining_bytes"),
 		"Total Bytes Remaining to Download by the SabnzbD instance",
-		[]string{"target"},
+		[]string{"url"},
 		nil,
 	)
 	bytesTotal = prometheus.NewDesc(
 		prometheus.BuildFQName(METRIC_PREFIX, "", "total_bytes"),
 		"Total Bytes in queue to Download by the SabnzbD instance",
-		[]string{"target"},
+		[]string{"url"},
 		nil,
 	)
 	queueLength = prometheus.NewDesc(
 		prometheus.BuildFQName(METRIC_PREFIX, "", "queue_length"),
 		"Total Number of Items in the SabnzbD instance's queue",
-		[]string{"target"},
+		[]string{"url"},
 		nil,
 	)
 	status = prometheus.NewDesc(
 		prometheus.BuildFQName(METRIC_PREFIX, "", "status"),
 		"Status of the SabnzbD instance's queue (0=Unknown, 1=Idle, 2=Paused, 3=Downloading)",
-		[]string{"target"},
+		[]string{"url"},
 		nil,
 	)
 	timeEstimate = prometheus.NewDesc(
 		prometheus.BuildFQName(METRIC_PREFIX, "", "time_estimate_seconds"),
 		"Estimated Time Remaining to Download by the SabnzbD instance",
-		[]string{"target"},
+		[]string{"url"},
 		nil,
 	)
 	warnings = prometheus.NewDesc(
-		prometheus.BuildFQName(METRIC_PREFIX, "", "warnings"),
+		prometheus.BuildFQName(METRIC_PREFIX, "", "queue_warnings"),
 		"Total Warnings in the SabnzbD instance's queue",
-		[]string{"target"},
+		[]string{"url"},
 		nil,
 	)
 	queueQueryDuration = prometheus.NewDesc(
 		prometheus.BuildFQName(METRIC_PREFIX, "", "queue_query_duration_seconds"),
 		"Duration querying the queue endpoint of SabnzbD",
-		[]string{"target"},
+		[]string{"url"},
 		nil,
 	)
 	serverStatsQueryDuration = prometheus.NewDesc(
 		prometheus.BuildFQName(METRIC_PREFIX, "", "server_stats_query_duration_seconds"),
 		"Duration querying the server_stats endpoint of SabnzbD",
-		[]string{"target"},
+		[]string{"url"},
 		nil,
 	)
 )
