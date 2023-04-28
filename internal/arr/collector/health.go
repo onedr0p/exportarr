@@ -11,12 +11,18 @@ import (
 )
 
 type systemHealthCollector struct {
-	config             *config.ArrConfig // App configuration
-	systemHealthMetric *prometheus.Desc  // Total number of health issues
-	errorMetric        *prometheus.Desc  // Error Description for use with InvalidMetric
+	config             *config.ArrConfig          // App configuration
+	systemHealthMetric *prometheus.Desc           // Total number of health issues
+	errorMetric        *prometheus.Desc           // Error Description for use with InvalidMetric
+	extraEmitters      []ExtraHealthMetricEmitter // Registered Emitters for extra per-app metrics
 }
 
-func NewSystemHealthCollector(c *config.ArrConfig) *systemHealthCollector {
+type ExtraHealthMetricEmitter interface {
+	Describe() *prometheus.Desc
+	Emit(model.SystemHealthMessage) []prometheus.Metric
+}
+
+func NewSystemHealthCollector(c *config.ArrConfig, emitters ...ExtraHealthMetricEmitter) *systemHealthCollector {
 	return &systemHealthCollector{
 		config: c,
 		systemHealthMetric: prometheus.NewDesc(
@@ -31,11 +37,15 @@ func NewSystemHealthCollector(c *config.ArrConfig) *systemHealthCollector {
 			nil,
 			prometheus.Labels{"url": c.URL},
 		),
+		extraEmitters: emitters,
 	}
 }
 
 func (collector *systemHealthCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.systemHealthMetric
+	for _, emitter := range collector.extraEmitters {
+		ch <- emitter.Describe()
+	}
 }
 
 func (collector *systemHealthCollector) Collect(ch chan<- prometheus.Metric) {
@@ -58,6 +68,11 @@ func (collector *systemHealthCollector) Collect(ch chan<- prometheus.Metric) {
 			ch <- prometheus.MustNewConstMetric(collector.systemHealthMetric, prometheus.GaugeValue, float64(1),
 				s.Source, s.Type, s.Message, s.WikiURL,
 			)
+			for _, emitter := range collector.extraEmitters {
+				for _, metric := range emitter.Emit(s) {
+					ch <- metric
+				}
+			}
 		}
 	} else {
 		ch <- prometheus.MustNewConstMetric(collector.systemHealthMetric, prometheus.GaugeValue, float64(0), "", "", "", "")
