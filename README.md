@@ -173,7 +173,7 @@ Visit http://127.0.0.1:9711/metrics to see Readarr metrics
 ```sh
 ./exportarr sabnzbd --help
 
-./exportarr readarr \
+./exportarr sabnzbd \
   --port 9712 \
   --url http://x.x.x.x:9696 \
   --api-key amlmndfb503rfqaa5ln5hj5qkmu3hy18
