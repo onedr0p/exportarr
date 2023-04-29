@@ -168,6 +168,18 @@ Visit http://127.0.0.1:9710/metrics to see Prowlarr metrics
 
 Visit http://127.0.0.1:9711/metrics to see Readarr metrics
 
+#### SabnzbD
+
+```sh
+./exportarr sabnzbd --help
+
+./exportarr sabnzbd \
+  --port 9712 \
+  --url http://x.x.x.x:9696 \
+  --api-key amlmndfb503rfqaa5ln5hj5qkmu3hy18
+```
+
+Visit http://127.0.0.1:9712/metrics
 ## Configuration
 
 | Environment Variable         | CLI Flag                       | Description                                                    | Default   | Required |
