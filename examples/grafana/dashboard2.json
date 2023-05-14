@@ -139,7 +139,7 @@
             "h": 4,
             "w": 3,
             "x": 0,
-            "y": 49
+            "y": 1
           },
           "id": 34,
           "options": {
@@ -157,7 +157,7 @@
             "text": {},
             "textMode": "auto"
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -230,7 +230,7 @@
             "h": 4,
             "w": 3,
             "x": 3,
-            "y": 49
+            "y": 1
           },
           "id": 35,
           "options": {
@@ -248,7 +248,7 @@
             "text": {},
             "textMode": "auto"
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -354,7 +354,7 @@
             "h": 4,
             "w": 5,
             "x": 6,
-            "y": 49
+            "y": 1
           },
           "id": 37,
           "options": {
@@ -374,7 +374,7 @@
             },
             "textMode": "auto"
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -477,7 +477,7 @@
             "h": 4,
             "w": 6,
             "x": 11,
-            "y": 49
+            "y": 1
           },
           "id": 36,
           "options": {
@@ -492,12 +492,10 @@
               "fields": "",
               "values": false
             },
-            "text": {
-              "valueSize": 60
-            },
+            "text": {},
             "textMode": "auto"
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -622,7 +620,7 @@
             "h": 4,
             "w": 4,
             "x": 17,
-            "y": 49
+            "y": 1
           },
           "id": 38,
           "options": {
@@ -637,12 +635,10 @@
               "fields": "",
               "values": false
             },
-            "text": {
-              "valueSize": 40
-            },
+            "text": {},
             "textMode": "auto"
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -735,7 +731,7 @@
             "h": 4,
             "w": 3,
             "x": 21,
-            "y": 49
+            "y": 1
           },
           "id": 39,
           "options": {
@@ -750,12 +746,10 @@
               "fields": "",
               "values": false
             },
-            "text": {
-              "valueSize": 50
-            },
+            "text": {},
             "textMode": "auto"
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -833,7 +827,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 53
+            "y": 5
           },
           "id": 44,
           "options": {
@@ -925,7 +919,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 53
+            "y": 5
           },
           "id": 45,
           "options": {
@@ -981,7 +975,7 @@
             "h": 9,
             "w": 6,
             "x": 0,
-            "y": 62
+            "y": 14
           },
           "id": 29,
           "options": {
@@ -1050,7 +1044,7 @@
             "h": 9,
             "w": 6,
             "x": 6,
-            "y": 62
+            "y": 14
           },
           "id": 33,
           "options": {
@@ -1115,7 +1109,7 @@
             "h": 9,
             "w": 6,
             "x": 12,
-            "y": 62
+            "y": 14
           },
           "id": 30,
           "options": {
@@ -1184,7 +1178,7 @@
             "h": 9,
             "w": 6,
             "x": 18,
-            "y": 62
+            "y": 14
           },
           "id": 32,
           "options": {
@@ -1319,10 +1313,11 @@
             "h": 7,
             "w": 12,
             "x": 0,
-            "y": 71
+            "y": 23
           },
           "id": 41,
           "options": {
+            "cellHeight": "sm",
             "footer": {
               "countRows": false,
               "fields": "",
@@ -1340,7 +1335,7 @@
               }
             ]
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -1512,10 +1507,11 @@
             "h": 7,
             "w": 12,
             "x": 12,
-            "y": 71
+            "y": 23
           },
           "id": 42,
           "options": {
+            "cellHeight": "sm",
             "footer": {
               "countRows": false,
               "fields": "",
@@ -1527,7 +1523,7 @@
             "frameIndex": 1,
             "showHeader": true
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -1669,7 +1665,7 @@
             "properties": [
               {
                 "id": "unit",
-                "value": "bits"
+                "value": "bytes"
               }
             ]
           },
@@ -3230,7 +3226,7 @@
             "text": {},
             "textMode": "auto"
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -3321,7 +3317,7 @@
             "text": {},
             "textMode": "auto"
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -3401,7 +3397,7 @@
             "text": {},
             "textMode": "auto"
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -3544,7 +3540,7 @@
             "text": {},
             "textMode": "auto"
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -3665,9 +3661,10 @@
               "values": false
             },
             "showUnfilled": true,
-            "text": {}
+            "text": {},
+            "valueMode": "color"
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -4107,7 +4104,7 @@
             "text": {},
             "textMode": "auto"
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -4198,7 +4195,7 @@
             "text": {},
             "textMode": "auto"
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -4232,29 +4229,12 @@
                 "steps": [
                   {
                     "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
                   }
                 ]
               },
               "unit": "none"
             },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Disk Used"
-                },
-                "properties": [
-                  {
-                    "id": "unit",
-                    "value": "bytes"
-                  }
-                ]
-              }
-            ]
+            "overrides": []
           },
           "gridPos": {
             "h": 4,
@@ -4280,7 +4260,7 @@
             },
             "textMode": "auto"
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -4343,41 +4323,12 @@
                 "steps": [
                   {
                     "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
                   }
                 ]
               },
               "unit": "none"
             },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Disk Free"
-                },
-                "properties": [
-                  {
-                    "id": "unit",
-                    "value": "bytes"
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Disk Used"
-                },
-                "properties": [
-                  {
-                    "id": "unit",
-                    "value": "bytes"
-                  }
-                ]
-              }
-            ]
+            "overrides": []
           },
           "gridPos": {
             "h": 4,
@@ -4401,7 +4352,7 @@
             "text": {},
             "textMode": "auto"
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -4446,41 +4397,12 @@
                 "steps": [
                   {
                     "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
                   }
                 ]
               },
               "unit": "none"
             },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Disk Free"
-                },
-                "properties": [
-                  {
-                    "id": "unit",
-                    "value": "bytes"
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Disk Used"
-                },
-                "properties": [
-                  {
-                    "id": "unit",
-                    "value": "bytes"
-                  }
-                ]
-              }
-            ]
+            "overrides": []
           },
           "gridPos": {
             "h": 4,
@@ -4504,7 +4426,7 @@
             "text": {},
             "textMode": "auto"
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -4553,41 +4475,12 @@
                 "steps": [
                   {
                     "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
                   }
                 ]
               },
               "unit": "none"
             },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Disk Free"
-                },
-                "properties": [
-                  {
-                    "id": "unit",
-                    "value": "bytes"
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Disk Used"
-                },
-                "properties": [
-                  {
-                    "id": "unit",
-                    "value": "bytes"
-                  }
-                ]
-              }
-            ]
+            "overrides": []
           },
           "gridPos": {
             "h": 4,
@@ -4611,7 +4504,7 @@
             "text": {},
             "textMode": "auto"
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -4685,9 +4578,10 @@
               "fields": "",
               "values": false
             },
-            "showUnfilled": true
+            "showUnfilled": true,
+            "valueMode": "color"
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -4880,7 +4774,7 @@
               "calcs": [],
               "displayMode": "list",
               "placement": "bottom",
-              "showLegend": true
+              "showLegend": false
             },
             "tooltip": {
               "mode": "single",
@@ -4894,13 +4788,15 @@
                 "uid": "${DS_PROMETHEUS}"
               },
               "editorMode": "code",
+              "exemplar": false,
               "expr": "sonarr_series_filesize_bytes",
+              "instant": false,
               "legendFormat": "Used",
               "range": true,
               "refId": "A"
             }
           ],
-          "title": "Disk",
+          "title": "Disk Used",
           "type": "timeseries"
         },
         {
@@ -4969,6 +4865,7 @@
           },
           "id": 55,
           "options": {
+            "cellHeight": "sm",
             "footer": {
               "countRows": false,
               "fields": "",
@@ -4980,7 +4877,7 @@
             "frameIndex": 1,
             "showHeader": true
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -5127,7 +5024,7 @@
             "text": {},
             "textMode": "auto"
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -5218,7 +5115,7 @@
             "text": {},
             "textMode": "auto"
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -5319,7 +5216,7 @@
             "text": {},
             "textMode": "auto"
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -5430,7 +5327,7 @@
             "text": {},
             "textMode": "auto"
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -5485,32 +5382,7 @@
               },
               "unit": "none"
             },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Disk Free"
-                },
-                "properties": [
-                  {
-                    "id": "unit",
-                    "value": "bytes"
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Disk Used"
-                },
-                "properties": [
-                  {
-                    "id": "unit",
-                    "value": "bytes"
-                  }
-                ]
-              }
-            ]
+            "overrides": []
           },
           "gridPos": {
             "h": 4,
@@ -5534,7 +5406,7 @@
             "text": {},
             "textMode": "auto"
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -5621,9 +5493,10 @@
               "fields": "",
               "values": false
             },
-            "showUnfilled": true
+            "showUnfilled": true,
+            "valueMode": "color"
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -5817,7 +5690,7 @@
               "calcs": [],
               "displayMode": "list",
               "placement": "bottom",
-              "showLegend": true
+              "showLegend": false
             },
             "tooltip": {
               "mode": "single",
@@ -5837,7 +5710,7 @@
               "refId": "A"
             }
           ],
-          "title": "Disk",
+          "title": "Disk Used",
           "type": "timeseries"
         },
         {
@@ -5906,6 +5779,7 @@
           },
           "id": 76,
           "options": {
+            "cellHeight": "sm",
             "footer": {
               "countRows": false,
               "fields": "",
@@ -5918,7 +5792,7 @@
             "showHeader": true,
             "sortBy": []
           },
-          "pluginVersion": "9.4.7",
+          "pluginVersion": "9.5.1",
           "targets": [
             {
               "datasource": {
@@ -6829,13 +6703,13 @@
     ]
   },
   "time": {
-    "from": "now-30d",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "Media Dashboard",
   "uid": "WURH98Y4k",
-  "version": 11,
+  "version": 13,
   "weekStart": ""
 }
