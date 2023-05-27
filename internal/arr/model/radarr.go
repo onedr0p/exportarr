@@ -16,3 +16,9 @@ type Movie []struct {
 	} `json:"movieFile"`
 	QualityProfileID int `json:"qualityProfileId"`
 }
+
+type Tag []struct {
+	ID	int	`json:"id"`
+	Label string `json:"label"`
+
+}
