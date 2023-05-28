@@ -19,6 +19,7 @@ type radarrCollector struct {
 	movieQualitiesMetric   *prometheus.Desc  // Total number of movies by quality
 	movieFileSizeMetric    *prometheus.Desc  // Total fizesize of all movies in bytes
 	errorMetric            *prometheus.Desc  // Error Description for use with InvalidMetric
+	movieTagsMetric        *prometheus.Desc  // Total number of downloaded movies by tag
 }
 
 func NewRadarrCollector(c *config.ArrConfig) *radarrCollector {
@@ -72,6 +73,12 @@ func NewRadarrCollector(c *config.ArrConfig) *radarrCollector {
 			[]string{"quality"},
 			prometheus.Labels{"url": c.URL},
 		),
+		movieTagsMetric: prometheus.NewDesc(
+			"radarr_movie_tag_total",
+			"Total number of downloaded movies by tag",
+			[]string{"tag"},
+			prometheus.Labels{"url": c.URL},
+		),
 		errorMetric: prometheus.NewDesc(
 			"radarr_collector_error",
 			"Error while collecting metrics",
@@ -108,6 +115,10 @@ func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
 		missing     = 0
 		wanted      = 0
 		qualities   = map[string]int{}
+		tags   =	[]struct {
+			Label string
+			Movies int
+		}{}
 	)
 	movies := model.Movie{}
 	// https://radarr.video/docs/api/#/Movie/get_api_v3_movie
@@ -138,6 +149,27 @@ func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
 			fileSize += s.MovieFile.Size
 		}
 	}
+
+	tagObjects := model.TagMovies{}
+	// https://radarr.video/docs/api/#/TagDetails/get_api_v3_tag_detail
+	if err := c.DoRequest("tag/detail", &tagObjects); err != nil {
+			log.Errorw("Error getting Tags", "error", err)
+			ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+			return
+		}
+	for _, s := range tagObjects {
+		tag := struct {
+			Label string
+			Movies int
+		}{
+			Label: s.Label,
+			Movies: len(s.MovieIds),
+		}
+		tags = append(tags, tag)
+	}
+	
+
+
 	ch <- prometheus.MustNewConstMetric(collector.movieMetric, prometheus.GaugeValue, float64(len(movies)))
 	ch <- prometheus.MustNewConstMetric(collector.movieDownloadedMetric, prometheus.GaugeValue, float64(downloaded))
 	ch <- prometheus.MustNewConstMetric(collector.movieMonitoredMetric, prometheus.GaugeValue, float64(monitored))
@@ -153,4 +185,13 @@ func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
 			)
 		}
 	}
+
+	if len(tags) > 0 {
+		for _, Tag := range tags {
+			ch <- prometheus.MustNewConstMetric(collector.movieTagsMetric, prometheus.GaugeValue, float64(Tag.Movies),
+				Tag.Label,
+			)
+		}
+	}
+
 }
