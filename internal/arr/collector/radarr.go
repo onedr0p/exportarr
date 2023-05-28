@@ -115,7 +115,10 @@ func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
 		missing     = 0
 		wanted      = 0
 		qualities   = map[string]int{}
-		tags        = map[string]int{}
+		tags   =	[]struct {
+			Label string
+			Movies int
+		}{}
 	)
 	movies := model.Movie{}
 	// https://radarr.video/docs/api/#/Movie/get_api_v3_movie
@@ -147,16 +150,25 @@ func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
 		}
 	}
 
-	rawTags := model.Tag{}
-	// https://radarr.video/docs/api/#/Movie/get_api_v3_tag
-	if err := c.DoRequest("tag", &rawTags); err != nil {
+	tagObjects := model.TagObjects{}
+	// tags := map[string]int{}
+	// https://radarr.video/docs/api/#/TagDetails/get_api_v3_tag_detail
+	if err := c.DoRequest("tag/detail", &tagObjects); err != nil {
 			log.Errorw("Error getting Tags", "error", err)
 			ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 			return
 		}
-		for _, s := range rawTags {		
-			tags[s.Label]++
+	for _, s := range tagObjects {
+		tag := struct {
+			Label string
+			Movies int
+		}{
+			Label: s.Label,
+			Movies: len(s.MovieIds),
 		}
+		tags = append(tags, tag)
+	}
+	
 
 
 	ch <- prometheus.MustNewConstMetric(collector.movieMetric, prometheus.GaugeValue, float64(len(movies)))
@@ -176,9 +188,9 @@ func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	if len(tags) > 0 {
-		for tag, count := range tags {
-			ch <- prometheus.MustNewConstMetric(collector.movieTags, prometheus.GaugeValue, float64(count),
-				tag,
+		for _, Tag := range tags {
+			ch <- prometheus.MustNewConstMetric(collector.movieTags, prometheus.GaugeValue, float64(Tag.Movies),
+				Tag.Label,
 			)
 		}
 	}

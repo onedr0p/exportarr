@@ -17,8 +17,8 @@ type Movie []struct {
 	QualityProfileID int `json:"qualityProfileId"`
 }
 
-type Tag []struct {
+type TagObjects []struct {
 	ID	int	`json:"id"`
 	Label string `json:"label"`
-
+	MovieIds []int `json:"movieIds"`
 }
