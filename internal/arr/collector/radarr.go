@@ -151,7 +151,6 @@ func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	tagObjects := model.TagObjects{}
-	// tags := map[string]int{}
 	// https://radarr.video/docs/api/#/TagDetails/get_api_v3_tag_detail
 	if err := c.DoRequest("tag/detail", &tagObjects); err != nil {
 			log.Errorw("Error getting Tags", "error", err)
