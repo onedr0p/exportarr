@@ -49,7 +49,7 @@ var radarrCmd = &cobra.Command{
 		c.ApiVersion = "v3"
 		UsageOnError(cmd, c.Validate())
 
-		serveHttp(func(r *prometheus.Registry) {
+		serveHttp(func(r prometheus.Registerer) {
 			r.MustRegister(
 				collector.NewRadarrCollector(c),
 				collector.NewQueueCollector(c),
@@ -76,7 +76,7 @@ var sonarrCmd = &cobra.Command{
 		c.ApiVersion = "v3"
 		UsageOnError(cmd, c.Validate())
 
-		serveHttp(func(r *prometheus.Registry) {
+		serveHttp(func(r prometheus.Registerer) {
 			r.MustRegister(
 				collector.NewSonarrCollector(c),
 				collector.NewQueueCollector(c),
@@ -102,7 +102,7 @@ var lidarrCmd = &cobra.Command{
 		c.ApiVersion = "v1"
 		UsageOnError(cmd, c.Validate())
 
-		serveHttp(func(r *prometheus.Registry) {
+		serveHttp(func(r prometheus.Registerer) {
 			r.MustRegister(
 				collector.NewLidarrCollector(c),
 				collector.NewQueueCollector(c),
@@ -129,7 +129,7 @@ var readarrCmd = &cobra.Command{
 		c.ApiVersion = "v1"
 		UsageOnError(cmd, c.Validate())
 
-		serveHttp(func(r *prometheus.Registry) {
+		serveHttp(func(r prometheus.Registerer) {
 			r.MustRegister(
 				collector.NewReadarrCollector(c),
 				collector.NewQueueCollector(c),
@@ -161,7 +161,7 @@ var prowlarrCmd = &cobra.Command{
 		UsageOnError(cmd, c.Validate())
 		UsageOnError(cmd, c.Prowlarr.Validate())
 
-		serveHttp(func(r *prometheus.Registry) {
+		serveHttp(func(r prometheus.Registerer) {
 			r.MustRegister(
 				collector.NewProwlarrCollector(c),
 				collector.NewHistoryCollector(c),

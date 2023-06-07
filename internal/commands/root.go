@@ -22,8 +22,8 @@ import (
 var GRACEFUL_TIMEOUT = 5 * time.Second
 
 var (
-	conf = &config.Config{}
-
+	conf    = &config.Config{}
+	appInfo = &AppInfo{}
 	rootCmd = &cobra.Command{
 		Use:   "exportarr",
 		Short: "exportarr is a AIO Prometheus exporter for *arr applications",
@@ -36,7 +36,15 @@ More information available at the Github Repo (https://github.com/onedr0p/export
 	}
 )
 
-func Execute() error {
+type AppInfo struct {
+	Name      string
+	Version   string
+	BuildTime string
+	Revision  string
+}
+
+func Execute(a AppInfo) error {
+	appInfo = &a
 	return rootCmd.Execute()
 }
 
@@ -83,7 +91,13 @@ func initLogger() {
 	}
 	atom.SetLevel(lvl)
 
-	zap.S().Debug("Logger initialized")
+	zap.S().Infow(
+		fmt.Sprintf("Starting %s", appInfo.Name),
+		"app_name", appInfo.Name,
+		"version", appInfo.Version,
+		"buildTime", appInfo.BuildTime,
+		"revision", appInfo.Revision,
+	)
 }
 
 func finalizeLogger() {
@@ -91,7 +105,7 @@ func finalizeLogger() {
 	zap.S().Sync()
 }
 
-type registerFunc func(registry *prometheus.Registry)
+type registerFunc func(registry prometheus.Registerer)
 
 func serveHttp(fn registerFunc) {
 	var srv http.Server
@@ -116,6 +130,7 @@ func serveHttp(fn registerFunc) {
 	}()
 
 	registry := prometheus.NewRegistry()
+	registerAppInfoMetric(registry)
 	fn(registry)
 
 	mux := http.NewServeMux()
@@ -139,4 +154,21 @@ func serveHttp(fn registerFunc) {
 			"error", err)
 	}
 	<-idleConnsClosed
+}
+
+func registerAppInfoMetric(registry prometheus.Registerer) {
+	registry.MustRegister(prometheus.NewGaugeFunc(
+		prometheus.GaugeOpts{
+			Namespace: appInfo.Name,
+			Name:      "app_info",
+			Help:      "A metric with a constant '1' value labeled by app name, version, build time, and revision.",
+			ConstLabels: prometheus.Labels{
+				"app_name":   appInfo.Name,
+				"version":    appInfo.Version,
+				"build_time": appInfo.BuildTime,
+				"revision":   appInfo.Revision,
+			},
+		},
+		func() float64 { return 1 },
+	))
 }

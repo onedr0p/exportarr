@@ -29,7 +29,7 @@ var sabnzbdCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		serveHttp(func(r *prometheus.Registry) {
+		serveHttp(func(r prometheus.Registerer) {
 			r.MustRegister(collector)
 		})
 		return nil
