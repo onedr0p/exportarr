@@ -48,6 +48,7 @@ jobs:
             latest=true
             prefix=v
           tags: |
+            type=ref,event=branch
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
