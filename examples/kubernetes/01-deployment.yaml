@@ -1,0 +1,142 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  exportarr
+  namespace: default
+  labels:
+    app:  exportarr
+spec:
+  selector:
+    matchLabels:
+      app: exportarr
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app:  exportarr
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "monitoring"
+        prometheus.io/path: "/metrics"
+    spec:
+      # initContainers:
+        # Init containers are exactly like regular containers, except:
+          # - Init containers always run to completion.
+          # - Each init container must complete successfully before the next one starts.
+      containers:
+        - name: radarr-exporter
+          image: ghcr.io/onedr0p/exportarr:v1.5.0
+          imagePullPolicy: IfNotPresent
+          args:
+            - radarr
+          env:
+            - name: PORT
+              value: "9707"
+            - name: URL
+              value: "http://radarr-svc.default.svc.cluster.local:7878"
+            - name: APIKEY
+              valueFrom:
+                secretKeyRef:
+                  name: exportarr
+                  key: radarr-key
+          ports:
+            - name: monitoring
+              containerPort: 9707
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: monitoring
+            failureThreshold: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: monitoring
+            failureThreshold: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+        - name: sonarr-exporter
+          image: ghcr.io/onedr0p/exportarr:v1.5.0
+          imagePullPolicy: IfNotPresent
+          args:
+            - sonarr
+          env:
+            - name: PORT
+              value: "9708"
+            - name: URL
+              value: "http://sonarr-svc.default.svc.cluster.local:8989"
+            - name: APIKEY
+              valueFrom:
+                secretKeyRef:
+                  name: exportarr
+                  key: sonarr-key
+          ports:
+            - name: monitoring
+              containerPort: 9708
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: monitoring
+            failureThreshold: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: monitoring
+            failureThreshold: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+        - name: prowlarr-exporter
+          image: ghcr.io/onedr0p/exportarr:v1.5.0
+          imagePullPolicy: IfNotPresent
+          args:
+            - prowlarr
+          env:
+            - name: PORT
+              value: "9709"
+            - name: URL
+              value: "http://prowlarr-svc.default.svc.cluster.local:9696"
+            - name: APIKEY
+              valueFrom:
+                secretKeyRef:
+                  name: exportarr
+                  key: prowl-key
+          ports:
+            - name: monitoring
+              containerPort: 9709
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: monitoring
+            failureThreshold: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: monitoring
+            failureThreshold: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
