@@ -7,11 +7,17 @@ on:
       - v*
 
 jobs:
-  go-tests:
-    uses: ./.github/actions/tests.yaml
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
 
-  container-release:
-    uses: ./.github/actions/docker-image.yaml
+      - name: Tests
+        uses: ./.github/actions/tests
 
-  go-release:
-    uses: ./.github/actions/go-release.yaml
+      - name: Build
+        uses: ./.github/actions/docker-image
+
+      - name: Release
+        uses: ./.github/actions/go-release
