@@ -19,7 +19,7 @@ COPY . .
 RUN go build -a -tags netgo -ldflags "-w -extldflags '-static' -X main.version=${VERSION} -X main.buildTime=${BUILDTIME} -X main.revision=${REVISION}" -o exportarr /build/cmd/exportarr/.
 
 FROM gcr.io/distroless/static:nonroot
-ENV PORT="9707"
+ENV PORT="9708"
 USER nonroot:nonroot
 COPY --from=builder --chown=nonroot:nonroot /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder --chown=nonroot:nonroot /build/exportarr /exportarr
