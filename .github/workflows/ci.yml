@@ -12,9 +12,8 @@ on:
 
 jobs:
   go-tests:
-    uses: ./.github/workflows/tests.yaml
+    uses: ./.github/actions/tests.yaml
 
   build:
     needs: go-tests
-    if: "!contains(github.event.head_commit.message, '[ci-skip]')"
-    uses: ./.github/workflows/docker-image.yaml
+    uses: ./.github/actions/docker-image.yaml

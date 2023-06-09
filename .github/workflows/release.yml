@@ -1,19 +1,17 @@
+---
 name: release
 
 on:
   push:
     tags:
-      - v*.*.*
+      - v*
 
 jobs:
   go-tests:
-    if: "!contains(github.event.head_commit.message, '[ci-skip]')"
-    uses: ./.github/workflows/tests.yaml
+    uses: ./.github/actions/tests.yaml
 
   container-release:
-    if: "!contains(github.event.head_commit.message, '[ci-skip]')"
-    uses: ./.github/workflows/docker-image.yaml
+    uses: ./.github/actions/docker-image.yaml
 
   go-release:
-    if: "!contains(github.event.head_commit.message, '[ci-skip]')"
-    uses: ./.github/workflows/go-release.yaml
+    uses: ./.github/actions/go-release.yaml
