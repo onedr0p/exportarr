@@ -18,6 +18,10 @@ jobs:
 
       - name: Build
         uses: ./.github/actions/docker-image
+        with:
+          token: "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Release
         uses: ./.github/actions/go-release
+        with:
+          token: "${{ secrets.GITHUB_TOKEN }}"
