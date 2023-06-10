@@ -15,6 +15,7 @@ runs:
       run: |
         go version
         go mod tidy
+        git diff --exit-code
 
     - name: Run Unit tests
       shell: bash
