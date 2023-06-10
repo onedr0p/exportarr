@@ -11,9 +11,16 @@ on:
       - reopened
 
 jobs:
-  go-tests:
-    uses: ./.github/actions/tests.yaml
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
 
-  build:
-    needs: go-tests
-    uses: ./.github/actions/docker-image.yaml
+      - name: Tests
+        uses: ./.github/actions/tests
+
+      - name: Build
+        uses: ./.github/actions/docker-image
+        with:
+          token: "${{ secrets.GITHUB_TOKEN }}"
