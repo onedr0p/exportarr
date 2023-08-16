@@ -20,7 +20,7 @@ services:
     command: ["radarr"]
     environment:
       PORT: 9708
-      URL: "http://x.x.x.x:7878" ## service name can also be used if they are on the same network for example http://radarr:7878
+      URL: "http://x.x.x.x:7878" # or; http://radarr:7878
       APIKEY: "xxx"
 #    networks:
 #    - your_custom_network  ## optional unless to access on the same network.
