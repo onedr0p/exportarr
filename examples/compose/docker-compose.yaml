@@ -61,10 +61,10 @@ services:
     command: ["sabnzbd"]
     environment:
       PORT: 9711
-      URL: "http://x.x.x.x:8080" ## service name can also be used if they are on the same network for example http://sabnzbd:8080
+      URL: "http://x.x.x.x:8080" # or; http://sabnzbd:8080
       APIKEY: "abc"
 #    networks:
-#     - your_custom_network  ## optional unless to access on the same network.
+#     - your_custom_network # optional
     ports:
      - "9711:9711"
     restart: unless-stopped
