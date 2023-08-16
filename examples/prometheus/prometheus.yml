@@ -22,6 +22,6 @@ scrape_configs:
     static_configs:
       - targets: ["sabnzbd-exporter:9710"]  # Use service name and port
 
-  - job_name: "lidarr--exporter"  # Renamed job_name for clarity
+  - job_name: "lidarr-exporter"  # Renamed job_name for clarity
     static_configs:
-      - targets: ["lidarr--exporter:9711"]  # Use service name and port
+      - targets: ["lidarr-exporter:9711"]  # Use service name and port
