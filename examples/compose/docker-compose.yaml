@@ -3,6 +3,7 @@ version: "3.7"
 services:
   sonarr-exporter:
     image: ghcr.io/onedr0p/exportarr:v1.0.0
+    container_name: sonarr-exporter
     command: ["sonarr"]
     environment:
       PORT: 9707
@@ -12,6 +13,7 @@ services:
       - "9707:9707"
   radarr-exporter:
     image: ghcr.io/onedr0p/exportarr:v1.0.0
+    container_name: radarr-exporter
     command: ["radarr"]
     environment:
       PORT: 9708
