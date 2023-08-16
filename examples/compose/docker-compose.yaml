@@ -33,7 +33,7 @@ services:
     command: ["lidarr"]
     environment:
       PORT: 9709
-      URL: "http://x.x.x.x:8686" ## service name can also be used if they are on the same network for example http://lidarr:8686
+      URL: "http://x.x.x.x:8686" # or; http://lidarr:8686
       APIKEY: "xxx"
 #    networks:
 #     - your_custom_network  ## optional unless to access on the same network.
