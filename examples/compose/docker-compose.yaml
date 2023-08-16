@@ -2,7 +2,7 @@
 version: "3.7"
 services:
   sonarr-exporter:
-    image: ghcr.io/onedr0p/exportarr:v1.0.0
+    image: ghcr.io/onedr0p/exportarr:v1.5.3
     container_name: sonarr-exporter
     command: ["sonarr"]
     environment:
@@ -15,7 +15,7 @@ services:
       - "9707:9707"
     restart: unless-stopped
   radarr-exporter:
-    image: ghcr.io/onedr0p/exportarr:v1.0.0
+    image: ghcr.io/onedr0p/exportarr:v1.5.3
     container_name: radarr-exporter
     command: ["radarr"]
     environment:
@@ -28,7 +28,7 @@ services:
       - "9708:9708"
     restart: unless-stopped
   lidarr-exporter:
-    image: ghcr.io/onedr0p/exportarr:v1.0.0
+    image: ghcr.io/onedr0p/exportarr:v1.5.3
     container_name: lidarr-exporter
     command: ["lidarr"]
     environment:
@@ -41,7 +41,7 @@ services:
       - "9709:9709"
     restart: unless-stopped
   prowlarr-exporter:
-    image: ghcr.io/onedr0p/exportarr:latest
+    image: ghcr.io/onedr0p/exportarr:v1.5.3
     container_name: prowlarr-exporter
     command: ["prowlarr"]
     environment:
@@ -56,7 +56,7 @@ services:
      - "9710:9710"
     restart: unless-stopped
   sabnzbd-exporter:
-    image: ghcr.io/onedr0p/exportarr:latest
+    image: ghcr.io/onedr0p/exportarr:v1.5.3
     container_name: sabnzbd-exporter
     command: ["sabnzbd"]
     environment:
