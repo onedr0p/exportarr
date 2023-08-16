@@ -7,7 +7,7 @@ services:
     command: ["sonarr"]
     environment:
       PORT: 9707
-      URL: "http://x.x.x.x:8989" ## service name can also be used if they are on the same network for example http://sonarr:8989
+      URL: "http://x.x.x.x:8989" # or; http://sonarr:8989
       APIKEY: "xxx"
 #    networks:
 #    - your_custom_network  ## optional unless to access on the same network.
