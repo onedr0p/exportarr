@@ -10,7 +10,7 @@ services:
       URL: "http://x.x.x.x:8989" # or; http://sonarr:8989
       APIKEY: "xxx"
 #    networks:
-#    - your_custom_network  ## optional unless to access on the same network.
+#    - your_custom_network # optional
     ports:
       - "9707:9707"
     restart: unless-stopped
