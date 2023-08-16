@@ -1,0 +1,27 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  - job_name: "sonarr-exporter"  # Renamed job_name for clarity
+    static_configs:
+      - targets: ["sonarr-exporter:9707"]  # Use service name and port
+
+  - job_name: "radarr-exporter"  # Renamed job_name for clarity
+    static_configs:
+      - targets: ["radarr-exporter:9708"]  # Use service name and port
+
+  - job_name: "prowlarr-exporter"  # Renamed job_name for clarity
+    static_configs:
+      - targets: ["prowlarr-exporter:9709"]  # Use service name and port
+
+  - job_name: "sabnzbd-exporter"  # Renamed job_name for clarity
+    static_configs:
+      - targets: ["sabnzbd-exporter:9710"]  # Use service name and port
+
+  - job_name: "lidarr-exporter"  # Renamed job_name for clarity
+    static_configs:
+      - targets: ["lidarr-exporter:9711"]  # Use service name and port
