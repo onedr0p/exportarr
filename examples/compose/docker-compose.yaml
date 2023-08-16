@@ -23,7 +23,7 @@ services:
       URL: "http://x.x.x.x:7878" # or; http://radarr:7878
       APIKEY: "xxx"
 #    networks:
-#    - your_custom_network  ## optional unless to access on the same network.
+#    - your_custom_network # optional
     ports:
       - "9708:9708"
     restart: unless-stopped
