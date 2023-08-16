@@ -36,7 +36,7 @@ services:
       URL: "http://x.x.x.x:8686" # or; http://lidarr:8686
       APIKEY: "xxx"
 #    networks:
-#     - your_custom_network  ## optional unless to access on the same network.
+#     - your_custom_network # optional
     ports:
       - "9709:9709"
     restart: unless-stopped
