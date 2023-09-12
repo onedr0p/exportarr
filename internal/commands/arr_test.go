@@ -34,6 +34,10 @@ func TestBackwardsCompatibility(t *testing.T) {
 			name:  "prowlarr",
 			flags: prowlarrCmd.PersistentFlags(),
 		},
+		{
+			name:  "bazarr",
+			flags: bazarrCmd.PersistentFlags(),
+		},
 	}
 	for _, p := range params {
 		t.Run(p.name, func(t *testing.T) {

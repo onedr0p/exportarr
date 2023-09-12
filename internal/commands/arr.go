@@ -17,6 +17,7 @@ func init() {
 	config.RegisterArrFlags(lidarrCmd.PersistentFlags())
 	config.RegisterArrFlags(readarrCmd.PersistentFlags())
 	config.RegisterArrFlags(prowlarrCmd.PersistentFlags())
+	config.RegisterArrFlags(bazarrCmd.PersistentFlags())
 	config.RegisterProwlarrFlags(prowlarrCmd.PersistentFlags())
 
 	rootCmd.AddCommand(
@@ -24,6 +25,7 @@ func init() {
 		sonarrCmd,
 		lidarrCmd,
 		readarrCmd,
+		bazarrCmd,
 		prowlarrCmd,
 	)
 }
@@ -132,6 +134,33 @@ var readarrCmd = &cobra.Command{
 		serveHttp(func(r prometheus.Registerer) {
 			r.MustRegister(
 				collector.NewReadarrCollector(c),
+				collector.NewQueueCollector(c),
+				collector.NewHistoryCollector(c),
+				collector.NewRootFolderCollector(c),
+				collector.NewSystemStatusCollector(c),
+				collector.NewSystemHealthCollector(c),
+			)
+		})
+		return nil
+	},
+}
+
+var bazarrCmd = &cobra.Command{
+	Use:     "bazarr",
+	Aliases: []string{"b"},
+	Short:   "Prometheus Exporter for Bazarr",
+	Long:    "Prometheus Exporter for Bazarr.",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		c, err := config.LoadArrConfig(*conf, cmd.PersistentFlags())
+		if err != nil {
+			return err
+		}
+		c.ApiVersion = "v1"
+		UsageOnError(cmd, c.Validate())
+
+		serveHttp(func(r prometheus.Registerer) {
+			r.MustRegister(
+				collector.NewBazarrCollector(c),
 				collector.NewQueueCollector(c),
 				collector.NewHistoryCollector(c),
 				collector.NewRootFolderCollector(c),

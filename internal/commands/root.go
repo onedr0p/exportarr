@@ -28,7 +28,7 @@ var (
 		Use:   "exportarr",
 		Short: "exportarr is a AIO Prometheus exporter for *arr applications",
 		Long: `exportarr is a Prometheus exporter for *arr applications.
-It can export metrics from Radarr, Sonarr, Lidarr, Readarr, and Prowlarr.
+It can export metrics from Radarr, Sonarr, Lidarr, Readarr, Bazarr and Prowlarr.
 More information available at the Github Repo (https://github.com/onedr0p/exportarr)`,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			conf.App = cmd.Name()
