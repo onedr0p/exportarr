@@ -1,6 +1,6 @@
 -include .env
 
-docker:
+build:
 	docker build . -t exportarr:local
 run:
 	docker run --name exportarr \
