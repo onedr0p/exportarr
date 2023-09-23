@@ -161,11 +161,6 @@ var bazarrCmd = &cobra.Command{
 		serveHttp(func(r prometheus.Registerer) {
 			r.MustRegister(
 				collector.NewBazarrCollector(c),
-				collector.NewQueueCollector(c),
-				collector.NewHistoryCollector(c),
-				collector.NewRootFolderCollector(c),
-				collector.NewSystemStatusCollector(c),
-				collector.NewSystemHealthCollector(c),
 			)
 		})
 		return nil
