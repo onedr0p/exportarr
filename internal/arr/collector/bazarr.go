@@ -437,8 +437,6 @@ func (collector *bazarrCollector) CollectEpisodeStats(ch chan<- prometheus.Metri
 	}
 	episodeStats.history = history.TotalRecords
 
-	// TODO: this might be inaccurate as we may double up on scores for subtitles that are now replaced?
-	// TODO: can we workout which histories are actually relevant?
 	for _, m := range history.Data {
 		if m.Score != "" {
 			episodeStats.scores[m.Score]++
@@ -511,8 +509,6 @@ func (collector *bazarrCollector) CollectMovieStats(ch chan<- prometheus.Metric,
 
 	movieStats.history = history.TotalRecords
 
-	// TODO: this might be inaccurate as we may double up on scores for subtitles that are now replaced?
-	// TODO: can we workout which histories are actually relevant?
 	for _, m := range history.Data {
 		if m.Score != "" {
 			movieStats.scores[m.Score]++
