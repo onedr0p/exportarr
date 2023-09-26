@@ -155,7 +155,7 @@ var bazarrCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		c.ApiVersion = "v1"
+		c.ApiVersion = ""
 		UsageOnError(cmd, c.Validate())
 
 		serveHttp(func(r prometheus.Registerer) {

@@ -32,7 +32,7 @@ func RegisterArrFlags(flags *flag.FlagSet) {
 
 type ArrConfig struct {
 	App                     string         `koanf:"app"`
-	ApiVersion              string         `koanf:"api-version" validate:"required|in:v1,v3"`
+	ApiVersion              string         `koanf:"api-version"`
 	XMLConfig               string         `koanf:"config"`
 	AuthUsername            string         `koanf:"auth-username"`
 	AuthPassword            string         `koanf:"auth-password"`
