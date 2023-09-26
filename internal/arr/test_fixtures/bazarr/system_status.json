@@ -1,0 +1,14 @@
+{
+    "data": {
+        "bazarr_version": "unknown",
+        "package_version": "",
+        "sonarr_version": "",
+        "radarr_version": "",
+        "operating_system": "macOS-13.3.1-arm64-arm-64bit",
+        "python_version": "3.11.5",
+        "bazarr_directory": "/Users/xxx/Sites/bazarr",
+        "bazarr_config_directory": "/Users/xxx/Sites/bazarr/data",
+        "start_time": 1695715754.889793,
+        "timezone": "xx/xxx"
+    }
+}

@@ -1,0 +1,33 @@
+{
+    "data": [
+        {
+            "alternativeTitles": [
+                "Los 100",
+                "Les 100"
+            ],
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episodeFileCount": 100,
+            "episodeMissingCount": 0,
+            "fanart": "/images/series/MediaCover/944/fanart.jpg",
+            "imdbId": "tt2661044",
+            "monitored": true,
+            "overview": "Set ninety-seven years after a nuclear war has destroyed civilization, when a spaceship housing humanity's lone survivors sends one hundred juvenile delinquents back to Earth, in hopes of possibly re-populating the planet.",
+            "path": "/tv/Tv Shows/the 100 (2014)",
+            "poster": "/images/series/MediaCover/944/poster-250.jpg",
+            "profileId": 1,
+            "seriesType": "standard",
+            "sonarrSeriesId": 944,
+            "tags": [],
+            "title": "The 100",
+            "tvdbId": 268592,
+            "year": "2014"
+        }
+    ],
+    "total": 1486
+}
