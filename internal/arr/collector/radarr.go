@@ -10,7 +10,7 @@ import (
 
 type radarrCollector struct {
 	config                 *config.ArrConfig // App configuration
-	movieEdition		   *prometheus.Desc  // Total number of movies with an `edition` set
+	movieEdition           *prometheus.Desc  // Total number of movies with an `edition` set
 	movieMetric            *prometheus.Desc  // Total number of movies
 	movieDownloadedMetric  *prometheus.Desc  // Total number of downloaded movies
 	movieMonitoredMetric   *prometheus.Desc  // Total number of monitored movies
