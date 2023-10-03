@@ -6,7 +6,8 @@ type Movie []struct {
 	HasFile   bool   `json:"hasFile"`
 	Available bool   `json:"isAvailable"`
 	Monitored bool   `json:"monitored"`
-	MovieFile struct {
+	MovieFile struct {	
+		Edition	  string   `json:"edition"`
 		Size    int64 `json:"size"`
 		Quality struct {
 			Quality struct {
