@@ -10,6 +10,7 @@ import (
 
 type radarrCollector struct {
 	config                 *config.ArrConfig // App configuration
+	movieEdition           *prometheus.Desc  // Total number of movies with an `edition` set
 	movieMetric            *prometheus.Desc  // Total number of movies
 	movieDownloadedMetric  *prometheus.Desc  // Total number of downloaded movies
 	movieMonitoredMetric   *prometheus.Desc  // Total number of monitored movies
@@ -25,6 +26,12 @@ type radarrCollector struct {
 func NewRadarrCollector(c *config.ArrConfig) *radarrCollector {
 	return &radarrCollector{
 		config: c,
+		movieEdition: prometheus.NewDesc(
+			"radarr_movie_editions",
+			"Total number of movies with `edition` set",
+			nil,
+			prometheus.Labels{"url": c.URL},
+		),
 		movieMetric: prometheus.NewDesc(
 			"radarr_movie_total",
 			"Total number of movies",
@@ -89,6 +96,7 @@ func NewRadarrCollector(c *config.ArrConfig) *radarrCollector {
 }
 
 func (collector *radarrCollector) Describe(ch chan<- *prometheus.Desc) {
+	ch <- collector.movieEdition
 	ch <- collector.movieMetric
 	ch <- collector.movieDownloadedMetric
 	ch <- collector.movieMonitoredMetric
@@ -109,6 +117,7 @@ func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 	var fileSize int64
 	var (
+		editions	= 0
 		downloaded  = 0
 		monitored   = 0
 		unmonitored = 0
@@ -148,6 +157,10 @@ func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
 		if s.MovieFile.Size != 0 {
 			fileSize += s.MovieFile.Size
 		}
+
+		if s.MovieFile.Edition != "" {
+			editions++
+		}
 	}
 
 	tagObjects := model.TagMovies{}
@@ -170,6 +183,7 @@ func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
 	
 
 
+	ch <- prometheus.MustNewConstMetric(collector.movieEdition, prometheus.GaugeValue, float64(editions))
 	ch <- prometheus.MustNewConstMetric(collector.movieMetric, prometheus.GaugeValue, float64(len(movies)))
 	ch <- prometheus.MustNewConstMetric(collector.movieDownloadedMetric, prometheus.GaugeValue, float64(downloaded))
 	ch <- prometheus.MustNewConstMetric(collector.movieMonitoredMetric, prometheus.GaugeValue, float64(monitored))
