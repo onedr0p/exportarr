@@ -66,7 +66,6 @@ func (c *Client) DoRequest(endpoint string, target interface{}, queryParams ...m
 	values := c.URL.Query()
 	for _, m := range queryParams {
 		for k, v := range m {
-			// TODO: is there a better way to do this?
 			for _, j := range strings.Split(v, ",") {
 				values.Add(k, j)
 			}
