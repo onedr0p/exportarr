@@ -13,3 +13,5 @@ run:
 		-d exportarr:local ${APP_NAME}
 test:
 	go test -v -race -covermode atomic -coverprofile=covprofile ./...
+tidy:
+	go mod tidy
