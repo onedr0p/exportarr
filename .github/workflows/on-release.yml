@@ -39,3 +39,16 @@ jobs:
         uses: ./.github/actions/go-release
         with:
           token: "${{ secrets.GITHUB_TOKEN }}"
+
+  update-tag-refs:
+    runs-on: ubuntu-latest
+    needs: release-image
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
+        with:
+          ref: master
+
+      - name: Update Tag References
+        uses: ./.github/actions/update-tags
+

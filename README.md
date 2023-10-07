@@ -30,7 +30,7 @@ docker run --name exportarr_$app \
   -e APIKEY="$apikey" \
   --restart unless-stopped \
   -p 9707:9707 \
-  -d ghcr.io/onedr0p/exportarr:latest $app
+  -d ghcr.io/onedr0p/exportarr:v1.5.5 $app
 ```
 
 Visit http://127.0.0.1:9707/metrics to see the app metrics
