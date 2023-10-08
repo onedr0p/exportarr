@@ -11,12 +11,14 @@ runs:
         go-version: ">=1.19"
 
     - name: Check Go Fmt
+      shell: bash
       run: |
         go version
         go fmt ./...
         git diff --exit-code
 
-    - name: Check Go mod
+    - name: Check Go Mod
+      shell: bash
       run: |
         go version
         go mod tidy
