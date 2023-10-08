@@ -1,0 +1,2904 @@
+{
+    "data": [
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 16,
+            "missing_subtitles": [],
+            "monitored": true,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E16.The.Last.War.mkv",
+            "season": 7,
+            "sonarrEpisodeId": 81771,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E16.The.Last.War.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 40577
+                }
+            ],
+            "title": "The Last War",
+            "sceneName": "The.100.S07E16.1080p.WEB.H264-CAKES"
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 15,
+            "missing_subtitles": [],
+            "monitored": true,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E15.The.Dying.of.the.Light.mkv",
+            "season": 7,
+            "sonarrEpisodeId": 81770,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E15.The.Dying.of.the.Light.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 38435
+                }
+            ],
+            "title": "The Dying of the Light",
+            "sceneName": "The.100.S07E15.1080p.WEB.H264-VIDEOHOLE"
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 14,
+            "missing_subtitles": [],
+            "monitored": true,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E14.A.Sort.of.Homecoming.mkv",
+            "season": 7,
+            "sonarrEpisodeId": 81769,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E14.A.Sort.of.Homecoming.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 36373
+                }
+            ],
+            "title": "A Sort of Homecoming",
+            "sceneName": "The.100.S07E14.1080p.CW.WEB-DL.AAC2.0.H.264"
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 13,
+            "missing_subtitles": [],
+            "monitored": true,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E13.Blood.Giant.mkv",
+            "season": 7,
+            "sonarrEpisodeId": 81768,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E13.Blood.Giant.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 36774
+                }
+            ],
+            "title": "Blood Giant",
+            "sceneName": "The.100.S07E13.1080p.CW.WEB-DL.AAC2.0.H.264-"
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 12,
+            "missing_subtitles": [],
+            "monitored": true,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E12.The.Stranger.mkv",
+            "season": 7,
+            "sonarrEpisodeId": 81767,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E12.The.Stranger.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 39573
+                }
+            ],
+            "title": "The Stranger",
+            "sceneName": "The.100.S07E12.1080p.WEB.H264-OATH"
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 11,
+            "missing_subtitles": [],
+            "monitored": true,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E11.Etherea.mkv",
+            "season": 7,
+            "sonarrEpisodeId": 81766,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E11.Etherea.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 31281
+                }
+            ],
+            "title": "Etherea",
+            "sceneName": "The.100.S07E11.Etherea.1080p.AMZN.WEB-DL.DD+5.1.H.264-CasStudio"
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 10,
+            "missing_subtitles": [],
+            "monitored": true,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E10.A.Little.Sacrifice.mkv",
+            "season": 7,
+            "sonarrEpisodeId": 81765,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E10.A.Little.Sacrifice.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 41392
+                }
+            ],
+            "title": "A Little Sacrifice",
+            "sceneName": "The.100.S07E10.A.Little.Sacrifice.1080p.AMZN.WEB-DL.DD+5.1.H.264-CasStudio"
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 9,
+            "missing_subtitles": [],
+            "monitored": true,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E09.The.Flock.mkv",
+            "season": 7,
+            "sonarrEpisodeId": 78479,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E09.The.Flock.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 43331
+                }
+            ],
+            "title": "The Flock",
+            "sceneName": "The.100.S07E09.1080p.WEB.H264-ALiGN"
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 8,
+            "missing_subtitles": [],
+            "monitored": true,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E08.Anaconda.mkv",
+            "season": 7,
+            "sonarrEpisodeId": 78478,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E08.Anaconda.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 49078
+                }
+            ],
+            "title": "Anaconda",
+            "sceneName": "The.100.S07E08.Anaconda.1080p.AMZN.WEB-DL.DD+5.1.H.264-CasStudio"
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 7,
+            "missing_subtitles": [],
+            "monitored": true,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E07.The.Queen's.Gambit.mkv",
+            "season": 7,
+            "sonarrEpisodeId": 78477,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E07.The.Queen's.Gambit.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 43461
+                }
+            ],
+            "title": "The Queen's Gambit",
+            "sceneName": "The.100.S07E07.The.Queens.Gambit.1080p.AMZN.WEB-DL.DD+5.1.H.264-CasStudio"
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 6,
+            "missing_subtitles": [],
+            "monitored": true,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E06.Nakara.mkv",
+            "season": 7,
+            "sonarrEpisodeId": 78476,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E06.Nakara.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 37128
+                }
+            ],
+            "title": "Nakara",
+            "sceneName": "The.100.S07E06.Nakara.1080p.AMZN.WEB-DL.DD+5.1.H.264-CasStudio-Scrambled"
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 5,
+            "missing_subtitles": [],
+            "monitored": true,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E05.Welcome.to.Bardo.mkv",
+            "season": 7,
+            "sonarrEpisodeId": 78475,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E05.Welcome.to.Bardo.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 43546
+                }
+            ],
+            "title": "Welcome to Bardo",
+            "sceneName": "The.100.S07E05.Welcome.to.Bardo.1080p.AMZN.WEB-DL.DD+5.1.H.264-CasStudio"
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 4,
+            "missing_subtitles": [],
+            "monitored": true,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E04.Hesperides.mkv",
+            "season": 7,
+            "sonarrEpisodeId": 78474,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E04.Hesperides.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 39468
+                }
+            ],
+            "title": "Hesperides",
+            "sceneName": "The 100 (2014) S07E04 Hesperides (1080p AMZN Webrip x265 10bit EAC3 5.1 - ArcX)[TAoE].mkv-xpost"
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 3,
+            "missing_subtitles": [],
+            "monitored": true,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E03.False.Gods.mkv",
+            "season": 7,
+            "sonarrEpisodeId": 78473,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E03.False.Gods.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 45946
+                }
+            ],
+            "title": "False Gods",
+            "sceneName": "The.100.S07E03.PROPER.1080p.WEB.h264-TEEVEE-xpost"
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 2,
+            "missing_subtitles": [],
+            "monitored": true,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E02.The.Garden.mkv",
+            "season": 7,
+            "sonarrEpisodeId": 78472,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E02.The.Garden.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 44848
+                }
+            ],
+            "title": "The Garden",
+            "sceneName": "The 100 (2014) S07E02 The Garden (1080p AMZN Webrip x265 10bit EAC3 5.1 - ArcX)[TAoE].mkv-xpost"
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 1,
+            "missing_subtitles": [],
+            "monitored": true,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E01.From.the.Ashes.mkv",
+            "season": 7,
+            "sonarrEpisodeId": 76231,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 7/The.100.S07E01.From.the.Ashes.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 41511
+                }
+            ],
+            "title": "From the Ashes",
+            "sceneName": "The 100 (2014) S07E01 From the Ashes (1080p AMZN Webrip x265 10bit EAC3 5.1 - ArcX)[TAoE].mkv-xpost"
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 13,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 6/The.100.s06e13.mkv",
+            "season": 6,
+            "sonarrEpisodeId": 65421,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 6/The.100.s06e13.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 34222
+                }
+            ],
+            "title": "The Blood of Sanctum",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 12,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 6/The.100.s06e12.mkv",
+            "season": 6,
+            "sonarrEpisodeId": 65420,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 6/The.100.s06e12.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 38518
+                }
+            ],
+            "title": "Adjustment Protocol",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 11,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 6/The.100.s06e11.mkv",
+            "season": 6,
+            "sonarrEpisodeId": 65419,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 6/The.100.s06e11.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 47619
+                }
+            ],
+            "title": "Ashes to Ashes",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 10,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 6/The.100.s06e10.mkv",
+            "season": 6,
+            "sonarrEpisodeId": 65418,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 6/The.100.s06e10.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 44441
+                }
+            ],
+            "title": "Matryoshka",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 9,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 6/The.100.s06e09.mkv",
+            "season": 6,
+            "sonarrEpisodeId": 65417,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 6/The.100.s06e09.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 42077
+                }
+            ],
+            "title": "What You Take With You",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 8,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 6/The.100.s06e08.mkv",
+            "season": 6,
+            "sonarrEpisodeId": 65416,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 6/The.100.s06e08.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 48356
+                }
+            ],
+            "title": "The Old Man and the Anomaly",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 7,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 6/The.100.s06e07.mkv",
+            "season": 6,
+            "sonarrEpisodeId": 65415,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 6/The.100.s06e07.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 43147
+                }
+            ],
+            "title": "Nevermind",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 6,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 6/The.100.s06e06.mkv",
+            "season": 6,
+            "sonarrEpisodeId": 65414,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 6/The.100.s06e06.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 43466
+                }
+            ],
+            "title": "Memento Mori",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 5,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 6/The.100.s06e05.mkv",
+            "season": 6,
+            "sonarrEpisodeId": 65413,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 6/The.100.s06e05.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 45549
+                }
+            ],
+            "title": "The Gospel of Josephine",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 4,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 6/The.100.s06e04.mkv",
+            "season": 6,
+            "sonarrEpisodeId": 65412,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 6/The.100.s06e04.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 45803
+                }
+            ],
+            "title": "The Face Behind the Glass",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 3,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 6/The.100.s06e03.mkv",
+            "season": 6,
+            "sonarrEpisodeId": 65411,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 6/The.100.s06e03.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 44835
+                }
+            ],
+            "title": "The Children of Gabriel",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 2,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 6/The.100.s06e02.mkv",
+            "season": 6,
+            "sonarrEpisodeId": 65410,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 6/The.100.s06e02.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 50302
+                }
+            ],
+            "title": "Red Sun Rising",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 1,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 6/The.100.s06e01.mkv",
+            "season": 6,
+            "sonarrEpisodeId": 65409,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 6/The.100.s06e01.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 40994
+                }
+            ],
+            "title": "Sanctum",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 13,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 5/The.100.s05e13.mkv",
+            "season": 5,
+            "sonarrEpisodeId": 65408,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 5/The.100.s05e13.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 39474
+                }
+            ],
+            "title": "Damocles (2)",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 12,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 5/The.100.s05e12.mkv",
+            "season": 5,
+            "sonarrEpisodeId": 65407,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 5/The.100.s05e12.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 37101
+                }
+            ],
+            "title": "Damocles (1)",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 11,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 5/The.100.s05e11.mkv",
+            "season": 5,
+            "sonarrEpisodeId": 65406,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 5/The.100.s05e11.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 38655
+                }
+            ],
+            "title": "The Dark Year",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 10,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 5/The.100.s05e10.mkv",
+            "season": 5,
+            "sonarrEpisodeId": 65405,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 5/The.100.s05e10.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 35189
+                }
+            ],
+            "title": "The Warriors Will",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 9,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 5/The.100.s05e09.mkv",
+            "season": 5,
+            "sonarrEpisodeId": 65404,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 5/The.100.s05e09.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 40780
+                }
+            ],
+            "title": "Sic Semper Tyrannis",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 8,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 5/The.100.s05e08.mkv",
+            "season": 5,
+            "sonarrEpisodeId": 65403,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 5/The.100.s05e08.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 42210
+                }
+            ],
+            "title": "How We Get to Peace",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 7,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 5/The.100.s05e07.mkv",
+            "season": 5,
+            "sonarrEpisodeId": 65402,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 5/The.100.s05e07.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 44580
+                }
+            ],
+            "title": "Acceptable Losses",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 6,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 5/The.100.s05e06.mkv",
+            "season": 5,
+            "sonarrEpisodeId": 65401,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 5/The.100.s05e06.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 44162
+                }
+            ],
+            "title": "Exit Wounds",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 5,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 5/The.100.s05e05.mkv",
+            "season": 5,
+            "sonarrEpisodeId": 65400,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 5/The.100.s05e05.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 50374
+                }
+            ],
+            "title": "Shifting Sands",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 4,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 5/The.100.s05e04.mkv",
+            "season": 5,
+            "sonarrEpisodeId": 65399,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 5/The.100.s05e04.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 43878
+                }
+            ],
+            "title": "Pandora's Box",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 3,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 5/The.100.s05e03.mkv",
+            "season": 5,
+            "sonarrEpisodeId": 65398,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 5/The.100.s05e03.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 53487
+                }
+            ],
+            "title": "Sleeping Giants",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 2,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 5/The.100.s05e02.mkv",
+            "season": 5,
+            "sonarrEpisodeId": 65397,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 5/The.100.s05e02.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 42072
+                }
+            ],
+            "title": "Red Queen",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 1,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 5/The.100.s05e01.mkv",
+            "season": 5,
+            "sonarrEpisodeId": 65396,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 5/The.100.s05e01.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 25324
+                }
+            ],
+            "title": "Eden",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 13,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 4/The.100.s04e13.mkv",
+            "season": 4,
+            "sonarrEpisodeId": 65395,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 4/The.100.s04e13.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 39740
+                }
+            ],
+            "title": "Praimfaya",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 12,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 4/The.100.s04e12.mkv",
+            "season": 4,
+            "sonarrEpisodeId": 65394,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 4/The.100.s04e12.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 43247
+                }
+            ],
+            "title": "The Chosen",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 11,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 4/The.100.s04e11.mkv",
+            "season": 4,
+            "sonarrEpisodeId": 65393,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 4/The.100.s04e11.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 39610
+                }
+            ],
+            "title": "The Other Side",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 10,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 4/The.100.s04e10.mkv",
+            "season": 4,
+            "sonarrEpisodeId": 65392,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 4/The.100.s04e10.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 56224
+                }
+            ],
+            "title": "Die All, Die Merrily",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 9,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 4/The.100.s04e09.mkv",
+            "season": 4,
+            "sonarrEpisodeId": 65391,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 4/The.100.s04e09.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 35279
+                }
+            ],
+            "title": "DNR",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 8,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 4/The.100.s04e08.mkv",
+            "season": 4,
+            "sonarrEpisodeId": 65390,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 4/The.100.s04e08.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 35711
+                }
+            ],
+            "title": "God Complex",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 7,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 4/The.100.s04e07.mkv",
+            "season": 4,
+            "sonarrEpisodeId": 65389,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 4/The.100.s04e07.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 37874
+                }
+            ],
+            "title": "Gimme Shelter",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 6,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 4/The.100.s04e06.mkv",
+            "season": 4,
+            "sonarrEpisodeId": 65388,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 4/The.100.s04e06.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 39496
+                }
+            ],
+            "title": "We Will Rise",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 5,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 4/The.100.s04e05.mkv",
+            "season": 4,
+            "sonarrEpisodeId": 65387,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 4/The.100.s04e05.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 44374
+                }
+            ],
+            "title": "The Tinder Box",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 4,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 4/The.100.s04e04.mkv",
+            "season": 4,
+            "sonarrEpisodeId": 65386,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 4/The.100.s04e04.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 44193
+                }
+            ],
+            "title": "A Lie Guarded",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 3,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 4/The.100.s04e03.mkv",
+            "season": 4,
+            "sonarrEpisodeId": 65385,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 4/The.100.s04e03.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 37717
+                }
+            ],
+            "title": "The Four Horsemen",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 2,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 4/The.100.s04e02.mkv",
+            "season": 4,
+            "sonarrEpisodeId": 65384,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 4/The.100.s04e02.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 43450
+                }
+            ],
+            "title": "Heavy Lies the Crown",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 1,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 4/The.100.s04e01.mkv",
+            "season": 4,
+            "sonarrEpisodeId": 65383,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 4/The.100.s04e01.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 39740
+                }
+            ],
+            "title": "Echoes",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 16,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e16.mkv",
+            "season": 3,
+            "sonarrEpisodeId": 65382,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e16.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 29172
+                }
+            ],
+            "title": "Perverse Instantiation (2)",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 15,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e15.mkv",
+            "season": 3,
+            "sonarrEpisodeId": 65381,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e15.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 36932
+                }
+            ],
+            "title": "Perverse Instantiation (1)",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 14,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e14.mkv",
+            "season": 3,
+            "sonarrEpisodeId": 65380,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e14.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 54222
+                }
+            ],
+            "title": "Red Sky at Morning",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 13,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e13.mkv",
+            "season": 3,
+            "sonarrEpisodeId": 65379,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e13.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 35977
+                }
+            ],
+            "title": "Join or Die",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 12,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e12.mkv",
+            "season": 3,
+            "sonarrEpisodeId": 65378,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e12.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 43032
+                }
+            ],
+            "title": "Demons",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 11,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e11.mkv",
+            "season": 3,
+            "sonarrEpisodeId": 65377,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e11.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 41824
+                }
+            ],
+            "title": "Nevermore",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 10,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e10.mp4",
+            "season": 3,
+            "sonarrEpisodeId": 65376,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e10.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 38510
+                }
+            ],
+            "title": "Fallen",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 9,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e09.mp4",
+            "season": 3,
+            "sonarrEpisodeId": 65375,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e09.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 41127
+                }
+            ],
+            "title": "Stealing Fire",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 8,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e08.mp4",
+            "season": 3,
+            "sonarrEpisodeId": 65374,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e08.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 46764
+                }
+            ],
+            "title": "Terms and Conditions",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 7,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e07.mp4",
+            "season": 3,
+            "sonarrEpisodeId": 65373,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e07.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 40668
+                }
+            ],
+            "title": "Thirteen",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 6,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e06.mp4",
+            "season": 3,
+            "sonarrEpisodeId": 65372,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e06.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 43032
+                }
+            ],
+            "title": "Bitter Harvest",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 5,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e05.mp4",
+            "season": 3,
+            "sonarrEpisodeId": 65371,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e05.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 43032
+                }
+            ],
+            "title": "Hakeldama",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 4,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e04.mp4",
+            "season": 3,
+            "sonarrEpisodeId": 65370,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e04.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 41393
+                }
+            ],
+            "title": "Watch the Thrones",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 3,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e03.mp4",
+            "season": 3,
+            "sonarrEpisodeId": 65369,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e03.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 41392
+                }
+            ],
+            "title": "Ye Who Enter Here",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 2,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e02.mp4",
+            "season": 3,
+            "sonarrEpisodeId": 65368,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e02.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 35253
+                }
+            ],
+            "title": "Wanheda (2)",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 1,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e01.mp4",
+            "season": 3,
+            "sonarrEpisodeId": 65367,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 3/The.100.s03e01.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 66575
+                }
+            ],
+            "title": "Wanheda (1)",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 16,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E16.HDTV.x264-KILLERS.mp4",
+            "season": 2,
+            "sonarrEpisodeId": 65366,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E16.HDTV.x264-KILLERS.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 39502
+                }
+            ],
+            "title": "Blood Must Have Blood (2)",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 15,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E15.720p.HDTV.x264-KILLERS.mkv",
+            "season": 2,
+            "sonarrEpisodeId": 65365,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E15.720p.HDTV.x264-KILLERS.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 43101
+                }
+            ],
+            "title": "Blood Must Have Blood (1)",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 14,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E14.720p.HDTV.x264-KILLERS.mkv",
+            "season": 2,
+            "sonarrEpisodeId": 65364,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E14.720p.HDTV.x264-KILLERS.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 41054
+                }
+            ],
+            "title": "Bodyguard of Lies",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 13,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E13.720p.HDTV.x264-KILLERS.mkv",
+            "season": 2,
+            "sonarrEpisodeId": 65363,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E13.720p.HDTV.x264-KILLERS.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 31970
+                }
+            ],
+            "title": "Resurrection",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 12,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E12.HDTV.x264-LOL.mp4",
+            "season": 2,
+            "sonarrEpisodeId": 65362,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E12.HDTV.x264-LOL.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 56550
+                }
+            ],
+            "title": "Rubicon",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 11,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E11.HDTV.x264-KILLERS.mp4",
+            "season": 2,
+            "sonarrEpisodeId": 65361,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E11.HDTV.x264-KILLERS.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 35632
+                }
+            ],
+            "title": "Coup de Grâce",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 10,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E10.HDTV.x264-KILLERS.mp4",
+            "season": 2,
+            "sonarrEpisodeId": 65360,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E10.HDTV.x264-KILLERS.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 36892
+                }
+            ],
+            "title": "Survival of the Fittest",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 9,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E09.HDTV.x264-KILLERS.mp4",
+            "season": 2,
+            "sonarrEpisodeId": 65359,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E09.HDTV.x264-KILLERS.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 41127
+                }
+            ],
+            "title": "Remember Me",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 8,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E08.720p.HDTV.X264-DIMENSION.mkv",
+            "season": 2,
+            "sonarrEpisodeId": 65358,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E08.720p.HDTV.X264-DIMENSION.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 40231
+                }
+            ],
+            "title": "Spacewalker",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 7,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E07.Long.Into.an.Abyss.mp4",
+            "season": 2,
+            "sonarrEpisodeId": 65357,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E07.Long.Into.an.Abyss.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 36953
+                }
+            ],
+            "title": "Long Into an Abyss",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 6,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E06.HDTV.x264-KILLERS.mp4",
+            "season": 2,
+            "sonarrEpisodeId": 65356,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E06.HDTV.x264-KILLERS.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 42097
+                }
+            ],
+            "title": "Fog of War",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 5,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E05.HDTV.x264-KILLERS.mp4",
+            "season": 2,
+            "sonarrEpisodeId": 65355,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E05.HDTV.x264-KILLERS.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 32941
+                }
+            ],
+            "title": "Human Trials",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 4,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E04.Many.Happy.Returns.mp4",
+            "season": 2,
+            "sonarrEpisodeId": 65354,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E04.Many.Happy.Returns.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 35416
+                }
+            ],
+            "title": "Many Happy Returns",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 3,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E03.Reapercussions.mp4",
+            "season": 2,
+            "sonarrEpisodeId": 65353,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E03.Reapercussions.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 30749
+                }
+            ],
+            "title": "Reapercussions",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 2,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E02.720p.WEB-DL.DD5.1.H.264-KiNGS.mkv",
+            "season": 2,
+            "sonarrEpisodeId": 65352,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E02.720p.WEB-DL.DD5.1.H.264-KiNGS.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 28940
+                }
+            ],
+            "title": "Inclement Weather",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 1,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E01.HDTV.XviD-EVO.avi",
+            "season": 2,
+            "sonarrEpisodeId": 65351,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 2/The.100.S02E01.HDTV.XviD-EVO.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 33207
+                }
+            ],
+            "title": "The 48",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 13,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 1/the.100.113.hdtv-lol.mp4",
+            "season": 1,
+            "sonarrEpisodeId": 65350,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 1/the.100.113.hdtv-lol.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 32961
+                }
+            ],
+            "title": "We Are Grounders (2)",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 12,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 1/the.100.s01e12.hdtv.x264-killers.mp4",
+            "season": 1,
+            "sonarrEpisodeId": 65349,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 1/the.100.s01e12.hdtv.x264-killers.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 41407
+                }
+            ],
+            "title": "We Are Grounders (1)",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 11,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 1/the.100.s01e11.hdtv.x264-2hd.mp4",
+            "season": 1,
+            "sonarrEpisodeId": 65348,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 1/the.100.s01e11.hdtv.x264-2hd.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 38826
+                }
+            ],
+            "title": "The Calm",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 10,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 1/the.100.110.hdtv-lol.mp4",
+            "season": 1,
+            "sonarrEpisodeId": 65347,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 1/the.100.110.hdtv-lol.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 39273
+                }
+            ],
+            "title": "I Am Become Death",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 9,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 1/the.100.109.hdtv-lol.mp4",
+            "season": 1,
+            "sonarrEpisodeId": 65346,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 1/the.100.109.hdtv-lol.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 44204
+                }
+            ],
+            "title": "Unity Day",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 8,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 1/the.100.s01e08.hdtv.x264-2hd.mp4",
+            "season": 1,
+            "sonarrEpisodeId": 65345,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 1/the.100.s01e08.hdtv.x264-2hd.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 39694
+                }
+            ],
+            "title": "Day Trip",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 7,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 1/the.100.107.hdtv-lol.mp4",
+            "season": 1,
+            "sonarrEpisodeId": 65344,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 1/the.100.107.hdtv-lol.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 41138
+                }
+            ],
+            "title": "Contents Under Pressure",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 6,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 1/the.100.s01e06.hdtv.x264-2hd.mp4",
+            "season": 1,
+            "sonarrEpisodeId": 65343,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 1/the.100.s01e06.hdtv.x264-2hd.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 42167
+                }
+            ],
+            "title": "His Sister's Keeper",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 5,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 1/the.100.s01e05.hdtv.x264-2hd.mp4",
+            "season": 1,
+            "sonarrEpisodeId": 65342,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 1/the.100.s01e05.hdtv.x264-2hd.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 55292
+                }
+            ],
+            "title": "Twilight's Last Gleaming",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 4,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 1/the.100.s01e04.hdtv.x264-2hd.mp4",
+            "season": 1,
+            "sonarrEpisodeId": 65341,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 1/the.100.s01e04.hdtv.x264-2hd.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 42167
+                }
+            ],
+            "title": "Murphy's Law",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 3,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 1/the.100.s01e03.proper.hdtv.x264-killers.mp4",
+            "season": 1,
+            "sonarrEpisodeId": 65340,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 1/the.100.s01e03.proper.hdtv.x264-killers.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 44648
+                }
+            ],
+            "title": "Earth Kills",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 2,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 1/the.100.s01e02.proper.hdtv.x264-2hd.mp4",
+            "season": 1,
+            "sonarrEpisodeId": 65339,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 1/the.100.s01e02.proper.hdtv.x264-2hd.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 42899
+                }
+            ],
+            "title": "Earth Skills",
+            "sceneName": null
+        },
+        {
+            "audio_language": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng"
+                }
+            ],
+            "episode": 1,
+            "missing_subtitles": [],
+            "monitored": false,
+            "path": "/tv/Tv Shows/the 100 (2014)/Season 1/the.100.s01e01.hdtv.x264-2hd.mp4",
+            "season": 1,
+            "sonarrEpisodeId": 65338,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "path": "/tv/Tv Shows/the 100 (2014)/Season 1/the.100.s01e01.hdtv.x264-2hd.en.srt",
+                    "forced": false,
+                    "hi": false,
+                    "file_size": 47863
+                }
+            ],
+            "title": "Pilot",
+            "sceneName": null
+        }
+    ]
+}

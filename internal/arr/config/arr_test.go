@@ -219,13 +219,13 @@ func TestValidate(t *testing.T) {
 			valid: false,
 		},
 		{
-			name: "bad-api-version",
+			name: "no-api-version",
 			config: &ArrConfig{
 				URL:        "http://localhost",
 				ApiKey:     "abcdef0123456789abcdef0123456789",
-				ApiVersion: "v2",
+				ApiVersion: "",
 			},
-			valid: false,
+			valid: true,
 		},
 		{
 			name: "password-needs-username",

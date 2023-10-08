@@ -11,3 +11,6 @@
 # Operating System
 .DS_Store
 **/.DS_Store
+
+.env
+covprofile

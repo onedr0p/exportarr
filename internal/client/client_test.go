@@ -44,6 +44,15 @@ func TestDoRequest(t *testing.T) {
 			},
 			expectedURL: "/test?page=1&testParam=asdf",
 		},
+		{
+			name:     "csv params",
+			endpoint: "test",
+			queryParams: map[string]string{
+				"ids[]":     "1,2,1234",
+				"testParam": "asdf",
+			},
+			expectedURL: "/test?ids%5B%5D=1&ids%5B%5D=2&ids%5B%5D=1234&testParam=asdf",
+		},
 	}
 	for _, param := range parameters {
 		t.Run(param.name, func(t *testing.T) {
