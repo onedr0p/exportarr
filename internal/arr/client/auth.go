@@ -12,7 +12,10 @@ import (
 	base_client "github.com/onedr0p/exportarr/internal/client"
 )
 
-func NewClient(config *config.ArrConfig) (*base_client.Client, error) {
+type Client = base_client.Client
+type QueryParams = base_client.QueryParams
+
+func NewClient(config *config.ArrConfig) (*Client, error) {
 	auth, err := NewAuth(config)
 	if err != nil {
 		return nil, err

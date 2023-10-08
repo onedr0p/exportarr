@@ -2,13 +2,11 @@ package collector
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/onedr0p/exportarr/internal/arr/client"
 	"github.com/onedr0p/exportarr/internal/arr/config"
 	"github.com/onedr0p/exportarr/internal/arr/model"
-	base_client "github.com/onedr0p/exportarr/internal/client"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
 )
@@ -283,7 +281,7 @@ type stats struct {
 	providers   map[string]int
 }
 
-func (collector *bazarrCollector) EpisodeMovieMetrics(ch chan<- prometheus.Metric, c *base_client.Client) {
+func (collector *bazarrCollector) EpisodeMovieMetrics(ch chan<- prometheus.Metric, c *client.Client) {
 
 	episodeStats := collector.CollectEpisodeStats(ch, c)
 	if episodeStats == nil {
@@ -365,7 +363,7 @@ func (collector *bazarrCollector) EpisodeMovieMetrics(ch chan<- prometheus.Metri
 	}
 }
 
-func (collector *bazarrCollector) CollectEpisodeStats(ch chan<- prometheus.Metric, c *base_client.Client) *stats {
+func (collector *bazarrCollector) CollectEpisodeStats(ch chan<- prometheus.Metric, c *client.Client) *stats {
 	log := zap.S().With("collector", "bazarr")
 	episodeStats := new(stats)
 	episodeStats.languages = make(map[string]int)
@@ -388,7 +386,7 @@ func (collector *bazarrCollector) CollectEpisodeStats(ch chan<- prometheus.Metri
 		ids = append(ids, fmt.Sprintf("%d", s.Id))
 	}
 
-	params := map[string]string{"seriesid[]": strings.Join(ids, ",")}
+	params := client.QueryParams{"seriesid[]": ids}
 
 	episodes := model.BazarrEpisodes{}
 	if err := c.DoRequest("episodes", &episodes, params); err != nil {
@@ -452,7 +450,7 @@ func (collector *bazarrCollector) CollectEpisodeStats(ch chan<- prometheus.Metri
 	return episodeStats
 }
 
-func (collector *bazarrCollector) CollectMovieStats(ch chan<- prometheus.Metric, c *base_client.Client) *stats {
+func (collector *bazarrCollector) CollectMovieStats(ch chan<- prometheus.Metric, c *client.Client) *stats {
 	log := zap.S().With("collector", "bazarr")
 	mseries := time.Now()
 	movieStats := new(stats)
@@ -499,6 +497,7 @@ func (collector *bazarrCollector) CollectMovieStats(ch chan<- prometheus.Metric,
 		}
 	}
 
+	// Bazarr keeps separate histories for TV vs Movies, and therefore cannot leverage the shared HistoryCollector.
 	history := model.BazarrHistory{}
 	if err := c.DoRequest("movies/history", &history); err != nil {
 		log.Errorw("Error getting movies history",
@@ -524,7 +523,7 @@ func (collector *bazarrCollector) CollectMovieStats(ch chan<- prometheus.Metric,
 	return movieStats
 }
 
-func (collector *bazarrCollector) SystemMetrics(ch chan<- prometheus.Metric, c *base_client.Client) {
+func (collector *bazarrCollector) SystemMetrics(ch chan<- prometheus.Metric, c *client.Client) {
 	log := zap.S().With("collector", "bazarr")
 
 	health := model.BazarrHealth{}
@@ -535,7 +534,8 @@ func (collector *bazarrCollector) SystemMetrics(ch chan<- prometheus.Metric, c *
 		return
 	}
 
-	// Group metrics by source, type, message and wikiurl
+	// Group metrics by issue & object
+	// Bazarr uses it's own health message format, and therefore cannot leverage the shared HealthCollector
 	if len(health.Data) > 0 {
 		for _, s := range health.Data {
 			ch <- prometheus.MustNewConstMetric(collector.systemHealthMetric, prometheus.GaugeValue, float64(1),
@@ -546,6 +546,7 @@ func (collector *bazarrCollector) SystemMetrics(ch chan<- prometheus.Metric, c *
 		ch <- prometheus.MustNewConstMetric(collector.systemHealthMetric, prometheus.GaugeValue, float64(0), "", "")
 	}
 
+	// Bazarr uses it's own status format. and therefore cannot leverage the shared StatusCollector
 	systemStatus := model.BazarrStatus{}
 	if err := c.DoRequest("system/status", &systemStatus); err != nil {
 		ch <- prometheus.MustNewConstMetric(collector.systemStatusMetric, prometheus.GaugeValue, float64(0.0))
