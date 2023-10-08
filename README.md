@@ -6,7 +6,7 @@ AIO Prometheus Exporter for Sonarr, Radarr, Lidarr, Prowlarr, Readarr, and Sabnz
 
 Note: This exporter will not gather metrics from all apps at once, and instead you an `exportarr` instance for each app. Be sure to see the examples below for more information.
 
-![image](.github/images/dashboard-1.png)
+![image](.github/images/dashboard-2.png)
 
 ## Usage
 
