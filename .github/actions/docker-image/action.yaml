@@ -6,6 +6,11 @@ inputs:
   token:
     description: Github token
     required: true
+  push:
+    description: Push Images to GHCR
+    type: boolean
+    required: false
+    default: true
 
 runs:
   using: composite
@@ -39,14 +44,14 @@ runs:
         username: ${{ github.actor }}
         password: ${{ inputs.token }}
 
-    - name: Build and Push
+    - name: Build Docker Image
       if: github.event_name != 'pull_request'
       uses: docker/build-push-action@v5
       with:
         context: .
         file: ./Dockerfile
         platforms: linux/amd64,linux/arm64
-        push: true
+        push: ${{ fromJSON(inputs.push) }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         build-args: |
