@@ -1,6 +1,6 @@
 -include .env
 
-.PHONY: build run check tidy lint test
+.PHONY: build run check fmt tidy lint test
 
 build:
 	docker build . -t exportarr:local
@@ -15,7 +15,10 @@ run:
 		-p 9707:9707 \
 		-d exportarr:local ${APP_NAME}
 
-check: tidy lint test
+check: fmt tidy lint test
+
+fmt:
+	go fmt ./...
 
 tidy:
 	go mod tidy
