@@ -317,10 +317,11 @@ func (collector *prowlarrCollector) Collect(ch chan<- prometheus.Metric) {
 	stats := model.IndexerStatResponse{}
 	startDate := collector.lastStatUpdate.In(time.UTC)
 	endDate := time.Now().In(time.UTC)
-	params := map[string]string{
-		"startDate": startDate.Format(time.RFC3339),
-		"endDate":   endDate.Format(time.RFC3339),
-	}
+
+	var params client.QueryParams
+	params.Add("startDate", startDate.Format(time.RFC3339))
+	params.Add("endDate", endDate.Format(time.RFC3339))
+
 	if err := c.DoRequest("indexerstats", &stats, params); err != nil {
 		log.Errorf("Error getting indexer stats: %s", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)

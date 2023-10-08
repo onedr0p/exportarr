@@ -187,7 +187,9 @@ func NewSabnzbdCollector(config *config.SabnzbdConfig) (*SabnzbdCollector, error
 }
 
 func (s *SabnzbdCollector) doRequest(mode string, target interface{}) error {
-	return s.client.DoRequest("/sabnzbd/api", target, map[string]string{"mode": mode})
+	params := client.QueryParams{}
+	params.Add("mode", mode)
+	return s.client.DoRequest("/sabnzbd/api", target, params)
 }
 
 func (s *SabnzbdCollector) getQueueStats() (*model.QueueStats, error) {

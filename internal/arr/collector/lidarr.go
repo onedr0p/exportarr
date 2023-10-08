@@ -168,7 +168,10 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 
 		if collector.config.EnableAdditionalMetrics {
 			songFile := model.SongFile{}
-			params := map[string]string{"artistid": fmt.Sprintf("%d", s.Id)}
+
+			var params client.QueryParams
+			params.Add("artistid", fmt.Sprintf("%d", s.Id))
+
 			if err := c.DoRequest("trackfile", &songFile, params); err != nil {
 				log.Errorw("Error getting trackfile", "error", err)
 				ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
@@ -181,7 +184,6 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 			}
 
 			album := model.Album{}
-			params = map[string]string{"artistid": fmt.Sprintf("%d", s.Id)}
 			if err := c.DoRequest("album", &album, params); err != nil {
 				log.Errorw("Error getting album", "error", err)
 				ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)

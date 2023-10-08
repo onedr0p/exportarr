@@ -219,7 +219,10 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 		if collector.config.EnableAdditionalMetrics {
 			textra := time.Now()
 			episodeFile := model.EpisodeFile{}
-			params := map[string]string{"seriesId": fmt.Sprintf("%d", s.Id)}
+
+			var params client.QueryParams
+			params.Add("seriesId", fmt.Sprintf("%d", s.Id))
+
 			if err := c.DoRequest("episodefile", &episodeFile, params); err != nil {
 				log.Errorw("Error getting episodefile",
 					"error", err)
@@ -257,7 +260,10 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	episodesMissing := model.Missing{}
-	params := map[string]string{"sortKey": "airDateUtc"}
+
+	var params client.QueryParams
+	params.Add("sortKey", "airDateUtc")
+
 	if err := c.DoRequest("wanted/missing", &episodesMissing, params); err != nil {
 		log.Errorw("Error getting missing",
 			"error", err)
