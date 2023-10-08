@@ -91,7 +91,9 @@ func (a *FormAuth) Auth(req *http.Request) error {
 		}
 
 		u := a.AuthBaseURL.JoinPath("login")
-		u.Query().Add("ReturnUrl", "/general/settings")
+		vals := u.Query()
+		vals.Add("ReturnUrl", "/general/settings")
+		u.RawQuery = vals.Encode()
 
 		authReq, err := http.NewRequest("POST", u.String(), strings.NewReader(form.Encode()))
 		if err != nil {
@@ -117,12 +119,16 @@ func (a *FormAuth) Auth(req *http.Request) error {
 			return fmt.Errorf("Failed to renew FormAuth Cookie: Received Status Code %d", authResp.StatusCode)
 		}
 
+		found := false
 		for _, cookie := range authResp.Cookies() {
 			if strings.HasSuffix(cookie.Name, "arrAuth") {
 				copy := *cookie
 				a.cookie = &copy
+				found = true
 				break
 			}
+		}
+		if !found {
 			return fmt.Errorf("Failed to renew FormAuth Cookie: No Cookie with suffix 'arrAuth' found")
 		}
 	}

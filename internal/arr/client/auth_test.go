@@ -183,7 +183,7 @@ func TestRoundTrip_Retries(t *testing.T) {
 		{
 			name: "Err",
 			testFunc: func(req *http.Request) (*http.Response, error) {
-				return nil, &http.ProtocolError{}
+				return nil, http.ErrNotSupported
 			},
 		},
 	}

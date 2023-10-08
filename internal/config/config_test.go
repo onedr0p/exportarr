@@ -44,7 +44,7 @@ func TestLoadConfig_Flags(t *testing.T) {
 	require.True(config.DisableSSLVerify)
 
 	flags.Set("form-auth", "false")
-	config, err = LoadConfig(flags)
+	_, err = LoadConfig(flags)
 	require.NoError(err)
 }
 
