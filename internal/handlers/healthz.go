@@ -7,6 +7,6 @@ import (
 
 func HealthzHandler(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("OK"))
+	w.Write([]byte("OK")) //nolint:errcheck
 	fmt.Fprint(w)
 }

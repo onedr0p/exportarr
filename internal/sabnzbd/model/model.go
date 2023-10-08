@@ -3,7 +3,6 @@ package model
 import (
 	"encoding/json"
 	"fmt"
-	"reflect"
 	"sort"
 	"strconv"
 	"strings"
@@ -176,10 +175,6 @@ func latestStat(m map[string]int) (string, int) {
 	key := keys[len(keys)-1]
 
 	return key, m[key]
-}
-
-func monadCast(i interface{}, t reflect.Type) {
-
 }
 
 // parseFloat is a monad version of strconv.ParseFloat

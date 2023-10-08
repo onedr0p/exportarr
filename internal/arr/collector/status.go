@@ -12,7 +12,6 @@ import (
 
 type systemStatusCollector struct {
 	config       *config.ArrConfig // App configuration
-	configFile   *model.Config     // *arr configuration from config.xml
 	systemStatus *prometheus.Desc  // Total number of system statuses
 	errorMetric  *prometheus.Desc  // Error Description for use with InvalidMetric
 }

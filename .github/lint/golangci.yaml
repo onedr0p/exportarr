@@ -1,0 +1,18 @@
+---
+run:
+  timeout: 3m
+linters:
+  # https://golangci-lint.run/usage/linters/#enabled-by-default
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
+issues:
+  exclude-rules:
+    - path: '(.+)_test\.go'
+      linters:
+        - errcheck

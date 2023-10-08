@@ -33,7 +33,9 @@ func init() {
 func UsageOnError(cmd *cobra.Command, err error) {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		cmd.Usage()
+		if err := cmd.Usage(); err != nil {
+			panic(err)
+		}
 		os.Exit(1)
 	}
 }
@@ -178,7 +180,9 @@ var prowlarrCmd = &cobra.Command{
 			return err
 		}
 		c.ApiVersion = "v1"
-		c.LoadProwlarrConfig(cmd.PersistentFlags())
+		if err := c.LoadProwlarrConfig(cmd.PersistentFlags()); err != nil {
+			return err
+		}
 		if err := c.Prowlarr.Validate(); err != nil {
 			return err
 		}

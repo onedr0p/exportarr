@@ -10,6 +10,23 @@ runs:
       with:
         go-version: ">=1.19"
 
+    - name: Check Go Fmt
+      run: |
+        go version
+        go fmt ./...
+        git diff --exit-code
+
+    - name: Check Go mod
+      run: |
+        go version
+        go mod tidy
+        git diff --exit-code
+
+    - uses: golangci/golangci-lint-action@v2
+      with:
+        version: v1.51.2
+        args: --timeout 5m --config .github/lint/golangci.yaml
+
     - name: Run Unit tests
       shell: bash
       run: |

@@ -60,13 +60,17 @@ func initConfig() {
 	conf, err = config.LoadConfig(rootCmd.PersistentFlags())
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		rootCmd.Usage()
+		if err := rootCmd.Usage(); err != nil {
+			panic(err)
+		}
 		os.Exit(1)
 	}
 
 	if err := conf.Validate(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		rootCmd.Usage()
+		if err := rootCmd.Usage(); err != nil {
+			panic(err)
+		}
 		os.Exit(1)
 	}
 }
@@ -102,7 +106,7 @@ func initLogger() {
 
 func finalizeLogger() {
 	// Flushes buffered log messages
-	zap.S().Sync()
+	zap.S().Sync() //nolint:errcheck
 }
 
 type registerFunc func(registry prometheus.Registerer)

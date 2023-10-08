@@ -95,7 +95,6 @@ func TestDoRequest_PanicRecovery(t *testing.T) {
 		require.NoError(err)
 		w.Write(s)
 		w.WriteHeader(http.StatusOK)
-		return
 	}))
 	defer ts.Close()
 
