@@ -1,67 +1,31 @@
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: lidarr-exporter
-  namespace: monitoring
-  labels:
-    app.kubernetes.io/name: lidarr-exporter
-    app.kubernetes.io/instance: lidarr-exporter
-spec:
-  clusterIP: None
-  selector:
-    app.kubernetes.io/name: lidarr-exporter
-    app.kubernetes.io/instance: lidarr-exporter
-  ports:
-    - name: monitoring
-      port: 9707
----
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: lidarr-exporter
-  namespace: monitoring
-  labels:
-    app.kubernetes.io/name: lidarr-exporter
-    app.kubernetes.io/instance: lidarr-exporter
-spec:
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: lidarr-exporter
-      app.kubernetes.io/instance: lidarr-exporter
-  endpoints:
-    - port: monitoring
-      interval: 4m
-      scrapeTimeout: 90s
-      path: /metrics
----
 kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: lidarr-exporter
   namespace: monitoring
   labels:
-    app.kubernetes.io/name: lidarr-exporter
-    app.kubernetes.io/instance: lidarr-exporter
+    app.kubernetes.io/name: &name lidarr-exporter
+    app.kubernetes.io/instance: *name
 spec:
   replicas: 1
   revisionHistoryLimit: 3
   selector:
     matchLabels:
-      app.kubernetes.io/name: lidarr-exporter
-      app.kubernetes.io/instance: lidarr-exporter
+      app.kubernetes.io/name: *name
+      app.kubernetes.io/instance: *name
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: lidarr-exporter
-        app.kubernetes.io/instance: lidarr-exporter
+        app.kubernetes.io/name: *name
+        app.kubernetes.io/instance: *name
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "monitoring"
     spec:
       containers:
         - name: lidarr-exporter
-          image: ghcr.io/onedr0p/exportarr:v1.5.3
+          image: ghcr.io/onedr0p/exportarr:v1
           imagePullPolicy: IfNotPresent
           args:
             - lidarr
@@ -70,7 +34,7 @@ spec:
               value: "9707"
             - name: URL
               value: "http://lidarr.default.svc.cluster.local:8686"
-            - name: APIKEY
+            - name: API_KEY
               valueFrom:
                 secretKeyRef:
                   name: lidarr-exporter
