@@ -11,6 +11,11 @@ inputs:
     type: boolean
     required: false
     default: true
+  latest:
+    description: Update latest tag
+    type: boolean
+    required: false
+    default: true
 
 runs:
   using: composite
@@ -21,7 +26,7 @@ runs:
       with:
         images: ghcr.io/${{ github.repository }}
         flavor: |
-          latest=true
+          latest=${{ fromJSON(inputs.latest) }}
           prefix=v
         tags: |
           type=ref,event=branch

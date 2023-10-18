@@ -26,3 +26,4 @@ jobs:
         uses: ./.github/actions/docker-image
         with:
           token: "${{ secrets.GITHUB_TOKEN }}"
+          latest: false
