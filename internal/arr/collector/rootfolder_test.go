@@ -13,10 +13,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func newTestRootFolderServer(t *testing.T, fn func(http.ResponseWriter, *http.Request)) (*httptest.Server, error) {
-	return test_util.NewTestServer(t, test_util.COMMON_FIXTURES_PATH, fn)
-}
-
 func TestRootFolderCollect(t *testing.T) {
 	var tests = []struct {
 		name   string
@@ -60,7 +56,7 @@ func TestRootFolderCollect(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			require := require.New(t)
-			ts, err := newTestQueueServer(t, func(w http.ResponseWriter, r *http.Request) {
+			ts, err := test_util.NewTestSharedServer(t, func(w http.ResponseWriter, r *http.Request) {
 				require.Contains(r.URL.Path, tt.path)
 			})
 			require.NoError(err)

@@ -26,3 +26,7 @@ func NewTestServer(t *testing.T, fixture_dir string, fn func(http.ResponseWriter
 		require.NoError(t, err)
 	})), nil
 }
+
+func NewTestSharedServer(t *testing.T, fn func(http.ResponseWriter, *http.Request)) (*httptest.Server, error) {
+	return NewTestServer(t, COMMON_FIXTURES_PATH, fn)
+}
