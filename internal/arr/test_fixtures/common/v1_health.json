@@ -1,0 +1,8 @@
+[
+    {
+      "source": "IndexerLongTermStatusCheck",
+      "type": "warning",
+      "message": "Indexers unavailable due to failures for more than 6 hours: SomeIndexer",
+      "wikiUrl": "https://wiki.servarr.com/readarr/system#indexers-are-unavailable-due-to-failures"
+    }
+  ]

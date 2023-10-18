@@ -8,26 +8,15 @@ import (
 	"testing"
 
 	"github.com/onedr0p/exportarr/internal/arr/config"
+	"github.com/onedr0p/exportarr/internal/test_util"
 	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/stretchr/testify/require"
 )
 
-const test_fixtures_path = "../test_fixtures/bazarr/"
-const API_KEY = "abcdef0123456789abcdef0123456789"
+const bazarr_test_fixtures_path = "../test_fixtures/bazarr/"
 
 func newTestBazarrServer(t *testing.T, fn func(http.ResponseWriter, *http.Request)) (*httptest.Server, error) {
-	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fn(w, r)
-		require.NotEmpty(t, r.URL.Path)
-		// turns /api/some/path into some_path
-		endpoint := strings.Replace(strings.Replace(r.URL.Path, "/api/", "", -1), "/", "_", -1)
-		w.WriteHeader(http.StatusOK)
-		// NOTE: this assumes there is a file that matches the some_path
-		json, err := os.ReadFile(test_fixtures_path + endpoint + ".json")
-		require.NoError(t, err)
-		_, err = w.Write(json)
-		require.NoError(t, err)
-	})), nil
+	return test_util.NewTestServer(t, bazarr_test_fixtures_path, fn)
 }
 
 func TestBazarrCollect(t *testing.T) {
@@ -42,12 +31,12 @@ func TestBazarrCollect(t *testing.T) {
 	config := &config.ArrConfig{
 		URL:    ts.URL,
 		App:    "bazarr",
-		ApiKey: API_KEY,
+		ApiKey: test_util.API_KEY,
 	}
 	collector := NewBazarrCollector(config)
 	require.NoError(err)
 
-	b, err := os.ReadFile(test_fixtures_path + "expected_metrics.txt")
+	b, err := os.ReadFile(bazarr_test_fixtures_path + "expected_metrics.txt")
 	require.NoError(err)
 
 	expected := strings.Replace(string(b), "SOMEURL", ts.URL, -1)
@@ -109,7 +98,7 @@ func TestBazarrCollect_FailureDoesntPanic(t *testing.T) {
 
 	config := &config.ArrConfig{
 		URL:    ts.URL,
-		ApiKey: API_KEY,
+		ApiKey: test_util.API_KEY,
 	}
 	collector := NewBazarrCollector(config)
 

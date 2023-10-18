@@ -48,7 +48,7 @@ func (collector *queueCollector) Collect(ch chan<- prometheus.Metric) {
 		return
 	}
 
-	var params client.QueryParams
+	params := client.QueryParams{}
 	params.Add("page", "1")
 	if collector.config.EnableUnknownQueueItems {
 		if collector.config.App == "sonarr" {

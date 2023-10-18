@@ -1,0 +1,69 @@
+{
+    "page": 1,
+    "pageSize": 10,
+    "sortKey": "timeleft",
+    "sortDirection": "ascending",
+    "totalRecords": 1,
+    "records": [
+      {
+        "movieId": 91,
+        "languages": [],
+        "quality": {
+          "quality": {
+            "id": 7,
+            "name": "Bluray-1080p",
+            "source": "bluray",
+            "resolution": 1080,
+            "modifier": "none"
+          },
+          "revision": {
+            "version": 2,
+            "real": 0,
+            "isRepack": false
+          }
+        },
+        "customFormats": [
+          {
+            "id": 6,
+            "name": "Special Edition"
+          },
+          {
+            "id": 8,
+            "name": "Repack/Proper"
+          },
+          {
+            "id": 27,
+            "name": "DTS-ES"
+          },
+          {
+            "id": 44,
+            "name": "HD Bluray Tier 02"
+          }
+        ],
+        "customFormatScore": 1880,
+        "size": 24397988960,
+        "title": "Some.Movie.1.Has.A.Title-1080P",
+        "sizeleft": 0,
+        "timeleft": "00:00:00",
+        "estimatedCompletionTime": "2023-10-17T23:23:09Z",
+        "status": "completed",
+        "trackedDownloadStatus": "warning",
+        "trackedDownloadState": "downloading",
+        "statusMessages": [
+          {
+            "title": "Some.Movie.1.Has.A.Title-1080P",
+            "messages": [
+              "Found matching movie via grab history, but release was matched to movie by ID. Manual Import required."
+            ]
+          }
+        ],
+        "errorMessage": "",
+        "downloadId": "SABnzbd_nzo_asdf1234",
+        "protocol": "usenet",
+        "downloadClient": "SabNZBd",
+        "indexer": "Some Indexer",
+        "outputPath": "/media/.downloads/complete/movies/Some.Movie.1.Has.A.Title-1080P",
+        "id": 8537983
+      }
+    ]
+  }

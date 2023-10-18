@@ -1,0 +1,3 @@
+# HELP APP_history_total Total number of item in the history
+# TYPE APP_history_total gauge
+APP_history_total{url="SOMEURL"} 1368
