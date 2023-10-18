@@ -169,7 +169,7 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 		if collector.config.EnableAdditionalMetrics {
 			songFile := model.SongFile{}
 
-			var params client.QueryParams
+			params := client.QueryParams{}
 			params.Add("artistid", fmt.Sprintf("%d", s.Id))
 
 			if err := c.DoRequest("trackfile", &songFile, params); err != nil {

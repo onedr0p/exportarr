@@ -1,0 +1,3 @@
+# HELP APP_system_status System Status
+# TYPE APP_system_status gauge
+APP_system_status{url="SOMEURL"} 1

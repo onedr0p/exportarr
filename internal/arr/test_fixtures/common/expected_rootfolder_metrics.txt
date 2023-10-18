@@ -1,0 +1,3 @@
+# HELP APP_rootfolder_freespace_bytes Root folder space in bytes by path
+# TYPE APP_rootfolder_freespace_bytes gauge
+APP_rootfolder_freespace_bytes{path="/media/books/",url="SOMEURL"} 3.2147635175424e+13

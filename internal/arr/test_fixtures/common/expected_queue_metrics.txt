@@ -1,0 +1,3 @@
+# HELP APP_queue_total Total number of items in the queue by status, download_status, and download_state
+# TYPE APP_queue_total gauge
+APP_queue_total{download_state="downloading",download_status="warning",status="completed",url="SOMEURL"} 1

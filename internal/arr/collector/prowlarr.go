@@ -318,7 +318,7 @@ func (collector *prowlarrCollector) Collect(ch chan<- prometheus.Metric) {
 	startDate := collector.lastStatUpdate.In(time.UTC)
 	endDate := time.Now().In(time.UTC)
 
-	var params client.QueryParams
+	params := client.QueryParams{}
 	params.Add("startDate", startDate.Format(time.RFC3339))
 	params.Add("endDate", endDate.Format(time.RFC3339))
 

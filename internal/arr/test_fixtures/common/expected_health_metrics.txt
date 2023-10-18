@@ -1,0 +1,3 @@
+# HELP APP_system_health_issues Total number of health issues by source, type, message and wikiurl
+# TYPE APP_system_health_issues gauge
+APP_system_health_issues{message="Indexers unavailable due to failures for more than 6 hours: SomeIndexer",source="IndexerLongTermStatusCheck",type="warning",url="SOMEURL",wikiurl="https://wiki.servarr.com/readarr/system#indexers-are-unavailable-due-to-failures"} 1
