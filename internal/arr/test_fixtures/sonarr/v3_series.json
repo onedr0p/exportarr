@@ -1,0 +1,206 @@
+[
+    {
+        "id": 1,
+        "monitored": false,
+        "seasons": [
+            {
+                "monitored": false,
+                "statistics": {
+                    "episodeFileCount": 0,
+                    "episodeCount": 0,
+                    "totalEpisodeCount": 56,
+                    "sizeOnDisk": 0,
+                    "percentOfEpisodes": 0
+                }
+            },
+            {
+                "monitored": true,
+                "statistics": {
+                    "episodeFileCount": 10,
+                    "episodeCount": 10,
+                    "totalEpisodeCount": 10,
+                    "sizeOnDisk": 20533407024,
+                    "percentOfEpisodes": 100
+                }
+            }
+        ],
+        "statistics": {
+            "seasonCount": 6,
+            "episodeFileCount": 63,
+            "episodeCount": 63,
+            "totalEpisodeCount": 119,
+            "sizeOnDisk": 183840496357,
+            "percentOfEpisodes": 100
+        }
+    },
+    {
+        "id": 2,
+        "monitored": true,
+        "seasons": [
+            {
+                "monitored": false,
+                "statistics": {
+                    "episodeFileCount": 0,
+                    "episodeCount": 0,
+                    "totalEpisodeCount": 7,
+                    "sizeOnDisk": 0,
+                    "percentOfEpisodes": 0
+                }
+            },
+            {
+                "monitored": true,
+                "statistics": {
+                    "episodeFileCount": 0,
+                    "episodeCount": 20,
+                    "totalEpisodeCount": 20,
+                    "sizeOnDisk": 0,
+                    "percentOfEpisodes": 0
+                }
+            }
+        ],
+        "statistics": {
+            "seasonCount": 17,
+            "episodeFileCount": 102,
+            "episodeCount": 392,
+            "totalEpisodeCount": 399,
+            "sizeOnDisk": 105824972373,
+            "percentOfEpisodes": 26.020408163265305
+        }
+    },
+    {
+        "id": 3,
+        "monitored": true,
+        "seasons": [
+            {
+                "monitored": false,
+                "statistics": {
+                    "episodeFileCount": 0,
+                    "episodeCount": 0,
+                    "totalEpisodeCount": 18,
+                    "sizeOnDisk": 0,
+                    "percentOfEpisodes": 0
+                }
+            },
+            {
+                "monitored": true,
+                "statistics": {
+                    "episodeFileCount": 7,
+                    "episodeCount": 7,
+                    "totalEpisodeCount": 7,
+                    "sizeOnDisk": 19288367006,
+                    "percentOfEpisodes": 100
+                }
+            }
+        ],
+        "statistics": {
+            "seasonCount": 5,
+            "episodeFileCount": 62,
+            "episodeCount": 62,
+            "totalEpisodeCount": 80,
+            "sizeOnDisk": 144223895474,
+            "percentOfEpisodes": 100
+        }
+    },
+    {
+        "id": 4,
+        "monitored": true,
+        "seasons": [
+            {
+                "monitored": true,
+                "statistics": {
+                    "episodeFileCount": 12,
+                    "episodeCount": 12,
+                    "totalEpisodeCount": 12,
+                    "sizeOnDisk": 20507866372,
+                    "percentOfEpisodes": 100
+                }
+            }
+        ],
+        "statistics": {
+            "seasonCount": 1,
+            "episodeFileCount": 12,
+            "episodeCount": 12,
+            "totalEpisodeCount": 12,
+            "sizeOnDisk": 20507866372,
+            "percentOfEpisodes": 100
+        }
+    },
+    {
+        "id": 5,
+        "monitored": true,
+        "seasons": [
+            {
+                "monitored": false,
+                "statistics": {
+                    "episodeFileCount": 0,
+                    "episodeCount": 0,
+                    "totalEpisodeCount": 10,
+                    "sizeOnDisk": 0,
+                    "percentOfEpisodes": 0
+                }
+            },
+            {
+                "monitored": true,
+                "statistics": {
+                    "episodeFileCount": 12,
+                    "episodeCount": 12,
+                    "totalEpisodeCount": 12,
+                    "sizeOnDisk": 65919201961,
+                    "percentOfEpisodes": 100
+                }
+            }
+        ],
+        "statistics": {
+            "seasonCount": 1,
+            "episodeFileCount": 12,
+            "episodeCount": 12,
+            "totalEpisodeCount": 22,
+            "sizeOnDisk": 65919201961,
+            "percentOfEpisodes": 100
+        }
+    },
+    {
+        "id": 6,
+        "monitored": true,
+        "seasons": [
+            {
+                "monitored": false,
+                "statistics": {
+                    "episodeFileCount": 0,
+                    "episodeCount": 0,
+                    "totalEpisodeCount": 9,
+                    "sizeOnDisk": 0,
+                    "percentOfEpisodes": 0
+                }
+            },
+            {
+                "monitored": true,
+                "statistics": {
+                    "episodeFileCount": 10,
+                    "episodeCount": 10,
+                    "totalEpisodeCount": 10,
+                    "sizeOnDisk": 58891339976,
+                    "percentOfEpisodes": 100
+                }
+            },
+            {
+                "monitored": true,
+                "statistics": {
+                    "episodeFileCount": 12,
+                    "episodeCount": 12,
+                    "totalEpisodeCount": 12,
+                    "sizeOnDisk": 87199824116,
+                    "percentOfEpisodes": 100
+                }
+            }
+        ],
+        "statistics": {
+            "seasonCount": 3,
+            "episodeFileCount": 34,
+            "episodeCount": 34,
+            "totalEpisodeCount": 43,
+            "sizeOnDisk": 270977548296,
+            "percentOfEpisodes": 100
+        }
+    }
+]
