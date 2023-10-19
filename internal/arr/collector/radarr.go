@@ -105,6 +105,7 @@ func (collector *radarrCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.movieMissingMetric
 	ch <- collector.movieFileSizeMetric
 	ch <- collector.movieQualitiesMetric
+	ch <- collector.movieTagsMetric
 }
 
 func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {

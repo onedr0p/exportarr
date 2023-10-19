@@ -1,0 +1,34 @@
+[
+  {
+    "label": "somelabel",
+    "delayProfileIds": [],
+    "importListIds": [],
+    "notificationIds": [],
+    "releaseProfileIds": [],
+    "indexerIds": [],
+    "downloadClientIds": [],
+    "autoTagIds": [],
+    "movieIds": [
+      37,
+      47,
+      69
+    ],
+    "id": 1
+  },
+  {
+    "label": "someotherlabel",
+    "delayProfileIds": [],
+    "importListIds": [],
+    "notificationIds": [],
+    "releaseProfileIds": [],
+    "indexerIds": [],
+    "downloadClientIds": [],
+    "autoTagIds": [],
+    "movieIds": [
+      12,
+      34,
+      99
+    ],
+    "id": 2
+  }
+]
