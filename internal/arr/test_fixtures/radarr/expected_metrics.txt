@@ -1,0 +1,33 @@
+# HELP radarr_movie_downloaded_total Total number of downloaded movies
+# TYPE radarr_movie_downloaded_total gauge
+radarr_movie_downloaded_total{url="SOMEURL"} 4
+# HELP radarr_movie_editions Total number of movies with `edition` set
+# TYPE radarr_movie_editions gauge
+radarr_movie_editions{url="SOMEURL"} 2
+# HELP radarr_movie_filesize_total Total filesize of all movies
+# TYPE radarr_movie_filesize_total gauge
+radarr_movie_filesize_total{url="SOMEURL"} 1.47062956689e+11
+# HELP radarr_movie_missing_total Total number of missing movies
+# TYPE radarr_movie_missing_total gauge
+radarr_movie_missing_total{url="SOMEURL"} 2
+# HELP radarr_movie_monitored_total Total number of monitored movies
+# TYPE radarr_movie_monitored_total gauge
+radarr_movie_monitored_total{url="SOMEURL"} 7
+# HELP radarr_movie_quality_total Total number of downloaded movies by quality
+# TYPE radarr_movie_quality_total gauge
+radarr_movie_quality_total{quality="Bluray-1080p",url="SOMEURL"} 1
+radarr_movie_quality_total{quality="Bluray-2160p",url="SOMEURL"} 2
+radarr_movie_quality_total{quality="Remux-2160p",url="SOMEURL"} 1
+# HELP radarr_movie_tag_total Total number of downloaded movies by tag
+# TYPE radarr_movie_tag_total gauge
+radarr_movie_tag_total{tag="somelabel",url="SOMEURL"} 3
+radarr_movie_tag_total{tag="someotherlabel",url="SOMEURL"} 3
+# HELP radarr_movie_total Total number of movies
+# TYPE radarr_movie_total gauge
+radarr_movie_total{url="SOMEURL"} 8
+# HELP radarr_movie_unmonitored_total Total number of unmonitored movies
+# TYPE radarr_movie_unmonitored_total gauge
+radarr_movie_unmonitored_total{url="SOMEURL"} 1
+# HELP radarr_movie_wanted_total Total number of wanted movies
+# TYPE radarr_movie_wanted_total gauge
+radarr_movie_wanted_total{url="SOMEURL"} 1
