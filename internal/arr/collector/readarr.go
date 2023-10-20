@@ -111,6 +111,7 @@ func (c *readarrCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.authorUnmonitoredMetric
 	ch <- c.authorFileSizeMetric
 	ch <- c.bookMetric
+	ch <- c.bookGrabbedMetric
 	ch <- c.bookDownloadedMetric
 	ch <- c.bookMonitoredMetric
 	ch <- c.bookUnmonitoredMetric

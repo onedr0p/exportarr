@@ -1,0 +1,33 @@
+# HELP readarr_author_downloaded_total Total number of downloaded authors
+# TYPE readarr_author_downloaded_total gauge
+readarr_author_downloaded_total{url="SOMEURL"} 0
+# HELP readarr_author_filesize_bytes Total filesize of all authors in bytes
+# TYPE readarr_author_filesize_bytes gauge
+readarr_author_filesize_bytes{url="SOMEURL"} 4.55628734e+08
+# HELP readarr_author_monitored_total Total number of monitored authors
+# TYPE readarr_author_monitored_total gauge
+readarr_author_monitored_total{url="SOMEURL"} 3
+# HELP readarr_author_total Total number of authors
+# TYPE readarr_author_total gauge
+readarr_author_total{url="SOMEURL"} 3
+# HELP readarr_author_unmonitored_total Total number of unmonitored authors
+# TYPE readarr_author_unmonitored_total gauge
+readarr_author_unmonitored_total{url="SOMEURL"} 0
+# HELP readarr_book_downloaded_total Total number of downloaded books
+# TYPE readarr_book_downloaded_total gauge
+readarr_book_downloaded_total{url="SOMEURL"} 40
+# HELP readarr_book_grabbed_total Total number of grabbed books
+# TYPE readarr_book_grabbed_total gauge
+readarr_book_grabbed_total{url="SOMEURL"} 0
+# HELP readarr_book_missing_total Total number of missing books
+# TYPE readarr_book_missing_total gauge
+readarr_book_missing_total{url="SOMEURL"} 0
+# HELP readarr_book_monitored_total Total number of monitored books
+# TYPE readarr_book_monitored_total gauge
+readarr_book_monitored_total{url="SOMEURL"} 2
+# HELP readarr_book_total Total number of books
+# TYPE readarr_book_total gauge
+readarr_book_total{url="SOMEURL"} 72
+# HELP readarr_book_unmonitored_total Total number of unmonitored books
+# TYPE readarr_book_unmonitored_total gauge
+readarr_book_unmonitored_total{url="SOMEURL"} 1

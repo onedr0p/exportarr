@@ -1,0 +1,38 @@
+[
+  {
+    "monitored": true,
+    "statistics": {
+      "bookFileCount": 33,
+      "bookCount": 62,
+      "availableBookCount": 33,
+      "totalBookCount": 86,
+      "sizeOnDisk": 417389300,
+      "percentOfBooks": 53.225806451612903225806451610
+    },
+    "id": 1
+  },
+  {
+    "monitored": true,
+    "statistics": {
+      "bookFileCount": 2,
+      "bookCount": 3,
+      "availableBookCount": 2,
+      "totalBookCount": 3,
+      "sizeOnDisk": 17804301,
+      "percentOfBooks": 66.666666666666666666666666670
+    },
+    "id": 2
+  },
+  {
+    "monitored": true,
+    "statistics": {
+      "bookFileCount": 5,
+      "bookCount": 7,
+      "availableBookCount": 5,
+      "totalBookCount": 14,
+      "sizeOnDisk": 20435133,
+      "percentOfBooks": 71.428571428571428571428571430
+    },
+    "id": 3
+  }
+]
