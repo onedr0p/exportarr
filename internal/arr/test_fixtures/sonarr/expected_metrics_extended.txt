@@ -1,0 +1,46 @@
+# HELP sonarr_episode_downloaded_total Total number of downloaded episodes
+# TYPE sonarr_episode_downloaded_total gauge
+sonarr_episode_downloaded_total{url="SOMEURL"} 285
+# HELP sonarr_episode_missing_total Total number of missing episodes
+# TYPE sonarr_episode_missing_total gauge
+sonarr_episode_missing_total{url="SOMEURL"} 1179
+# HELP sonarr_episode_monitored_total Total number of monitored episodes
+# TYPE sonarr_episode_monitored_total gauge
+sonarr_episode_monitored_total{url="SOMEURL"} 12
+# HELP sonarr_episode_quality_total Total number of downloaded episodes by quality
+# TYPE sonarr_episode_quality_total gauge
+sonarr_episode_quality_total{quality="WEBDL-1080p",url="SOMEURL"} 12
+sonarr_episode_quality_total{quality="WEBRip-1080p",url="SOMEURL"} 6
+# HELP sonarr_episode_total Total number of episodes
+# TYPE sonarr_episode_total gauge
+sonarr_episode_total{url="SOMEURL"} 675
+# HELP sonarr_episode_unmonitored_total Total number of unmonitored episodes
+# TYPE sonarr_episode_unmonitored_total gauge
+sonarr_episode_unmonitored_total{url="SOMEURL"} 6
+# HELP sonarr_season_downloaded_total Total number of downloaded seasons
+# TYPE sonarr_season_downloaded_total gauge
+sonarr_season_downloaded_total{url="SOMEURL"} 6
+# HELP sonarr_season_monitored_total Total number of monitored seasons
+# TYPE sonarr_season_monitored_total gauge
+sonarr_season_monitored_total{url="SOMEURL"} 7
+# HELP sonarr_season_total Total number of seasons
+# TYPE sonarr_season_total gauge
+sonarr_season_total{url="SOMEURL"} 33
+# HELP sonarr_season_unmonitored_total Total number of unmonitored seasons
+# TYPE sonarr_season_unmonitored_total gauge
+sonarr_season_unmonitored_total{url="SOMEURL"} 5
+# HELP sonarr_series_downloaded_total Total number of downloaded series
+# TYPE sonarr_series_downloaded_total gauge
+sonarr_series_downloaded_total{url="SOMEURL"} 5
+# HELP sonarr_series_filesize_bytes Total fizesize of all series in bytes
+# TYPE sonarr_series_filesize_bytes gauge
+sonarr_series_filesize_bytes{url="SOMEURL"} 7.91293980833e+11
+# HELP sonarr_series_monitored_total Total number of monitored series
+# TYPE sonarr_series_monitored_total gauge
+sonarr_series_monitored_total{url="SOMEURL"} 5
+# HELP sonarr_series_total Total number of series
+# TYPE sonarr_series_total gauge
+sonarr_series_total{url="SOMEURL"} 6
+# HELP sonarr_series_unmonitored_total Total number of unmonitored series
+# TYPE sonarr_series_unmonitored_total gauge
+sonarr_series_unmonitored_total{url="SOMEURL"} 1
