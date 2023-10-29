@@ -49,7 +49,11 @@ func (c *ArrConfig) LoadBazarrConfig(flags *flag.FlagSet) error {
 		return err
 	}
 
-	err = c.k.Unmarshal("bazarr", &c.Prowlarr)
+	c.Bazarr = BazarrConfig{
+		SeriesBatchSize:        50,
+		SeriesBatchConcurrency: 10,
+	}
+	err = c.k.Unmarshal("bazarr", &c.Bazarr)
 	if err != nil {
 		return err
 	}
