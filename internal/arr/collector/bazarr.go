@@ -2,6 +2,8 @@ package collector
 
 import (
 	"fmt"
+	"os"
+	"sync"
 	"time"
 
 	"github.com/onedr0p/exportarr/internal/arr/client"
@@ -9,7 +11,22 @@ import (
 	"github.com/onedr0p/exportarr/internal/arr/model"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
+	"golang.org/x/sync/errgroup"
 )
+
+type stats struct {
+	downloaded  int
+	monitored   int
+	unmonitored int
+	missing     int
+	wanted      int
+	fileSize    int64
+	history     int
+	languages   map[string]int
+	scores      map[string]int
+	providers   map[string]int
+	mut         sync.Mutex
+}
 
 type bazarrCollector struct {
 	config                     *config.ArrConfig // App configuration
@@ -44,6 +61,19 @@ type bazarrCollector struct {
 	systemHealthMetric *prometheus.Desc // Total number of health issues
 	systemStatusMetric *prometheus.Desc // Total number of system statuses
 	errorMetric        *prometheus.Desc // Error Description for use with InvalidMetric
+}
+
+func createIDBatches(ids []string, batchSize int) [][]string {
+	if len(ids) == 0 {
+		return [][]string{}
+	}
+	items := ids
+	ret := [][]string{}
+	for batchSize < len(items) {
+		ret = append(ret, items[0:batchSize:batchSize])
+		items = items[batchSize:]
+	}
+	return append(ret, items)
 }
 
 func NewBazarrCollector(c *config.ArrConfig) *bazarrCollector {
@@ -268,19 +298,6 @@ func (collector *bazarrCollector) Collect(ch chan<- prometheus.Metric) {
 	log.Debugw("All Completed", "duration", mt)
 }
 
-type stats struct {
-	downloaded  int
-	monitored   int
-	unmonitored int
-	missing     int
-	wanted      int
-	fileSize    int64
-	history     int
-	languages   map[string]int
-	scores      map[string]int
-	providers   map[string]int
-}
-
 func (collector *bazarrCollector) EpisodeMovieMetrics(ch chan<- prometheus.Metric, c *client.Client) {
 
 	episodeStats := collector.CollectEpisodeStats(ch, c)
@@ -373,7 +390,7 @@ func (collector *bazarrCollector) CollectEpisodeStats(ch chan<- prometheus.Metri
 	mseries := time.Now()
 
 	series := model.BazarrSeries{}
-
+	fmt.Fprintln(os.Stderr, series)
 	if err := c.DoRequest("series", &series); err != nil {
 		log.Errorw("Error getting series",
 			"error", err)
@@ -385,45 +402,59 @@ func (collector *bazarrCollector) CollectEpisodeStats(ch chan<- prometheus.Metri
 	for _, s := range series.Data {
 		ids = append(ids, fmt.Sprintf("%d", s.Id))
 	}
+	batches := createIDBatches(ids, collector.config.Bazarr.SeriesBatchSize)
 
-	params := client.QueryParams{"seriesid[]": ids}
+	eg := errgroup.Group{}
+	sem := make(chan int, collector.config.Bazarr.SeriesBatchConcurrency) // limit concurrency via semaphore
+	for _, batch := range batches {
+		params := client.QueryParams{"seriesid[]": batch}
+		sem <- 1 //
+		eg.Go(func() error {
+			defer func() { <-sem }()
+			episodes := model.BazarrEpisodes{}
+			if err := c.DoRequest("episodes", &episodes, params); err != nil {
+				return err
+			}
+			episodeStats.mut.Lock()
+			defer episodeStats.mut.Unlock()
+			for _, e := range episodes.Data {
+				if !e.Monitored {
+					episodeStats.unmonitored++
+				} else {
+					episodeStats.monitored++
+				}
 
-	episodes := model.BazarrEpisodes{}
-	if err := c.DoRequest("episodes", &episodes, params); err != nil {
+				if len(e.MissingSubtitles) > 0 {
+					episodeStats.missing += len(e.MissingSubtitles)
+					if len(e.Subtitles) == 0 {
+						episodeStats.wanted++
+					}
+				}
+
+				if len(e.Subtitles) > 0 {
+					episodeStats.downloaded += len(e.Subtitles)
+					for _, subtitle := range e.Subtitles {
+						if subtitle.Language != "" {
+							episodeStats.languages[subtitle.Language]++
+						} else if subtitle.Code2 != "" {
+							episodeStats.languages[subtitle.Code2]++
+						} else if subtitle.Code3 != "" {
+							episodeStats.languages[subtitle.Code3]++
+						}
+
+						if subtitle.Size != 0 {
+							episodeStats.fileSize += subtitle.Size
+						}
+					}
+				}
+			}
+			return nil
+		})
+	}
+	if err := eg.Wait(); err != nil {
 		log.Errorw("Error getting episodes subtitles", "error", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 		return nil
-	}
-	for _, e := range episodes.Data {
-		if !e.Monitored {
-			episodeStats.unmonitored++
-		} else {
-			episodeStats.monitored++
-		}
-
-		if len(e.MissingSubtitles) > 0 {
-			episodeStats.missing += len(e.MissingSubtitles)
-			if len(e.Subtitles) == 0 {
-				episodeStats.wanted++
-			}
-		}
-
-		if len(e.Subtitles) > 0 {
-			episodeStats.downloaded += len(e.Subtitles)
-			for _, subtitle := range e.Subtitles {
-				if subtitle.Language != "" {
-					episodeStats.languages[subtitle.Language]++
-				} else if subtitle.Code2 != "" {
-					episodeStats.languages[subtitle.Code2]++
-				} else if subtitle.Code3 != "" {
-					episodeStats.languages[subtitle.Code3]++
-				}
-
-				if subtitle.Size != 0 {
-					episodeStats.fileSize += subtitle.Size
-				}
-			}
-		}
 	}
 
 	history := model.BazarrHistory{}

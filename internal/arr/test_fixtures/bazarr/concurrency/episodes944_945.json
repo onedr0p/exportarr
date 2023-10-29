@@ -1,0 +1,72 @@
+{
+    "data": [
+        {
+            "missing_subtitles": [],
+            "monitored": true,
+            "sonarrEpisodeId": 81771,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "file_size": 44567
+                }
+            ]
+        },
+        {
+            "missing_subtitles": [],
+            "monitored": true,
+            "sonarrEpisodeId": 81771,
+            "sonarrSeriesId": 944,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "file_size": 40577
+                },
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "file_size": 41234
+                }
+            ]
+        },
+        {
+            "missing_subtitles": [],
+            "monitored": true,
+            "sonarrEpisodeId": 81771,
+            "sonarrSeriesId": 945,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "file_size": 44567
+                }
+            ]
+        },
+        {
+            "missing_subtitles": [],
+            "monitored": true,
+            "sonarrEpisodeId": 81771,
+            "sonarrSeriesId": 945,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "file_size": 40577
+                },
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "file_size": 41234
+                }
+            ]
+        }
+    ]
+}

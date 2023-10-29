@@ -1,0 +1,78 @@
+{
+    "data": [
+        {
+            "missing_subtitles": [],
+            "monitored": true,
+            "sonarrEpisodeId": 81771,
+            "sonarrSeriesId": 946,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "file_size": 1
+                }
+            ]
+        },
+        {
+            "missing_subtitles": [],
+            "monitored": true,
+            "sonarrEpisodeId": 81771,
+            "sonarrSeriesId": 946,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "file_size": 123
+                },
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "file_size": 41234
+                }
+            ]
+        },
+        {
+            "missing_subtitles": [],
+            "monitored": true,
+            "sonarrEpisodeId": 81771,
+            "sonarrSeriesId": 947,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "file_size": 44567
+                }
+            ]
+        },
+        {
+            "missing_subtitles": [],
+            "monitored": true,
+            "sonarrEpisodeId": 81771,
+            "sonarrSeriesId": 947,
+            "subtitles": [
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "file_size": 40577
+                },
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "file_size": 41234
+                },
+                {
+                    "name": "English",
+                    "code2": "en",
+                    "code3": "eng",
+                    "file_size": 619234
+                }
+            ]
+        }
+    ]
+}

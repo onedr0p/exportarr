@@ -19,6 +19,7 @@ func init() {
 	config.RegisterArrFlags(prowlarrCmd.PersistentFlags())
 	config.RegisterArrFlags(bazarrCmd.PersistentFlags())
 	config.RegisterProwlarrFlags(prowlarrCmd.PersistentFlags())
+	config.RegisterBazarrFlags(bazarrCmd.PersistentFlags())
 
 	rootCmd.AddCommand(
 		radarrCmd,
@@ -158,7 +159,11 @@ var bazarrCmd = &cobra.Command{
 			return err
 		}
 		c.ApiVersion = ""
+		if err := c.LoadBazarrConfig(cmd.PersistentFlags()); err != nil {
+			return err
+		}
 		UsageOnError(cmd, c.Validate())
+		UsageOnError(cmd, c.Bazarr.Validate())
 
 		serveHttp(func(r prometheus.Registerer) {
 			r.MustRegister(

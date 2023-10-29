@@ -1,0 +1,20 @@
+{
+    "data": [
+        {
+            "monitored": true,
+            "sonarrSeriesId": 944
+        },
+        {
+            "monitored": true,
+            "sonarrSeriesId": 945
+        },
+        {
+            "monitored": true,
+            "sonarrSeriesId": 946
+        },
+        {
+            "monitored": true,
+            "sonarrSeriesId": 947
+        }
+    ]
+}
