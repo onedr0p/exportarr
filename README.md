@@ -75,7 +75,7 @@ Visit http://127.0.0.1:9707/metrics to see the app metrics
 
 The prowlarr collector is a little different than other collectors as it's hitting an actual "stats" endpoint, collecting counters of events that happened in a small time window, rather than getting all-time statistics like the other collectors. This means that by default, when you start the prowlarr collector, collected stats will start from that moment (all counters will start from zero).
 
-To backill all Prowlarr Data, either use `PROWLARR__BACKFILL` or `--backfill`.
+To backfill all Prowlarr Data, either use `PROWLARR__BACKFILL` or `--backfill`.
 
 Note that the first request can be extremely slow, depending on how long your prowlarr instance has been running. You can also specify a start date to limit the backfill if the backfill is timing out:
 
