@@ -130,9 +130,13 @@ func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
 			Movies int
 		}{}
 	)
+
 	movies := model.Movie{}
+	params := client.QueryParams{}
+	params.Add("excludeLocalCovers", "true")
+
 	// https://radarr.video/docs/api/#/Movie/get_api_v3_movie
-	if err := c.DoRequest("movie?excludeLocalCovers=true", &movies); err != nil {
+	if err := c.DoRequest("movie", &movies, params); err != nil {
 		log.Errorw("Error getting movies", "error", err)
 		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 		return
