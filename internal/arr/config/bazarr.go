@@ -15,7 +15,7 @@ type BazarrConfig struct {
 }
 
 func RegisterBazarrFlags(flags *flag.FlagSet) {
-	flags.Int("series-batch-size", 50, "Number of Series to retrieve from Bazarr in each API Call")
+	flags.Int("series-batch-size", 300, "Number of Series to retrieve from Bazarr in each API Call")
 	flags.Int("series-batch-concurrency", 10, "Calls to make to Bazarrr Concurrently")
 }
 
@@ -50,7 +50,7 @@ func (c *ArrConfig) LoadBazarrConfig(flags *flag.FlagSet) error {
 	}
 
 	c.Bazarr = BazarrConfig{
-		SeriesBatchSize:        50,
+		SeriesBatchSize:        300,
 		SeriesBatchConcurrency: 10,
 	}
 	err = c.k.Unmarshal("bazarr", &c.Bazarr)

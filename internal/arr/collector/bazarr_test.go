@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"slices"
 	"strings"
 	"testing"
 
@@ -12,6 +11,7 @@ import (
 	"github.com/onedr0p/exportarr/internal/test_util"
 	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/exp/slices"
 )
 
 const bazarr_test_fixtures_path = "../test_fixtures/bazarr/"
@@ -135,9 +135,10 @@ func TestBazarrCollect_Concurrency(t *testing.T) {
 	defer ts.Close()
 
 	config := &config.ArrConfig{
-		URL:    ts.URL,
-		App:    "bazarr",
-		ApiKey: test_util.API_KEY,
+		URL:                     ts.URL,
+		App:                     "bazarr",
+		ApiKey:                  test_util.API_KEY,
+		EnableAdditionalMetrics: true,
 		Bazarr: config.BazarrConfig{
 			SeriesBatchSize:        2,
 			SeriesBatchConcurrency: 2,

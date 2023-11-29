@@ -2,7 +2,6 @@ package collector
 
 import (
 	"fmt"
-	"os"
 	"sync"
 	"time"
 
@@ -26,6 +25,14 @@ type stats struct {
 	scores      map[string]int
 	providers   map[string]int
 	mut         sync.Mutex
+}
+
+func newStats() *stats {
+	return &stats{
+		languages: make(map[string]int),
+		scores:    make(map[string]int),
+		providers: make(map[string]int),
+	}
 }
 
 type bazarrCollector struct {
@@ -300,9 +307,12 @@ func (collector *bazarrCollector) Collect(ch chan<- prometheus.Metric) {
 
 func (collector *bazarrCollector) EpisodeMovieMetrics(ch chan<- prometheus.Metric, c *client.Client) {
 
-	episodeStats := collector.CollectEpisodeStats(ch, c)
-	if episodeStats == nil {
-		return
+	episodeStats := newStats()
+	if collector.config.EnableAdditionalMetrics {
+		episodeStats = collector.CollectEpisodeStats(ch, c)
+		if episodeStats == nil {
+			return
+		}
 	}
 
 	movieStats := collector.CollectMovieStats(ch, c)
@@ -310,13 +320,15 @@ func (collector *bazarrCollector) EpisodeMovieMetrics(ch chan<- prometheus.Metri
 		return
 	}
 
-	ch <- prometheus.MustNewConstMetric(collector.episodeSubtitlesHistoryMetric, prometheus.GaugeValue, float64(episodeStats.history))
-	ch <- prometheus.MustNewConstMetric(collector.episodeSubtitlesDownloadedMetric, prometheus.GaugeValue, float64(episodeStats.downloaded))
-	ch <- prometheus.MustNewConstMetric(collector.episodeSubtitlesMonitoredMetric, prometheus.GaugeValue, float64(episodeStats.monitored))
-	ch <- prometheus.MustNewConstMetric(collector.episodeSubtitlesUnmonitoredMetric, prometheus.GaugeValue, float64(episodeStats.unmonitored))
-	ch <- prometheus.MustNewConstMetric(collector.episodeSubtitlesWantedMetric, prometheus.GaugeValue, float64(episodeStats.wanted))
-	ch <- prometheus.MustNewConstMetric(collector.episodeSubtitlesMissingMetric, prometheus.GaugeValue, float64(episodeStats.missing))
-	ch <- prometheus.MustNewConstMetric(collector.episodeSubtitlesFileSizeMetric, prometheus.GaugeValue, float64(episodeStats.fileSize))
+	if collector.config.EnableAdditionalMetrics {
+		ch <- prometheus.MustNewConstMetric(collector.episodeSubtitlesHistoryMetric, prometheus.GaugeValue, float64(episodeStats.history))
+		ch <- prometheus.MustNewConstMetric(collector.episodeSubtitlesDownloadedMetric, prometheus.GaugeValue, float64(episodeStats.downloaded))
+		ch <- prometheus.MustNewConstMetric(collector.episodeSubtitlesMonitoredMetric, prometheus.GaugeValue, float64(episodeStats.monitored))
+		ch <- prometheus.MustNewConstMetric(collector.episodeSubtitlesUnmonitoredMetric, prometheus.GaugeValue, float64(episodeStats.unmonitored))
+		ch <- prometheus.MustNewConstMetric(collector.episodeSubtitlesWantedMetric, prometheus.GaugeValue, float64(episodeStats.wanted))
+		ch <- prometheus.MustNewConstMetric(collector.episodeSubtitlesMissingMetric, prometheus.GaugeValue, float64(episodeStats.missing))
+		ch <- prometheus.MustNewConstMetric(collector.episodeSubtitlesFileSizeMetric, prometheus.GaugeValue, float64(episodeStats.fileSize))
+	}
 
 	ch <- prometheus.MustNewConstMetric(collector.movieSubtitlesHistoryMetric, prometheus.GaugeValue, float64(movieStats.history))
 	ch <- prometheus.MustNewConstMetric(collector.movieSubtitlesDownloadedMetric, prometheus.GaugeValue, float64(movieStats.downloaded))
@@ -382,15 +394,11 @@ func (collector *bazarrCollector) EpisodeMovieMetrics(ch chan<- prometheus.Metri
 
 func (collector *bazarrCollector) CollectEpisodeStats(ch chan<- prometheus.Metric, c *client.Client) *stats {
 	log := zap.S().With("collector", "bazarr")
-	episodeStats := new(stats)
-	episodeStats.languages = make(map[string]int)
-	episodeStats.scores = make(map[string]int)
-	episodeStats.providers = make(map[string]int)
+	episodeStats := newStats()
 
 	mseries := time.Now()
 
 	series := model.BazarrSeries{}
-	fmt.Fprintln(os.Stderr, series)
 	if err := c.DoRequest("series", &series); err != nil {
 		log.Errorw("Error getting series",
 			"error", err)
