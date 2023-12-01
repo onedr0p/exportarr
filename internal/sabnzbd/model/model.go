@@ -166,6 +166,10 @@ func (q *QueueStats) UnmarshalJSON(data []byte) error {
 
 // latestStat gets the most recent date's value from a map of dates to values
 func latestStat(m map[string]int) (string, int) {
+	if len(m) == 0 {
+        // Return a zero-value or suitable default
+        return "", 0
+    }
 	keys := make([]string, 0, len(m))
 	for k := range m {
 		keys = append(keys, k)
