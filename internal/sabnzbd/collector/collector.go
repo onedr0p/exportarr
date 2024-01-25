@@ -276,9 +276,7 @@ func (e *SabnzbdCollector) Collect(ch chan<- prometheus.Metric) {
 			return fmt.Errorf("failed to get server stats: %w", err)
 		}
 
-		e.cache.Update(*serverStats)
-
-		return nil
+		return e.cache.Update(*serverStats)
 	})
 
 	if err := g.Wait(); err != nil {

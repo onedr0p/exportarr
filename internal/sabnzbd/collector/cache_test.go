@@ -137,6 +137,61 @@ func TestUpdateServerStatsCache_DifferentDay(t *testing.T) {
 	require.Equal(12, server2.GetArticlesSuccess())
 }
 
+func TestUpdateServerStatsCache_EmptyServerStats(t *testing.T) {
+	tests := []struct {
+		name          string
+		startingStats model.ServerStats
+		endingStats   model.ServerStats
+		shouldError   bool
+	}{
+		{
+			name: "Empty Starting Date",
+			startingStats: model.ServerStats{
+				Total:   1,
+				Servers: map[string]model.ServerStat{},
+			},
+		},
+		{
+			name: "Non-Empty Starting Date",
+			startingStats: model.ServerStats{
+				Total: 1,
+				Servers: map[string]model.ServerStat{
+					"server1": {
+						Total:           1,
+						ArticlesTried:   2,
+						ArticlesSuccess: 2,
+						DayParsed:       "2020-01-01",
+					},
+				},
+			},
+			shouldError: true,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			require := require.New(t)
+			cache := NewServersStatsCache()
+			err := cache.Update(tt.startingStats)
+			require.NoError(err)
+			err = cache.Update(model.ServerStats{
+				Total: 1,
+				Servers: map[string]model.ServerStat{
+					"server1": {
+						Total:     1,
+						DayParsed: "",
+					},
+				},
+			})
+			if tt.shouldError {
+				require.Error(err)
+			} else {
+				require.NoError(err)
+			}
+		})
+	}
+}
+
 func TestNewServerStatsCache_SetsServers(t *testing.T) {
 	require := require.New(t)
 	cache := NewServersStatsCache()

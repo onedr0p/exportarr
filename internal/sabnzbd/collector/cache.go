@@ -1,13 +1,14 @@
 package collector
 
 import (
+	"errors"
 	"sync"
 
 	"github.com/onedr0p/exportarr/internal/sabnzbd/model"
 )
 
 type ServerStats interface {
-	Update(stat model.ServerStat) ServerStats
+	Update(stat model.ServerStat) (ServerStats, error)
 	GetTotal() int
 	GetArticlesTried() int
 	GetArticlesSuccess() int
@@ -22,7 +23,12 @@ type serverStatCache struct {
 	todayKey                  string
 }
 
-func (s serverStatCache) Update(stat model.ServerStat) ServerStats {
+func (s serverStatCache) Update(stat model.ServerStat) (ServerStats, error) {
+	if stat.DayParsed == "" && s.todayKey != "" {
+		// If the day parsed is empty, it means there are no server side stats.
+		// If we have exportarr stats, something likely went wrong,
+		return s, errors.New("No Parsed Dates from Server, but cache is not empty")
+	}
 	s.total = stat.Total
 
 	if stat.DayParsed != s.todayKey {
@@ -36,7 +42,7 @@ func (s serverStatCache) Update(stat model.ServerStat) ServerStats {
 	s.articlesTriedToday = stat.ArticlesTried
 	s.articlesSuccessToday = stat.ArticlesSuccess
 
-	return s
+	return s, nil
 }
 
 func (s serverStatCache) GetTotal() int {
@@ -63,7 +69,7 @@ func NewServersStatsCache() *ServersStatsCache {
 	}
 }
 
-func (c *ServersStatsCache) Update(stats model.ServerStats) {
+func (c *ServersStatsCache) Update(stats model.ServerStats) error {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
@@ -75,8 +81,13 @@ func (c *ServersStatsCache) Update(stats model.ServerStats) {
 			toCache = cached
 		}
 
-		c.Servers[name] = toCache.Update(srv).(serverStatCache)
+		updated, err := toCache.Update(srv)
+		if err != nil {
+			return err
+		}
+		c.Servers[name] = updated.(serverStatCache)
 	}
+	return nil
 }
 
 func (c *ServersStatsCache) GetTotal() int {
