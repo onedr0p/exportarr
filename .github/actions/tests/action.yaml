@@ -24,11 +24,6 @@ runs:
         go mod tidy
         git diff --exit-code
 
-    - uses: golangci/golangci-lint-action@v2
-      with:
-        version: v1.51.2
-        args: --timeout 5m --config .github/lint/golangci.yaml
-
     - name: Run Unit tests
       shell: bash
       run: |

@@ -1,0 +1,18 @@
+---
+name: Tests
+description: Runs Go tests
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ">=1.19"
+
+    # Run golangcilint before `go get` is ran
+    # https://github.com/golangci/golangci-lint-action/issues/23
+    - uses: golangci/golangci-lint-action@v2
+      with:
+        version: v1.55.1
+        args: --timeout 5m --config .github/lint/golangci.yaml
