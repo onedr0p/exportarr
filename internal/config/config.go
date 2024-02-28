@@ -111,7 +111,7 @@ func (c *Config) Validate() error {
 
 func (c Config) Messages() map[string]string {
 	return validate.MS{
-		"ApiKey.regex":              "api-key must be a 32 character hex string",
+		"ApiKey.regex":              "api-key must be a 20-32 character alphanumeric string",
 		"LogLevel.ValidateLogLevel": "log-level must be one of: debug, info, warn, error, dpanic, panic, fatal",
 	}
 }

@@ -39,9 +39,9 @@ type ArrConfig struct {
 	FormAuth                bool           `koanf:"form-auth"`
 	EnableUnknownQueueItems bool           `koanf:"enable-unknown-queue-items"`
 	EnableAdditionalMetrics bool           `koanf:"enable-additional-metrics"`
-	URL                     string         `koanf:"url" validate:"required|url"`                        // stores rendered Arr URL (with api version)
-	ApiKey                  string         `koanf:"api-key" validate:"required|regex:(^[a-z0-9]{32}$)"` // stores the API key
-	DisableSSLVerify        bool           `koanf:"disable-ssl-verify"`                                 // stores the disable SSL verify flag
+	URL                     string         `koanf:"url" validate:"required|url"`                              // stores rendered Arr URL (with api version)
+	ApiKey                  string         `koanf:"api-key" validate:"required|regex:(^[a-zA-Z0-9]{20,32}$)"` // stores the API key
+	DisableSSLVerify        bool           `koanf:"disable-ssl-verify"`                                       // stores the disable SSL verify flag
 	Prowlarr                ProwlarrConfig `koanf:"prowlarr"`
 	Bazarr                  BazarrConfig   `koanf:"bazarr"`
 	k                       *koanf.Koanf
@@ -130,7 +130,7 @@ func (c *ArrConfig) Validate() error {
 
 func (c ArrConfig) Messages() map[string]string {
 	return validate.MS{
-		"ApiKey.regex":              "api-key must be a 32 character hex string",
+		"ApiKey.regex":              "api-key must be a 20-32 character alphanumeric string",
 		"LogLevel.ValidateLogLevel": "log-level must be one of: debug, info, warn, error, dpanic, panic, fatal",
 	}
 }
