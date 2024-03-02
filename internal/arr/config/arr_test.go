@@ -210,6 +210,24 @@ func TestValidate(t *testing.T) {
 			valid: true,
 		},
 		{
+			name: "good-api-key-32-len",
+			config: &ArrConfig{
+				URL:        "http://localhost",
+				ApiKey:     "abcdefABCDEF0123456789abcdef0123",
+				ApiVersion: "v3",
+			},
+			valid: true,
+		},
+		{
+			name: "good-api-key-32-len",
+			config: &ArrConfig{
+				URL:        "http://localhost",
+				ApiKey:     "abcdefABCDEF01234567",
+				ApiVersion: "v3",
+			},
+			valid: true,
+		},
+		{
 			name: "bad-api-key",
 			config: &ArrConfig{
 				URL:        "http://localhost",
