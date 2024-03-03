@@ -39,7 +39,7 @@ func newTestServer(t *testing.T, fn func(http.ResponseWriter, *http.Request)) (*
 func TestCollect(t *testing.T) {
 	require := require.New(t)
 	ts, err := newTestServer(t, func(w http.ResponseWriter, r *http.Request) {
-		require.Equal("/sabnzbd/api", r.URL.Path)
+		require.Equal("/api", r.URL.Path)
 		require.Equal(API_KEY, r.URL.Query().Get("apikey"))
 		require.Equal("json", r.URL.Query().Get("output"))
 	})
