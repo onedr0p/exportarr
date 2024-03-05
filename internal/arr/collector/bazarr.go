@@ -410,6 +410,10 @@ func (collector *bazarrCollector) CollectEpisodeStats(ch chan<- prometheus.Metri
 	for _, s := range series.Data {
 		ids = append(ids, fmt.Sprintf("%d", s.Id))
 	}
+	if len(ids) < 1 {
+		return episodeStats
+	}
+
 	batches := createIDBatches(ids, collector.config.Bazarr.SeriesBatchSize)
 
 	eg := errgroup.Group{}
