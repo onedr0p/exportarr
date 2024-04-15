@@ -1,9 +1,0 @@
-{
-  "extends": [
-    "config:base"
-  ],
-  "postUpdateOptions": [
-    "gomodTidy",
-    "gomodUpdateImportPaths"
-  ]
-}
