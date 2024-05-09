@@ -197,17 +197,15 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 					albumGenres[genre]++
 				}
 			}
+			albumsMissing := model.Missing{}
+			if err := c.DoRequest("wanted/missing", &albumsMissing); err != nil {
+				log.Errorw("Error getting missing albums", "error", err)
+				ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+				return
+			}
+			ch <- prometheus.MustNewConstMetric(collector.albumsMissingMetric, prometheus.GaugeValue, float64(albumsMissing.TotalRecords))
 		}
-	}
 
-	if !collector.config.SkipMissing {
-		albumsMissing := model.Missing{}
-		if err := c.DoRequest("wanted/missing", &albumsMissing); err != nil {
-			log.Errorw("Error getting missing albums", "error", err)
-			ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
-			return
-		}
-		ch <- prometheus.MustNewConstMetric(collector.albumsMissingMetric, prometheus.GaugeValue, float64(albumsMissing.TotalRecords))
 	}
 
 	ch <- prometheus.MustNewConstMetric(collector.artistsMetric, prometheus.GaugeValue, float64(len(artists)))

@@ -221,6 +221,16 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 			episodeFile := model.EpisodeFile{}
 
 			params := client.QueryParams{}
+
+			episodesMissing := model.Missing{}
+			if err := c.DoRequest("wanted/missing", &episodesMissing, params); err != nil {
+				log.Errorw("Error getting missing",
+					"error", err)
+				ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+				return
+			}
+			ch <- prometheus.MustNewConstMetric(collector.episodeMissingMetric, prometheus.GaugeValue, float64(episodesMissing.TotalRecords))
+
 			params.Add("seriesId", fmt.Sprintf("%d", s.Id))
 
 			if err := c.DoRequest("episodefile", &episodeFile, params); err != nil {
@@ -257,18 +267,6 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 		log.Debugw("series completed",
 			"series_id", s.Id,
 			"duration", e)
-	}
-
-	if !collector.config.SkipMissing {
-		params := client.QueryParams{}
-		episodesMissing := model.Missing{}
-		if err := c.DoRequest("wanted/missing", &episodesMissing, params); err != nil {
-			log.Errorw("Error getting missing",
-				"error", err)
-			ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
-			return
-		}
-		ch <- prometheus.MustNewConstMetric(collector.episodeMissingMetric, prometheus.GaugeValue, float64(episodesMissing.TotalRecords))
 	}
 
 	ch <- prometheus.MustNewConstMetric(collector.seriesMetric, prometheus.GaugeValue, float64(len(series)))

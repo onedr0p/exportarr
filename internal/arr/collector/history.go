@@ -39,7 +39,7 @@ func (collector *historyCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *historyCollector) Collect(ch chan<- prometheus.Metric) {
-	if !collector.config.SkipHistory {
+	if collector.config.EnableAdditionalMetrics {
 		log := zap.S().With("collector", "history")
 		c, err := client.NewClient(collector.config)
 		if err != nil {

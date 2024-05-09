@@ -22,9 +22,7 @@ func RegisterArrFlags(flags *flag.FlagSet) {
 	flags.String("auth-password", "", "Password for basic or form auth")
 	flags.Bool("form-auth", false, "Use form based authentication")
 	flags.Bool("enable-unknown-queue-items", false, "Enable unknown queue items")
-	flags.Bool("enable-additional-metrics", false, "Enable additional metrics")
-	flags.Bool("skip-history", false, "Skip History metrics query")
-	flags.Bool("skip-missing", false, "Skip Wanted/Missing metrics query")
+	flags.Bool("enable-additional-metrics", false, "Enable additional (slow) metrics")
 
 	// Backwards Compatibility - normalize function will hide these from --help. remove in v2.0.0
 	flags.String("basic-auth-username", "", "Username for basic or form auth")
@@ -41,8 +39,6 @@ type ArrConfig struct {
 	FormAuth                bool           `koanf:"form-auth"`
 	EnableUnknownQueueItems bool           `koanf:"enable-unknown-queue-items"`
 	EnableAdditionalMetrics bool           `koanf:"enable-additional-metrics"`
-	SkipHistory             bool           `koanf:"skip-history"`
-	SkipMissing             bool           `koanf:"skip-missing"`
 	URL                     string         `koanf:"url" validate:"required|url"`                              // stores rendered Arr URL (with api version)
 	ApiKey                  string         `koanf:"api-key" validate:"required|regex:(^[a-zA-Z0-9]{20,32}$)"` // stores the API key
 	DisableSSLVerify        bool           `koanf:"disable-ssl-verify"`                                       // stores the disable SSL verify flag
