@@ -200,18 +200,20 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 		}
 	}
 
-	albumsMissing := model.Missing{}
-	if err := c.DoRequest("wanted/missing", &albumsMissing); err != nil {
-		log.Errorw("Error getting missing albums", "error", err)
-		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
-		return
+	if !collector.config.SkipMissing {
+		albumsMissing := model.Missing{}
+		if err := c.DoRequest("wanted/missing", &albumsMissing); err != nil {
+			log.Errorw("Error getting missing albums", "error", err)
+			ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+			return
+		}
+		ch <- prometheus.MustNewConstMetric(collector.albumsMissingMetric, prometheus.GaugeValue, float64(albumsMissing.TotalRecords))
 	}
 
 	ch <- prometheus.MustNewConstMetric(collector.artistsMetric, prometheus.GaugeValue, float64(len(artists)))
 	ch <- prometheus.MustNewConstMetric(collector.artistsMonitoredMetric, prometheus.GaugeValue, float64(artistsMonitored))
 	ch <- prometheus.MustNewConstMetric(collector.artistsFileSizeMetric, prometheus.GaugeValue, float64(artistsFileSize))
 	ch <- prometheus.MustNewConstMetric(collector.albumsMetric, prometheus.GaugeValue, float64(albums))
-	ch <- prometheus.MustNewConstMetric(collector.albumsMissingMetric, prometheus.GaugeValue, float64(albumsMissing.TotalRecords))
 	ch <- prometheus.MustNewConstMetric(collector.songsMetric, prometheus.GaugeValue, float64(songs))
 	ch <- prometheus.MustNewConstMetric(collector.songsDownloadedMetric, prometheus.GaugeValue, float64(songsDownloaded))
 

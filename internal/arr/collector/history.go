@@ -39,20 +39,22 @@ func (collector *historyCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *historyCollector) Collect(ch chan<- prometheus.Metric) {
-	log := zap.S().With("collector", "history")
-	c, err := client.NewClient(collector.config)
-	if err != nil {
-		log.Errorw("Error creating client",
-			"error", err)
-		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
-		return
+	if !collector.config.SkipHistory {
+		log := zap.S().With("collector", "history")
+		c, err := client.NewClient(collector.config)
+		if err != nil {
+			log.Errorw("Error creating client",
+				"error", err)
+			ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+			return
+		}
+		history := model.History{}
+		if err := c.DoRequest("history", &history); err != nil {
+			log.Errorw("Error getting history",
+				"error", err)
+			ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+			return
+		}
+		ch <- prometheus.MustNewConstMetric(collector.historyMetric, prometheus.GaugeValue, float64(history.TotalRecords))
 	}
-	history := model.History{}
-	if err := c.DoRequest("history", &history); err != nil {
-		log.Errorw("Error getting history",
-			"error", err)
-		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
-		return
-	}
-	ch <- prometheus.MustNewConstMetric(collector.historyMetric, prometheus.GaugeValue, float64(history.TotalRecords))
 }
