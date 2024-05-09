@@ -264,7 +264,7 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 		episodesMissing := model.Missing{}
 		if err := c.DoRequest("wanted/missing", &episodesMissing, params); err != nil {
 			log.Errorw("Error getting missing",
-			"error", err)
+				"error", err)
 			ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
 			return
 		}
