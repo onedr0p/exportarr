@@ -68,3 +68,29 @@ services:
     ports:
      - "9711:9711"
     restart: unless-stopped
+  bazarr-exporter:
+    image: ghcr.io/onedr0p/exportarr:v1.5.3
+    container_name: bazarr-exporter
+    command: ["bazarr"]
+    environment:
+      PORT: 9712
+      URL: "http://x.x.x.x:6767" # or; http://bazarr:6767
+      APIKEY: "xxx"
+#    networks:
+#     - your_custom_network # optional
+    ports:
+      - "9712:9712"
+    restart: unless-stopped
+  readarr-exporter:
+    image: ghcr.io/onedr0p/exportarr:v1.5.3
+    container_name: readarr-exporter
+    command: ["readarr"]
+    environment:
+      PORT: 9713
+      URL: "http://x.x.x.x:8787" # or; http://readarr:8787
+      APIKEY: "xxx"
+#    networks:
+#     - your_custom_network # optional
+    ports:
+      - "9713:9713"
+    restart: unless-stopped
