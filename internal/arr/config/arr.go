@@ -22,7 +22,7 @@ func RegisterArrFlags(flags *flag.FlagSet) {
 	flags.String("auth-password", "", "Password for basic or form auth")
 	flags.Bool("form-auth", false, "Use form based authentication")
 	flags.Bool("enable-unknown-queue-items", false, "Enable unknown queue items")
-	flags.Bool("enable-additional-metrics", false, "Enable additional metrics")
+	flags.Bool("enable-additional-metrics", false, "Enable additional (slow) metrics")
 
 	// Backwards Compatibility - normalize function will hide these from --help. remove in v2.0.0
 	flags.String("basic-auth-username", "", "Username for basic or form auth")
