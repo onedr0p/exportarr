@@ -48,8 +48,8 @@ services:
       PORT: 9710
       URL: "http://x.x.x.x:9696" # or; http://prowlarr:8080
       APIKEY: "abc"
-      # PROWLARR_BACKFILL: true # optional
-      # PROWLARR_BACKFILL_SINCE_DATE: "2023-03-01" # optional
+      # PROWLARR__BACKFILL: true # optional
+      # PROWLARR__BACKFILL_SINCE_DATE: "2023-03-01" # optional
 #    networks:
 #     - your_custom_network # optional
     ports:
