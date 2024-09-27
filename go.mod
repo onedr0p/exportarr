@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/gookit/validate v1.5.2
 	github.com/knadh/koanf/providers/confmap v0.1.0
-	github.com/knadh/koanf/providers/env v0.1.0
+	github.com/knadh/koanf/providers/env v1.0.0
 	github.com/knadh/koanf/providers/file v1.1.0
 	github.com/knadh/koanf/providers/posflag v0.1.0
 	github.com/knadh/koanf/v2 v2.1.1
