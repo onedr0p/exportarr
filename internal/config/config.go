@@ -78,7 +78,7 @@ func LoadConfig(flags *flag.FlagSet) (*Config, error) {
 			return nil, fmt.Errorf("Couldn't Read API Key file %w", err)
 		}
 
-		if err := k.Set("api-key", string(data)); err != nil {
+		if err := k.Set("api-key", strings.TrimSpace(string(data))); err != nil {
 			return nil, fmt.Errorf("Couldn't merge api-key into config: %w", err)
 		}
 	}
