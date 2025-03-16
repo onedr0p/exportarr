@@ -39,7 +39,6 @@ func (p *XML) Marshal(o map[string]interface{}) ([]byte, error) {
 
 func (p *XML) Merge(baseURL string) func(src, dest map[string]interface{}) error {
 	return func(src, dest map[string]interface{}) error {
-
 		if src["api-key"] != nil && src["api-key"].(string) != "" {
 			dest["api-key"] = src["api-key"]
 		}
@@ -50,7 +49,18 @@ func (p *XML) Merge(baseURL string) func(src, dest map[string]interface{}) error
 		}
 
 		// Add or replace target port
-		u.Host = u.Hostname() + ":" + src["target-port"].(string)
+		target_port := src["target-port"].(string)
+		if len(target_port) > 0 {
+			// AKA Port is defined in the config xml so we use this value as the source
+			// of truth.
+			u.Host = u.Hostname() + ":" + target_port
+
+			// If Port is NOT defined in the XML it may be configured by the
+			// *ARR__SERVER__PORT environment varible passed directly to *arr services.
+			// In this case, we do not want to override whatever URL (that may include
+			// the port) passed to exportarr by other means.
+		}
+
 		u = u.JoinPath(src["url-base"].(string))
 		dest["url"] = u.String()
 		return nil
