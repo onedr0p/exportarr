@@ -85,9 +85,9 @@ type FormAuth struct {
 func (a *FormAuth) Auth(req *http.Request) error {
 	if a.cookie == nil || a.cookie.Expires.Before(time.Now().Add(-5*time.Minute)) {
 		form := url.Values{
-			"username":   {a.Username},
-			"password":   {a.Password},
-			"rememberMe": {"on"},
+			"username":   []string{a.Username},
+			"password":   []string{a.Password},
+			"rememberMe": []string{"on"},
 		}
 
 		u := a.AuthBaseURL.JoinPath("login")

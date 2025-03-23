@@ -10,7 +10,7 @@ import (
 	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/providers/posflag"
-	"github.com/knadh/koanf/v2"
+	koanf "github.com/knadh/koanf/v2"
 	flag "github.com/spf13/pflag"
 
 	base_config "github.com/onedr0p/exportarr/internal/config"
