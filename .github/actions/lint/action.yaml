@@ -14,5 +14,5 @@ runs:
     # https://github.com/golangci/golangci-lint-action/issues/23
     - uses: golangci/golangci-lint-action@v6
       with:
-        version: v1.57.2
+        version: v1.64.8
         args: --timeout 5m --config .github/lint/golangci.yaml
