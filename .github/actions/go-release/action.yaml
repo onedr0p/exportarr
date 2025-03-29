@@ -19,6 +19,6 @@ runs:
       uses: goreleaser/goreleaser-action@v6
       with:
         version: latest
-        args: release --rm-dist
+        args: release
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
