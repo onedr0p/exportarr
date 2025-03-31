@@ -12,7 +12,7 @@ runs:
 
     # Run golangcilint before `go get` is ran
     # https://github.com/golangci/golangci-lint-action/issues/23
-    - uses: golangci/golangci-lint-action@v6
+    - uses: golangci/golangci-lint-action@v7
       with:
         version: v1.64.8
         args: --timeout 5m --config .github/lint/golangci.yaml
