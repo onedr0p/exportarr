@@ -2,7 +2,7 @@ module github.com/onedr0p/exportarr
 
 go 1.23.0
 
-toolchain go1.24.1
+toolchain go1.24.2
 
 require (
 	github.com/gookit/validate v1.5.4
