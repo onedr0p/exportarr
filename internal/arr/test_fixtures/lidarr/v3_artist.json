@@ -1,0 +1,27 @@
+[
+    {
+        "monitored": true,
+        "statistics": {
+            "albumCount": 1,
+            "trackFileCount": 2,
+            "totalTrackCount": 4,
+            "sizeOnDisk": 5
+        },
+        "genres": [
+            "Rock"
+        ]
+    },
+    {
+        "ended": true,
+        "monitored": false,
+        "statistics": {
+            "albumCount": 6,
+            "trackFileCount": 7,
+            "totalTrackCount": 9,
+            "sizeOnDisk": 100
+        },
+        "genres": [
+            "Prog"
+        ]
+    }
+]

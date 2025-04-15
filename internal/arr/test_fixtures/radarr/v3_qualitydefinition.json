@@ -1,0 +1,20 @@
+[
+    {
+    "quality": {
+      "name": "Bluray-1080p"
+    },
+    "weight": 5
+  },
+  {
+    "quality": {
+      "name": "Bluray-2160p"
+    },
+    "weight": 10
+  },
+  {
+    "quality": {
+      "name": "Remux-2160p"
+    },
+    "weight": 15
+  }
+]

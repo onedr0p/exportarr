@@ -9,8 +9,8 @@ sonarr_episode_missing_total{url="SOMEURL"} 1179
 sonarr_episode_monitored_total{url="SOMEURL"} 12
 # HELP sonarr_episode_quality_total Total number of downloaded episodes by quality
 # TYPE sonarr_episode_quality_total gauge
-sonarr_episode_quality_total{quality="WEBDL-1080p",url="SOMEURL"} 12
-sonarr_episode_quality_total{quality="WEBRip-1080p",url="SOMEURL"} 6
+sonarr_episode_quality_total{quality="WEBDL-1080p",url="SOMEURL",weight="10"} 12
+sonarr_episode_quality_total{quality="WEBRip-1080p",url="SOMEURL",weight="5"} 6
 # HELP sonarr_episode_total Total number of episodes
 # TYPE sonarr_episode_total gauge
 sonarr_episode_total{url="SOMEURL"} 675

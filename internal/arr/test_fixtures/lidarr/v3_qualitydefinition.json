@@ -1,0 +1,14 @@
+[
+  {
+    "quality": {
+      "name": "Medium"
+    },
+    "weight": 5
+  },
+  {
+    "quality": {
+      "name": "High"
+    },
+    "weight": 10
+  }
+]

@@ -1,6 +1,8 @@
 package collector
 
 import (
+	"strconv"
+
 	"github.com/onedr0p/exportarr/internal/arr/client"
 	"github.com/onedr0p/exportarr/internal/arr/config"
 	"github.com/onedr0p/exportarr/internal/arr/model"
@@ -77,7 +79,7 @@ func NewRadarrCollector(c *config.ArrConfig) *radarrCollector {
 		movieQualitiesMetric: prometheus.NewDesc(
 			"radarr_movie_quality_total",
 			"Total number of downloaded movies by quality",
-			[]string{"quality"},
+			[]string{"quality", "weight"},
 			prometheus.Labels{"url": c.URL},
 		),
 		movieTagsMetric: prometheus.NewDesc(
@@ -129,6 +131,7 @@ func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
 			Label  string
 			Movies int
 		}{}
+		qualityWeights = map[string]string{}
 	)
 
 	movies := model.Movie{}
@@ -186,6 +189,19 @@ func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
 		tags = append(tags, tag)
 	}
 
+	qualityDefs := model.Qualities{}
+	if err := c.DoRequest("qualitydefinition", &qualityDefs); err != nil {
+		log.Errorw("Error getting qualities",
+			"error", err)
+		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+		return
+	}
+	for _, q := range qualityDefs {
+		if q.Quality.Name != "" {
+			qualityWeights[q.Quality.Name] = strconv.Itoa(q.Weight)
+		}
+	}
+
 	ch <- prometheus.MustNewConstMetric(collector.movieEdition, prometheus.GaugeValue, float64(editions))
 	ch <- prometheus.MustNewConstMetric(collector.movieMetric, prometheus.GaugeValue, float64(len(movies)))
 	ch <- prometheus.MustNewConstMetric(collector.movieDownloadedMetric, prometheus.GaugeValue, float64(downloaded))
@@ -198,7 +214,7 @@ func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
 	if len(qualities) > 0 {
 		for qualityName, count := range qualities {
 			ch <- prometheus.MustNewConstMetric(collector.movieQualitiesMetric, prometheus.GaugeValue, float64(count),
-				qualityName,
+				qualityName, qualityWeights[qualityName],
 			)
 		}
 	}

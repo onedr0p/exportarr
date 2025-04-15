@@ -51,3 +51,20 @@ type SystemHealthMessage struct {
 	Message string `json:"message"`
 	WikiURL string `json:"wikiUrl"`
 }
+
+// Qualities - Stores struct of JSON response
+// https://wiki.servarr.com/en/sonarr/settings#quality-1
+type Qualities []struct {
+	ID             int     `json:"id"`
+	Title          string  `json:"title"`
+	Weight         int     `json:"weight"`
+	MinSize        float32 `json:"minSize"`
+	MaxSize        float32 `json:"maxSize"`
+	PrefferredSize float32 `json:"preferredSize"`
+	Quality        struct {
+		ID         int    `json:"id"`
+		Name       string `json:"name"`
+		Source     string `json:"source"`
+		Resolution int    `json:"resolution"`
+	}
+}
