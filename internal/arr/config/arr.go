@@ -74,8 +74,8 @@ func LoadArrConfig(conf base_config.Config, flags *flag.FlagSet) (*ArrConfig, er
 	// Environment
 	err = k.Load(env.Provider("", ".", func(s string) string {
 		s = strings.ToLower(s)
-		s = strings.Replace(s, "__", ".", -1)
-		s = strings.Replace(s, "_", "-", -1)
+		s = strings.ReplaceAll(s, "__", ".")
+		s = strings.ReplaceAll(s, "_", "-")
 		return backwardsCompatibilityTransforms(s)
 	}), nil)
 	if err != nil {

@@ -149,7 +149,7 @@ func (q *QueueStats) UnmarshalJSON(data []byte) error {
 	q.TimeEstimate, err = parseDuration(queue["timeleft"], err)
 
 	if err != nil {
-		return fmt.Errorf("Error parsing queue stats: %w", err)
+		return fmt.Errorf("error parsing queue stats: %w", err)
 	}
 
 	q.DownloadDirDiskspaceTotal *= GB
@@ -193,7 +193,7 @@ func parseFloat(s interface{}, prevErr error) (float64, error) {
 
 	f, ok := s.(string)
 	if !ok {
-		return 0, fmt.Errorf("Invalid float: %v", s)
+		return 0, fmt.Errorf("invalid float: %v", s)
 	}
 
 	if f == "" {
@@ -220,7 +220,7 @@ func parseSize(s interface{}, prevErr error) (float64, error) {
 
 	sz, ok := s.(string)
 	if !ok {
-		return 0, fmt.Errorf("Invalid float: %v", s)
+		return 0, fmt.Errorf("invalid float: %v", s)
 	}
 
 	fields := strings.Fields(strings.TrimSpace(sz))
@@ -229,7 +229,7 @@ func parseSize(s interface{}, prevErr error) (float64, error) {
 	}
 
 	if len(fields) > 2 {
-		return 0, fmt.Errorf("Invalid size: %s", sz)
+		return 0, fmt.Errorf("invalid size: %s", sz)
 	}
 
 	ret, err := strconv.ParseFloat(fields[0], 64)
@@ -255,7 +255,7 @@ func parseSize(s interface{}, prevErr error) (float64, error) {
 	case "PB", "P":
 		return ret * 1024 * 1024 * 1024 * 1024 * 1024, nil
 	default:
-		return 0, fmt.Errorf("Invalid size suffix: %s", sz)
+		return 0, fmt.Errorf("invalid size suffix: %s", sz)
 	}
 }
 
@@ -271,7 +271,7 @@ func parseDuration(sd interface{}, prevErr error) (time.Duration, error) {
 
 	s, ok := sd.(string)
 	if !ok {
-		return 0, fmt.Errorf("Invalid float: %v", sd)
+		return 0, fmt.Errorf("invalid float: %v", sd)
 	}
 
 	if s == "" {
@@ -280,7 +280,7 @@ func parseDuration(sd interface{}, prevErr error) (time.Duration, error) {
 
 	fields := strings.Split(strings.TrimSpace(s), ":")
 	if len(fields) < 1 || len(fields) > 4 {
-		return 0, fmt.Errorf("Invalid duration: %s", s)
+		return 0, fmt.Errorf("invalid duration: %s", s)
 	}
 
 	intFields := make([]int, len(fields))
@@ -290,7 +290,7 @@ func parseDuration(sd interface{}, prevErr error) (time.Duration, error) {
 		// Reverse the order of the fields
 		intFields[len(intFields)-1-i], err = strconv.Atoi(f)
 		if err != nil {
-			return 0, fmt.Errorf("Invalid integer in duration: %s: %w", f, err)
+			return 0, fmt.Errorf("invalid integer in duration: %s: %w", f, err)
 		}
 	}
 

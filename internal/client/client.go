@@ -25,7 +25,7 @@ func NewClient(baseURL string, insecureSkipVerify bool, auth Authenticator) (*Cl
 
 	u, err := url.Parse(baseURL)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to parse URL(%s): %w", baseURL, err)
+		return nil, fmt.Errorf("failed to parse URL(%s): %w", baseURL, err)
 	}
 
 	return &Client{
@@ -43,7 +43,7 @@ func (c *Client) unmarshalBody(b io.Reader, target interface{}) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			// return recovered panic as error
-			err = fmt.Errorf("Recovered from panic: %s", r)
+			err = fmt.Errorf("recovered from panic: %s", r)
 
 			log := zap.S()
 			if zap.S().Level() == zap.DebugLevel {
@@ -83,11 +83,11 @@ func (c *Client) DoRequest(endpoint string, target interface{}, queryParams ...Q
 
 	req, err := http.NewRequest("GET", url.String(), nil)
 	if err != nil {
-		return fmt.Errorf("Failed to create HTTP Request(%s): %w", url, err)
+		return fmt.Errorf("failed to create HTTP Request(%s): %w", url, err)
 	}
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("Failed to execute HTTP Request(%s): %w", url, err)
+		return fmt.Errorf("failed to execute HTTP Request(%s): %w", url, err)
 	}
 	defer resp.Body.Close()
 	return c.unmarshalBody(resp.Body, target)

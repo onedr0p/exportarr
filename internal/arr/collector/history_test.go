@@ -71,8 +71,8 @@ func TestHistoryCollect(t *testing.T) {
 			b, err := os.ReadFile(test_util.COMMON_FIXTURES_PATH + "expected_history_metrics.txt")
 			require.NoError(err)
 
-			expected := strings.Replace(string(b), "SOMEURL", ts.URL, -1)
-			expected = strings.Replace(expected, "APP", tt.config.App, -1)
+			expected := strings.ReplaceAll(string(b), "SOMEURL", ts.URL)
+			expected = strings.ReplaceAll(expected, "APP", tt.config.App)
 
 			f := strings.NewReader(expected)
 

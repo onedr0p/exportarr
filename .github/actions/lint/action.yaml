@@ -8,11 +8,10 @@ runs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: ">=1.19"
+        go-version: ">=1.23"
 
-    # Run golangcilint before `go get` is ran
-    # https://github.com/golangci/golangci-lint-action/issues/23
-    - uses: golangci/golangci-lint-action@v6
+    - name: Run golangci-lint
+      uses: golangci/golangci-lint-action@v7
       with:
-        version: v1.64.8
-        args: --timeout 5m --config .github/lint/golangci.yaml
+        version: v2
+        args: --timeout=5m --config=.github/lint/golangci.yaml

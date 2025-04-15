@@ -9,18 +9,17 @@ import (
 
 	"github.com/onedr0p/exportarr/internal/arr/config"
 	"github.com/onedr0p/exportarr/internal/client"
-	base_client "github.com/onedr0p/exportarr/internal/client"
 )
 
-type Client = base_client.Client
-type QueryParams = base_client.QueryParams
+type Client = client.Client
+type QueryParams = client.QueryParams
 
 func NewClient(config *config.ArrConfig) (*Client, error) {
 	auth, err := NewAuth(config)
 	if err != nil {
 		return nil, err
 	}
-	return base_client.NewClient(config.BaseURL(), config.DisableSSLVerify, auth)
+	return client.NewClient(config.BaseURL(), config.DisableSSLVerify, auth)
 }
 
 func NewAuth(config *config.ArrConfig) (client.Authenticator, error) {
@@ -97,7 +96,7 @@ func (a *FormAuth) Auth(req *http.Request) error {
 
 		authReq, err := http.NewRequest("POST", u.String(), strings.NewReader(form.Encode()))
 		if err != nil {
-			return fmt.Errorf("Failed to renew FormAuth Cookie: %w", err)
+			return fmt.Errorf("failed to renew FormAuth Cookie: %w", err)
 		}
 
 		authReq.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -105,18 +104,18 @@ func (a *FormAuth) Auth(req *http.Request) error {
 
 		client := &http.Client{Transport: a.Transport, CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			if req.URL.Query().Get("loginFailed") == "true" {
-				return fmt.Errorf("Failed to renew FormAuth Cookie: Login Failed")
+				return fmt.Errorf("failed to renew FormAuth Cookie: Login Failed")
 			}
 			return http.ErrUseLastResponse
 		}}
 
 		authResp, err := client.Do(authReq)
 		if err != nil {
-			return fmt.Errorf("Failed to renew FormAuth Cookie: %w", err)
+			return fmt.Errorf("failed to renew FormAuth Cookie: %w", err)
 		}
 
 		if authResp.StatusCode != 302 {
-			return fmt.Errorf("Failed to renew FormAuth Cookie: Received Status Code %d", authResp.StatusCode)
+			return fmt.Errorf("failed to renew FormAuth Cookie: Received Status Code %d", authResp.StatusCode)
 		}
 
 		found := false
@@ -129,7 +128,7 @@ func (a *FormAuth) Auth(req *http.Request) error {
 			}
 		}
 		if !found {
-			return fmt.Errorf("Failed to renew FormAuth Cookie: No Cookie with suffix 'arrAuth' found")
+			return fmt.Errorf("failed to renew FormAuth Cookie: No Cookie with suffix 'arrAuth' found")
 		}
 	}
 
