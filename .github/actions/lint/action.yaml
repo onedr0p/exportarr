@@ -13,5 +13,5 @@ runs:
     - name: Run golangci-lint
       uses: golangci/golangci-lint-action@v7
       with:
-        version: v2
+        version: v2.1
         args: --timeout=5m --config=.github/lint/golangci.yaml
