@@ -15,9 +15,9 @@ radarr_movie_missing_total{url="SOMEURL"} 2
 radarr_movie_monitored_total{url="SOMEURL"} 7
 # HELP radarr_movie_quality_total Total number of downloaded movies by quality
 # TYPE radarr_movie_quality_total gauge
-radarr_movie_quality_total{quality="Bluray-1080p",url="SOMEURL"} 1
-radarr_movie_quality_total{quality="Bluray-2160p",url="SOMEURL"} 2
-radarr_movie_quality_total{quality="Remux-2160p",url="SOMEURL"} 1
+radarr_movie_quality_total{quality="Bluray-1080p",url="SOMEURL",weight="5"} 1
+radarr_movie_quality_total{quality="Bluray-2160p",url="SOMEURL",weight="10"} 2
+radarr_movie_quality_total{quality="Remux-2160p",url="SOMEURL",weight="15"} 1
 # HELP radarr_movie_tag_total Total number of downloaded movies by tag
 # TYPE radarr_movie_tag_total gauge
 radarr_movie_tag_total{tag="somelabel",url="SOMEURL"} 3

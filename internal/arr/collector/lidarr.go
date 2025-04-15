@@ -2,6 +2,7 @@ package collector
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/onedr0p/exportarr/internal/arr/client"
 	"github.com/onedr0p/exportarr/internal/arr/config"
@@ -99,7 +100,7 @@ func NewLidarrCollector(c *config.ArrConfig) *lidarrCollector {
 		songsQualitiesMetric: prometheus.NewDesc(
 			"lidarr_songs_quality_total",
 			"Total number of downloaded songs by quality",
-			[]string{"quality"},
+			[]string{"quality", "weight"},
 			prometheus.Labels{"url": c.URL},
 		),
 		errorMetric: prometheus.NewDesc(
@@ -144,6 +145,7 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 		songs            = 0
 		songsDownloaded  = 0
 		songsQualities   = map[string]int{}
+		qualityWeights   = map[string]string{}
 	)
 
 	artists := model.Artist{}
@@ -197,6 +199,19 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 					albumGenres[genre]++
 				}
 			}
+
+			qualities := model.Qualities{}
+			if err := c.DoRequest("qualitydefinition", &qualities); err != nil {
+				log.Errorw("Error getting qualities",
+					"error", err)
+				ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+				return
+			}
+			for _, q := range qualities {
+				if q.Quality.Name != "" {
+					qualityWeights[q.Quality.Name] = strconv.Itoa(q.Weight)
+				}
+			}
 		}
 	}
 
@@ -226,7 +241,7 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 
 		if len(songsQualities) > 0 {
 			for qualityName, count := range songsQualities {
-				ch <- prometheus.MustNewConstMetric(collector.songsQualitiesMetric, prometheus.GaugeValue, float64(count), qualityName)
+				ch <- prometheus.MustNewConstMetric(collector.songsQualitiesMetric, prometheus.GaugeValue, float64(count), qualityName, qualityWeights[qualityName])
 			}
 		}
 

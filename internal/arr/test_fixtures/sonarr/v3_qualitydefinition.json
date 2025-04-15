@@ -1,0 +1,14 @@
+[
+  {
+    "quality": {
+      "name": "WEBRip-1080p"
+    },
+    "weight": 5
+  },
+  {
+    "quality": {
+      "name": "WEBDL-1080p"
+    },
+    "weight": 10
+  }
+]

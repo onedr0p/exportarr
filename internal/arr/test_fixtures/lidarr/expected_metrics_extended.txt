@@ -29,8 +29,8 @@ lidarr_artists_total{url="SOMEURL"} 2
 lidarr_songs_downloaded_total{url="SOMEURL"} 9
 # HELP lidarr_songs_quality_total Total number of downloaded songs by quality
 # TYPE lidarr_songs_quality_total gauge
-lidarr_songs_quality_total{quality="High",url="SOMEURL"} 2
-lidarr_songs_quality_total{quality="Medium",url="SOMEURL"} 2
+lidarr_songs_quality_total{quality="High",url="SOMEURL",weight="10"} 2
+lidarr_songs_quality_total{quality="Medium",url="SOMEURL",weight="5"} 2
 # HELP lidarr_songs_total Total number of songs
 # TYPE lidarr_songs_total gauge
 lidarr_songs_total{url="SOMEURL"} 13
