@@ -1,0 +1,36 @@
+# HELP lidarr_albums_genres_total Total number of albums by genre
+# TYPE lidarr_albums_genres_total gauge
+lidarr_albums_genres_total{genre="Prog",url="SOMEURL"} 2
+lidarr_albums_genres_total{genre="Rock",url="SOMEURL"} 2
+# HELP lidarr_albums_missing_total Total number of missing albums
+# TYPE lidarr_albums_missing_total gauge
+lidarr_albums_missing_total{url="SOMEURL"} 321
+# HELP lidarr_albums_monitored_total Total number of albums
+# TYPE lidarr_albums_monitored_total gauge
+lidarr_albums_monitored_total{url="SOMEURL"} 2
+# HELP lidarr_albums_total Total number of albums
+# TYPE lidarr_albums_total gauge
+lidarr_albums_total{url="SOMEURL"} 7
+# HELP lidarr_artists_filesize_bytes Total fizesize of all artists in bytes
+# TYPE lidarr_artists_filesize_bytes gauge
+lidarr_artists_filesize_bytes{url="SOMEURL"} 105
+# HELP lidarr_artists_genres_total Total number of artists by genre
+# TYPE lidarr_artists_genres_total gauge
+lidarr_artists_genres_total{genre="Prog",url="SOMEURL"} 1
+lidarr_artists_genres_total{genre="Rock",url="SOMEURL"} 1
+# HELP lidarr_artists_monitored_total Total number of monitored artists
+# TYPE lidarr_artists_monitored_total gauge
+lidarr_artists_monitored_total{url="SOMEURL"} 1
+# HELP lidarr_artists_total Total number of artists
+# TYPE lidarr_artists_total gauge
+lidarr_artists_total{url="SOMEURL"} 2
+# HELP lidarr_songs_downloaded_total Total number of downloaded songs
+# TYPE lidarr_songs_downloaded_total gauge
+lidarr_songs_downloaded_total{url="SOMEURL"} 9
+# HELP lidarr_songs_quality_total Total number of downloaded songs by quality
+# TYPE lidarr_songs_quality_total gauge
+lidarr_songs_quality_total{quality="High",url="SOMEURL"} 2
+lidarr_songs_quality_total{quality="Medium",url="SOMEURL"} 2
+# HELP lidarr_songs_total Total number of songs
+# TYPE lidarr_songs_total gauge
+lidarr_songs_total{url="SOMEURL"} 13
