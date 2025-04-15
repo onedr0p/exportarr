@@ -57,7 +57,7 @@ func TestCollect(t *testing.T) {
 	b, err := os.ReadFile("../test_fixtures/expected_metrics.txt")
 	require.NoError(err)
 
-	expected := strings.Replace(string(b), "http://127.0.0.1:39965", ts.URL, -1)
+	expected := strings.ReplaceAll(string(b), "http://127.0.0.1:39965", ts.URL)
 	f := strings.NewReader(expected)
 
 	require.NotPanics(func() {

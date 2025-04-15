@@ -51,9 +51,10 @@ func (collector *queueCollector) Collect(ch chan<- prometheus.Metric) {
 	params := client.QueryParams{}
 	params.Add("page", "1")
 	if collector.config.EnableUnknownQueueItems {
-		if collector.config.App == "sonarr" {
+		switch collector.config.App {
+		case "sonarr":
 			params.Add("includeUnknownSeriesItems", "true")
-		} else if collector.config.App == "radarr" {
+		case "radarr":
 			params.Add("includeUnknownMovieItems", "true")
 		}
 	}

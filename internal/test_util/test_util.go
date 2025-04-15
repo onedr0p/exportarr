@@ -17,7 +17,7 @@ func NewTestServer(t *testing.T, fixture_dir string, fn func(http.ResponseWriter
 		fn(w, r)
 		require.NotEmpty(t, r.URL.Path)
 		// turns /api/some/path into some_path
-		endpoint := strings.Replace(strings.Replace(r.URL.Path, "/api/", "", -1), "/", "_", -1)
+		endpoint := strings.ReplaceAll(strings.ReplaceAll(r.URL.Path, "/api/", ""), "/", "_")
 		w.WriteHeader(http.StatusOK)
 		// NOTE: this assumes there is a file that matches the some_path
 		json, err := os.ReadFile(filepath.Join(fixture_dir, endpoint+".json"))

@@ -27,7 +27,7 @@ func (s serverStatCache) Update(stat model.ServerStat) (ServerStats, error) {
 	if stat.DayParsed == "" && s.todayKey != "" {
 		// If the day parsed is empty, it means there are no server side stats.
 		// If we have exportarr stats, something likely went wrong,
-		return s, errors.New("No Parsed Dates from Server, but cache is not empty")
+		return s, errors.New("no Parsed Dates from Server, but cache is not empty")
 	}
 	s.total = stat.Total
 

@@ -176,7 +176,7 @@ func NewSabnzbdCollector(config *config.SabnzbdConfig) (*SabnzbdCollector, error
 	auther := auth.ApiKeyAuth{ApiKey: config.ApiKey}
 	client, err := client.NewClient(config.URL, config.DisableSSLVerify, auther)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to build client: %w", err)
+		return nil, fmt.Errorf("failed to build client: %w", err)
 	}
 
 	return &SabnzbdCollector{
@@ -197,7 +197,7 @@ func (s *SabnzbdCollector) getQueueStats() (*model.QueueStats, error) {
 
 	err := s.doRequest("queue", stats)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to get queue stats: %w", err)
+		return nil, fmt.Errorf("failed to get queue stats: %w", err)
 	}
 
 	return stats, nil
@@ -207,7 +207,7 @@ func (s *SabnzbdCollector) getServerStats() (*model.ServerStats, error) {
 	var stats = &model.ServerStats{}
 	err := s.doRequest("server_stats", stats)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to get server stats: %w", err)
+		return nil, fmt.Errorf("failed to get server stats: %w", err)
 	}
 	return stats, nil
 }

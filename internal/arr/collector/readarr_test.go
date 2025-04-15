@@ -40,7 +40,7 @@ func TestReadarrCollect(t *testing.T) {
 	b, err := os.ReadFile(readarr_test_fixtures_path + "expected_metrics.txt")
 	require.NoError(err)
 
-	expected := strings.Replace(string(b), "SOMEURL", ts.URL, -1)
+	expected := strings.ReplaceAll(string(b), "SOMEURL", ts.URL)
 	f := strings.NewReader(expected)
 
 	require.NotPanics(func() {

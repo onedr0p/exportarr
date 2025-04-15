@@ -25,10 +25,10 @@ func (b BazarrConfig) Validate() error {
 		return v.Errors
 	}
 	if b.SeriesBatchSize < 1 {
-		return fmt.Errorf("series-batch-size must be greater than zero.")
+		return fmt.Errorf("series-batch-size must be greater than zero")
 	}
 	if b.SeriesBatchConcurrency < 1 {
-		return fmt.Errorf("series-batch-concurrency must be greater than zero.")
+		return fmt.Errorf("series-batch-concurrency must be greater than zero")
 	}
 	return nil
 }
