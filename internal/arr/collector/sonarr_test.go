@@ -62,7 +62,7 @@ func TestSonarrCollect(t *testing.T) {
 			b, err := os.ReadFile(sonarr_test_fixtures_path + tt.expected_metrics_file)
 			require.NoError(err)
 
-			expected := strings.Replace(string(b), "SOMEURL", ts.URL, -1)
+			expected := strings.ReplaceAll(string(b), "SOMEURL", ts.URL)
 			f := strings.NewReader(expected)
 
 			require.NotPanics(func() {

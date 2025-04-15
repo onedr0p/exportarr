@@ -44,7 +44,7 @@ func TestBazarrCollect(t *testing.T) {
 	b, err := os.ReadFile(bazarr_test_fixtures_path + "expected_metrics.txt")
 	require.NoError(err)
 
-	expected := strings.Replace(string(b), "SOMEURL", ts.URL, -1)
+	expected := strings.ReplaceAll(string(b), "SOMEURL", ts.URL)
 	f := strings.NewReader(expected)
 	collections := []string{
 		"bazarr_episode_subtitles_downloaded_total",
@@ -97,17 +97,20 @@ func TestBazarrCollect_Concurrency(t *testing.T) {
 	require := require.New(t)
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		require.Contains(r.URL.Path, "/api/")
-		if r.URL.Path == "/api/series" {
+
+		switch r.URL.Path {
+		case "/api/series":
 			w.WriteHeader(http.StatusOK)
 			json, err := os.ReadFile(bazarr_test_fixtures_path + "concurrency/series.json")
 			require.NoError(err)
 			_, err = w.Write(json)
 			require.NoError(err)
-		} else if r.URL.Path == "/api/episodes" {
+
+		case "/api/episodes":
 			seriesIDs := r.URL.Query()["seriesid[]"]
 			require.Len(seriesIDs, 2)
+
 			if slices.Contains(seriesIDs, "944") && slices.Contains(seriesIDs, "945") {
 				w.WriteHeader(http.StatusOK)
 				json, err := os.ReadFile(bazarr_test_fixtures_path + "concurrency/episodes944_945.json")
@@ -123,7 +126,8 @@ func TestBazarrCollect_Concurrency(t *testing.T) {
 			} else {
 				w.WriteHeader(http.StatusInternalServerError)
 			}
-		} else {
+
+		default:
 			ts2, err := newTestBazarrServer(t, func(w http.ResponseWriter, r *http.Request) {
 				require.Contains(r.URL.Path, "/api/")
 			})
@@ -149,7 +153,7 @@ func TestBazarrCollect_Concurrency(t *testing.T) {
 	b, err := os.ReadFile(bazarr_test_fixtures_path + "concurrency/expected_metrics.txt")
 	require.NoError(err)
 
-	expected := strings.Replace(string(b), "SOMEURL", ts.URL, -1)
+	expected := strings.ReplaceAll(string(b), "SOMEURL", ts.URL)
 	f := strings.NewReader(expected)
 	collections := []string{
 		"bazarr_episode_subtitles_downloaded_total",

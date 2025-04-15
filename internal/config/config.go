@@ -57,8 +57,8 @@ func LoadConfig(flags *flag.FlagSet) (*Config, error) {
 	// Environment
 	err = k.Load(env.Provider("", ".", func(s string) string {
 		s = strings.ToLower(s)
-		s = strings.Replace(s, "__", ".", -1)
-		s = strings.Replace(s, "_", "-", -1)
+		s = strings.ReplaceAll(s, "__", ".")
+		s = strings.ReplaceAll(s, "_", "-")
 		return backwardsCompatibilityTransforms(s)
 	}), nil)
 	if err != nil {
@@ -75,11 +75,11 @@ func LoadConfig(flags *flag.FlagSet) (*Config, error) {
 	if apiKeyFile != "" {
 		data, err := os.ReadFile(apiKeyFile)
 		if err != nil {
-			return nil, fmt.Errorf("Couldn't Read API Key file %w", err)
+			return nil, fmt.Errorf("couldn't Read API Key file %w", err)
 		}
 
 		if err := k.Set("api-key", strings.TrimSpace(string(data))); err != nil {
-			return nil, fmt.Errorf("Couldn't merge api-key into config: %w", err)
+			return nil, fmt.Errorf("couldn't merge api-key into config: %w", err)
 		}
 	}
 
