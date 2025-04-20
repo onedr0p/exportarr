@@ -2,6 +2,7 @@ package collector
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/onedr0p/exportarr/internal/arr/client"
@@ -121,7 +122,7 @@ func NewSonarrCollector(conf *config.ArrConfig) *sonarrCollector {
 		episodeQualitiesMetric: prometheus.NewDesc(
 			"sonarr_episode_quality_total",
 			"Total number of downloaded episodes by quality",
-			[]string{"quality"},
+			[]string{"quality", "weight"},
 			prometheus.Labels{"url": conf.URL},
 		),
 		errorMetric: prometheus.NewDesc(
@@ -175,6 +176,7 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 		episodesMonitored   = 0
 		episodesUnmonitored = 0
 		episodesQualities   = map[string]int{}
+		qualityWeights      = map[string]string{}
 	)
 
 	cseries := []time.Duration{}
@@ -249,6 +251,20 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 					episodesUnmonitored++
 				}
 			}
+
+			qualities := model.Qualities{}
+			if err := c.DoRequest("qualitydefinition", &qualities); err != nil {
+				log.Errorw("Error getting qualities",
+					"error", err)
+				ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+				return
+			}
+			for _, q := range qualities {
+				if q.Quality.Name != "" {
+					qualityWeights[q.Quality.Name] = strconv.Itoa(q.Weight)
+				}
+			}
+
 			log.Debugw("Extra options completed",
 				"duration", time.Since(textra))
 		}
@@ -291,7 +307,7 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 		if len(episodesQualities) > 0 {
 			for qualityName, count := range episodesQualities {
 				ch <- prometheus.MustNewConstMetric(collector.episodeQualitiesMetric, prometheus.GaugeValue, float64(count),
-					qualityName,
+					qualityName, qualityWeights[qualityName],
 				)
 			}
 		}
