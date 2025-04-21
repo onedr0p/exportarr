@@ -1,3 +1,5 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+version: 2
 project_name: "exportarr"
 archives:
   - id: main
@@ -21,6 +23,7 @@ builds:
       - "linux"
       - "freebsd"
       - "openbsd"
+      - "windows"
     ignore:
       - goos: darwin
         goarch: arm
@@ -32,5 +35,7 @@ builds:
         goarch: arm64
       - goos: openbsd
         goarch: arm64
+      - goos: windows
+        goarch: arm
     env:
       - CGO_ENABLED=0
