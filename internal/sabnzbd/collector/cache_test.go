@@ -3,7 +3,7 @@ package collector
 import (
 	"testing"
 
-	"github.com/onedr0p/exportarr/internal/sabnzbd/model"
+	"github.com/shamelin/exportarr/internal/sabnzbd/model"
 	"github.com/stretchr/testify/require"
 )
 

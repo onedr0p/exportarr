@@ -7,8 +7,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/spf13/cobra"
 
-	"github.com/onedr0p/exportarr/internal/arr/collector"
-	"github.com/onedr0p/exportarr/internal/arr/config"
+	"github.com/shamelin/exportarr/internal/arr/collector"
+	"github.com/shamelin/exportarr/internal/arr/config"
 )
 
 func init() {

@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	base_client "github.com/onedr0p/exportarr/internal/client"
+	base_client "github.com/shamelin/exportarr/internal/client"
 
 	"github.com/stretchr/testify/require"
 )

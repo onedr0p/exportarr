@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/onedr0p/exportarr/internal/commands"
+	"github.com/shamelin/exportarr/internal/commands"
 )
 
 var (

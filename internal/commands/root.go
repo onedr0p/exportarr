@@ -15,8 +15,8 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/onedr0p/exportarr/internal/config"
-	"github.com/onedr0p/exportarr/internal/handlers"
+	"github.com/shamelin/exportarr/internal/config"
+	"github.com/shamelin/exportarr/internal/handlers"
 )
 
 var GRACEFUL_TIMEOUT = 5 * time.Second
@@ -29,7 +29,7 @@ var (
 		Short: "exportarr is a AIO Prometheus exporter for *arr applications",
 		Long: `exportarr is a Prometheus exporter for *arr applications.
 It can export metrics from Radarr, Sonarr, Lidarr, Readarr, Bazarr and Prowlarr.
-More information available at the Github Repo (https://github.com/onedr0p/exportarr)`,
+More information available at the Github Repo (https://github.com/shamelin/exportarr)`,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			conf.App = cmd.Name()
 		},

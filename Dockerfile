@@ -27,4 +27,4 @@ COPY --from=builder --chown=nonroot:nonroot /sbin/tini-static /tini
 ENTRYPOINT [ "/tini", "--", "/exportarr" ]
 LABEL \
     org.opencontainers.image.title="exportarr" \
-    org.opencontainers.image.source="https://github.com/onedr0p/exportarr"
+    org.opencontainers.image.source="https://github.com/shamelin/exportarr"

@@ -3,10 +3,10 @@ package collector
 import (
 	"fmt"
 
-	"github.com/onedr0p/exportarr/internal/arr/client"
-	"github.com/onedr0p/exportarr/internal/arr/config"
-	"github.com/onedr0p/exportarr/internal/arr/model"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/shamelin/exportarr/internal/arr/client"
+	"github.com/shamelin/exportarr/internal/arr/config"
+	"github.com/shamelin/exportarr/internal/arr/model"
 	"go.uber.org/zap"
 )
 

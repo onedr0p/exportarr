@@ -4,9 +4,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/onedr0p/exportarr/internal/arr/model"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
+	"github.com/shamelin/exportarr/internal/arr/model"
 	"github.com/stretchr/testify/require"
 )
 

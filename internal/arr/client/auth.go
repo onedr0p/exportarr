@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/onedr0p/exportarr/internal/arr/config"
-	"github.com/onedr0p/exportarr/internal/client"
+	"github.com/shamelin/exportarr/internal/arr/config"
+	"github.com/shamelin/exportarr/internal/client"
 )
 
 type Client = client.Client

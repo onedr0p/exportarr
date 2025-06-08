@@ -33,6 +33,8 @@ type Config struct {
 	URL              string `koanf:"url"`
 	ApiKey           string `koanf:"api-key"`
 	ApiKeyFile       string `koanf:"api-key-file"`
+	AuthUsername     string `koanf:"auth-username"`
+	AuthPassword     string `koanf:"auth-password"`
 	Port             int    `koanf:"port" validate:"required"`
 	Interface        string `koanf:"interface" validate:"required|ip"`
 	DisableSSLVerify bool   `koanf:"disable-ssl-verify"`
@@ -123,11 +125,17 @@ func (c Config) Translates() map[string]string {
 		"URL":              "url",
 		"ApiKey":           "api-key",
 		"ApiKeyFile":       "api-key-file",
+		"AuthUsername":     "auth-username",
+		"AuthPassword":     "auth-password",
 		"ApiVersion":       "api-version",
 		"Port":             "port",
 		"Interface":        "interface",
 		"DisableSSLVerify": "disable-ssl-verify",
 	}
+}
+
+func (c *Config) UseBasicAuth() bool {
+	return c.AuthUsername != "" && c.AuthPassword != ""
 }
 
 // Remove in v2.0.0

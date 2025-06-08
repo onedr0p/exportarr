@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/onedr0p/exportarr/internal/sabnzbd/config"
 	"github.com/prometheus/client_golang/prometheus/testutil"
+	"github.com/shamelin/exportarr/internal/sabnzbd/config"
 	"github.com/stretchr/testify/require"
 )
 

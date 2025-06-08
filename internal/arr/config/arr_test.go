@@ -3,7 +3,7 @@ package config
 import (
 	"testing"
 
-	base_config "github.com/onedr0p/exportarr/internal/config"
+	base_config "github.com/shamelin/exportarr/internal/config"
 	"github.com/spf13/pflag"
 	"github.com/stretchr/testify/require"
 )

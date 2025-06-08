@@ -3,8 +3,8 @@ package commands
 import (
 	"testing"
 
-	"github.com/onedr0p/exportarr/internal/arr/config"
-	base_config "github.com/onedr0p/exportarr/internal/config"
+	"github.com/shamelin/exportarr/internal/arr/config"
+	base_config "github.com/shamelin/exportarr/internal/config"
 	"github.com/spf13/pflag"
 	"github.com/stretchr/testify/require"
 )

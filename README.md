@@ -2,7 +2,7 @@
 
 AIO Prometheus Exporter for Sonarr, Radarr, Lidarr, Prowlarr, Readarr, Bazarr and Sabnzbd
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/onedr0p/exportarr)](https://goreportcard.com/report/github.com/onedr0p/exportarr)
+[![Go Report Card](https://goreportcard.com/badge/github.com/shamelin/exportarr)](https://goreportcard.com/report/github.com/shamelin/exportarr)
 
 Note: This exporter will not gather metrics from all apps at once. You will need an `exportarr` instance for each app. Be sure to see the examples below for more information.
 
@@ -30,7 +30,7 @@ docker run --name exportarr_$app \
   -e APIKEY="$apikey" \
   --restart unless-stopped \
   -p 9707:9707 \
-  -d ghcr.io/onedr0p/exportarr:latest $app
+  -d ghcr.io/shamelin/exportarr:latest $app
 ```
 
 Visit http://127.0.0.1:9707/metrics to see the app metrics

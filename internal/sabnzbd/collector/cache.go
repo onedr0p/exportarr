@@ -4,7 +4,7 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/onedr0p/exportarr/internal/sabnzbd/model"
+	"github.com/shamelin/exportarr/internal/sabnzbd/model"
 )
 
 type ServerStats interface {

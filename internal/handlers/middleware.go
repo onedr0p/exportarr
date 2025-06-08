@@ -2,12 +2,12 @@ package handlers
 
 import (
 	"fmt"
+	"github.com/shamelin/exportarr/internal/config"
 	"net/http"
 	"time"
 
 	"go.uber.org/zap"
 
-	"github.com/onedr0p/exportarr/internal/config"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )

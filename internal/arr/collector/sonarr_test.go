@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/onedr0p/exportarr/internal/arr/config"
-	"github.com/onedr0p/exportarr/internal/test_util"
 	"github.com/prometheus/client_golang/prometheus/testutil"
+	"github.com/shamelin/exportarr/internal/arr/config"
+	"github.com/shamelin/exportarr/internal/test_util"
 	"github.com/stretchr/testify/require"
 )
 

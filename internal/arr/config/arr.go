@@ -13,7 +13,7 @@ import (
 	"github.com/knadh/koanf/v2"
 	flag "github.com/spf13/pflag"
 
-	base_config "github.com/onedr0p/exportarr/internal/config"
+	base_config "github.com/shamelin/exportarr/internal/config"
 )
 
 func RegisterArrFlags(flags *flag.FlagSet) {

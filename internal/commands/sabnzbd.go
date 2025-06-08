@@ -1,9 +1,9 @@
 package commands
 
 import (
-	"github.com/onedr0p/exportarr/internal/sabnzbd/collector"
-	"github.com/onedr0p/exportarr/internal/sabnzbd/config"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/shamelin/exportarr/internal/sabnzbd/collector"
+	"github.com/shamelin/exportarr/internal/sabnzbd/config"
 	"github.com/spf13/cobra"
 )
 

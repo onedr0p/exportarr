@@ -2,15 +2,15 @@ package collector
 
 import (
 	"fmt"
+	"github.com/shamelin/exportarr/internal/sabnzbd/auth"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
 
-	"github.com/onedr0p/exportarr/internal/client"
-	"github.com/onedr0p/exportarr/internal/sabnzbd/auth"
-	"github.com/onedr0p/exportarr/internal/sabnzbd/config"
-	"github.com/onedr0p/exportarr/internal/sabnzbd/model"
+	"github.com/shamelin/exportarr/internal/client"
+	"github.com/shamelin/exportarr/internal/sabnzbd/config"
+	"github.com/shamelin/exportarr/internal/sabnzbd/model"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -173,8 +173,20 @@ type SabnzbdCollector struct {
 
 // TODO: Add a sab-specific config struct to abstract away the config parsing
 func NewSabnzbdCollector(config *config.SabnzbdConfig) (*SabnzbdCollector, error) {
-	auther := auth.ApiKeyAuth{ApiKey: config.ApiKey}
-	client, err := client.NewClient(config.URL, config.DisableSSLVerify, auther)
+	var authClient client.Authenticator
+	if config.AuthUsername != "" && config.AuthPassword != "" {
+		authClient = &auth.BasicAuth{
+			Username: config.AuthUsername,
+			Password: config.AuthPassword,
+			ApiKey:   config.ApiKey,
+		}
+	} else {
+		authClient = &auth.ApiKeyAuth{
+			ApiKey: config.ApiKey,
+		}
+	}
+
+	client, err := client.NewClient(config.URL, config.DisableSSLVerify, authClient)
 	if err != nil {
 		return nil, fmt.Errorf("failed to build client: %w", err)
 	}
