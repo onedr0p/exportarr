@@ -19,6 +19,7 @@ type radarrCollector struct {
 	movieUnmonitoredMetric *prometheus.Desc  // Total number of unmonitored movies
 	movieWantedMetric      *prometheus.Desc  // Total number of wanted movies
 	movieMissingMetric     *prometheus.Desc  // Total number of missing movies
+	movieCutoffUnmetMetric *prometheus.Desc  // Total number of movies with cutoff unmet
 	movieQualitiesMetric   *prometheus.Desc  // Total number of movies by quality
 	movieFileSizeMetric    *prometheus.Desc  // Total fizesize of all movies in bytes
 	errorMetric            *prometheus.Desc  // Error Description for use with InvalidMetric
@@ -70,6 +71,12 @@ func NewRadarrCollector(c *config.ArrConfig) *radarrCollector {
 			nil,
 			prometheus.Labels{"url": c.URL},
 		),
+		movieCutoffUnmetMetric: prometheus.NewDesc(
+			"radarr_movie_cutoff_unmet_total",
+			"Total number of movies wiht cutoff unmet",
+			nil,
+			prometheus.Labels{"url": c.URL},
+		),
 		movieFileSizeMetric: prometheus.NewDesc(
 			"radarr_movie_filesize_total",
 			"Total filesize of all movies",
@@ -105,6 +112,7 @@ func (collector *radarrCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.movieUnmonitoredMetric
 	ch <- collector.movieWantedMetric
 	ch <- collector.movieMissingMetric
+	ch <- collector.movieCutoffUnmetMetric
 	ch <- collector.movieFileSizeMetric
 	ch <- collector.movieQualitiesMetric
 	ch <- collector.movieTagsMetric
@@ -202,6 +210,17 @@ func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
 		}
 	}
 
+	moviesCutoffUnmet := model.CutoffUnmet{}
+	moviesCutoffUnmetParams := client.QueryParams{}
+	params.Add("sortKey", "airDateUtc")
+
+	if err := c.DoRequest("wanted/cutoff", &moviesCutoffUnmet, moviesCutoffUnmetParams); err != nil {
+		log.Errorw("Error getting cutoff unmet",
+			"error", err)
+		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+		return
+	}
+
 	ch <- prometheus.MustNewConstMetric(collector.movieEdition, prometheus.GaugeValue, float64(editions))
 	ch <- prometheus.MustNewConstMetric(collector.movieMetric, prometheus.GaugeValue, float64(len(movies)))
 	ch <- prometheus.MustNewConstMetric(collector.movieDownloadedMetric, prometheus.GaugeValue, float64(downloaded))
@@ -209,6 +228,7 @@ func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(collector.movieUnmonitoredMetric, prometheus.GaugeValue, float64(unmonitored))
 	ch <- prometheus.MustNewConstMetric(collector.movieWantedMetric, prometheus.GaugeValue, float64(wanted))
 	ch <- prometheus.MustNewConstMetric(collector.movieMissingMetric, prometheus.GaugeValue, float64(missing))
+	ch <- prometheus.MustNewConstMetric(collector.movieCutoffUnmetMetric, prometheus.GaugeValue, float64(moviesCutoffUnmet.TotalRecords))
 	ch <- prometheus.MustNewConstMetric(collector.movieFileSizeMetric, prometheus.GaugeValue, float64(fileSize))
 
 	if len(qualities) > 0 {
