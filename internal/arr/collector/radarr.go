@@ -210,7 +210,7 @@ func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
 		}
 	}
 
-	moviesCutoffUnmet := model.CutoffUnmet{}
+	moviesCutoffUnmet := model.CutoffUnmetMovies{}
 	moviesCutoffUnmetParams := client.QueryParams{}
 	params.Add("sortKey", "airDateUtc")
 
