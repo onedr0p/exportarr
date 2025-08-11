@@ -28,6 +28,7 @@ type sonarrCollector struct {
 	episodeUnmonitoredMetric *prometheus.Desc  // Total number of unmonitored episodes
 	episodeDownloadedMetric  *prometheus.Desc  // Total number of downloaded episodes
 	episodeMissingMetric     *prometheus.Desc  // Total number of missing episodes
+	episodeCutoffUnmetMetric *prometheus.Desc  // Total number of episodes with cutoff unmet
 	episodeQualitiesMetric   *prometheus.Desc  // Total number of episodes by quality
 	errorMetric              *prometheus.Desc  // Error Description for use with InvalidMetric
 }
@@ -119,6 +120,12 @@ func NewSonarrCollector(conf *config.ArrConfig) *sonarrCollector {
 			nil,
 			prometheus.Labels{"url": conf.URL},
 		),
+		episodeCutoffUnmetMetric: prometheus.NewDesc(
+			"sonarr_episode_cutoff_unmet_total",
+			"Total number of episodes with cutoff unmet",
+			nil,
+			prometheus.Labels{"url": conf.URL},
+		),
 		episodeQualitiesMetric: prometheus.NewDesc(
 			"sonarr_episode_quality_total",
 			"Total number of downloaded episodes by quality",
@@ -149,6 +156,7 @@ func (collector *sonarrCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.episodeUnmonitoredMetric
 	ch <- collector.episodeDownloadedMetric
 	ch <- collector.episodeMissingMetric
+	ch <- collector.episodeCutoffUnmetMetric
 	ch <- collector.episodeQualitiesMetric
 }
 
@@ -287,6 +295,16 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 		return
 	}
 
+	episodesCutoffUnmet := model.CutoffUnmet{}
+
+	// Cutoff unmet endpoint uses the same params as missing
+	if err := c.DoRequest("wanted/cutoff", &episodesCutoffUnmet, params); err != nil {
+		log.Errorw("Error getting cutoff unmet",
+			"error", err)
+		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+		return
+	}
+
 	ch <- prometheus.MustNewConstMetric(collector.seriesMetric, prometheus.GaugeValue, float64(len(series)))
 	ch <- prometheus.MustNewConstMetric(collector.seriesDownloadedMetric, prometheus.GaugeValue, float64(seriesDownloaded))
 	ch <- prometheus.MustNewConstMetric(collector.seriesMonitoredMetric, prometheus.GaugeValue, float64(seriesMonitored))
@@ -299,6 +317,7 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(collector.episodeMetric, prometheus.GaugeValue, float64(episodes))
 	ch <- prometheus.MustNewConstMetric(collector.episodeDownloadedMetric, prometheus.GaugeValue, float64(episodesDownloaded))
 	ch <- prometheus.MustNewConstMetric(collector.episodeMissingMetric, prometheus.GaugeValue, float64(episodesMissing.TotalRecords))
+	ch <- prometheus.MustNewConstMetric(collector.episodeCutoffUnmetMetric, prometheus.GaugeValue, float64(episodesCutoffUnmet.TotalRecords))
 
 	if collector.config.EnableAdditionalMetrics {
 		ch <- prometheus.MustNewConstMetric(collector.episodeMonitoredMetric, prometheus.GaugeValue, float64(episodesMonitored))

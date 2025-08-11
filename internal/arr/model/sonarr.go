@@ -42,6 +42,12 @@ type Missing struct {
 	TotalRecords int `json:"totalRecords"`
 }
 
+// CutoffUnmet - Stores struct of JSON response
+// https://sonarr.tv/docs/api/#/Cutoff/get_api_v3_wanted_cutoff
+type CutoffUnmet struct {
+	TotalRecords int `json:"totalRecords"`
+}
+
 // EpisodeFile - Stores struct of JSON response
 // https://github.com/Sonarr/Sonarr/wiki/EpisodeFile
 type EpisodeFile []struct {
