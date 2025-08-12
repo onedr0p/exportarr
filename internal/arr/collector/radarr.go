@@ -73,7 +73,7 @@ func NewRadarrCollector(c *config.ArrConfig) *radarrCollector {
 		),
 		movieCutoffUnmetMetric: prometheus.NewDesc(
 			"radarr_movie_cutoff_unmet_total",
-			"Total number of movies wiht cutoff unmet",
+			"Total number of movies with cutoff unmet",
 			nil,
 			prometheus.Labels{"url": c.URL},
 		),
