@@ -23,3 +23,9 @@ type TagMovies []struct {
 	Label    string `json:"label"`
 	MovieIds []int  `json:"movieIds"`
 }
+
+// CutoffUnmetMovies - Stores struct of JSON response
+// https://radarr.video/docs/api/#/Cutoff/get_api_v3_wanted_cutoff
+type CutoffUnmetMovies struct {
+	TotalRecords int `json:"totalRecords"`
+}
