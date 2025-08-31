@@ -1,5 +1,8 @@
 # Exportarr
 
+> [!IMPORTANT]
+> Exportarr is in maintenance mode, trying to collect metrics from these applications is not up to my standards — meaning gathering this data from the Sonarr, Radarr etc... APIs is not ideal. If these apps ever expose a stats API endpoint that can be use to collect data instead I might be willing on refactoring it to support pulling data from that instead.
+
 AIO Prometheus Exporter for Sonarr, Radarr, Lidarr, Prowlarr, Readarr, Bazarr and Sabnzbd
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/onedr0p/exportarr)](https://goreportcard.com/report/github.com/onedr0p/exportarr)
