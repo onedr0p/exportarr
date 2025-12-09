@@ -19,6 +19,7 @@ type sonarrCollector struct {
 	seriesMonitoredMetric    *prometheus.Desc  // Total number of monitored series
 	seriesUnmonitoredMetric  *prometheus.Desc  // Total number of unmonitored series
 	seriesFileSizeMetric     *prometheus.Desc  // Total fizesize of all series in bytes
+	seriesTagsMetric         *prometheus.Desc  // Total number of series by tag
 	seasonMetric             *prometheus.Desc  // Total number of seasons
 	seasonDownloadedMetric   *prometheus.Desc  // Total number of downloaded seasons
 	seasonMonitoredMetric    *prometheus.Desc  // Total number of monitored seasons
@@ -64,6 +65,12 @@ func NewSonarrCollector(conf *config.ArrConfig) *sonarrCollector {
 			"sonarr_series_filesize_bytes",
 			"Total fizesize of all series in bytes",
 			nil,
+			prometheus.Labels{"url": conf.URL},
+		),
+		seriesTagsMetric: prometheus.NewDesc(
+			"sonarr_series_tag_total",
+			"Total number of downloaded series by tag",
+			[]string{"tag"},
 			prometheus.Labels{"url": conf.URL},
 		),
 		seasonMetric: prometheus.NewDesc(
@@ -147,6 +154,7 @@ func (collector *sonarrCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.seriesMonitoredMetric
 	ch <- collector.seriesUnmonitoredMetric
 	ch <- collector.seriesFileSizeMetric
+	ch <- collector.seriesTagsMetric
 	ch <- collector.seasonMetric
 	ch <- collector.seasonDownloadedMetric
 	ch <- collector.seasonMonitoredMetric
@@ -305,11 +313,25 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 		return
 	}
 
+	// Get tag details for series
+	tagObjects := model.TagSeries{}
+	if err := c.DoRequest("tag/detail", &tagObjects); err != nil {
+		log.Errorw("Error getting tags",
+			"error", err)
+		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+		return
+	}
+
 	ch <- prometheus.MustNewConstMetric(collector.seriesMetric, prometheus.GaugeValue, float64(len(series)))
 	ch <- prometheus.MustNewConstMetric(collector.seriesDownloadedMetric, prometheus.GaugeValue, float64(seriesDownloaded))
 	ch <- prometheus.MustNewConstMetric(collector.seriesMonitoredMetric, prometheus.GaugeValue, float64(seriesMonitored))
 	ch <- prometheus.MustNewConstMetric(collector.seriesUnmonitoredMetric, prometheus.GaugeValue, float64(seriesUnmonitored))
 	ch <- prometheus.MustNewConstMetric(collector.seriesFileSizeMetric, prometheus.GaugeValue, float64(seriesFileSize))
+	for _, tag := range tagObjects {
+		ch <- prometheus.MustNewConstMetric(collector.seriesTagsMetric, prometheus.GaugeValue, float64(len(tag.SeriesIds)),
+			tag.Label,
+		)
+	}
 	ch <- prometheus.MustNewConstMetric(collector.seasonMetric, prometheus.GaugeValue, float64(seasons))
 	ch <- prometheus.MustNewConstMetric(collector.seasonDownloadedMetric, prometheus.GaugeValue, float64(seasonsDownloaded))
 	ch <- prometheus.MustNewConstMetric(collector.seasonMonitoredMetric, prometheus.GaugeValue, float64(seasonsMonitored))
