@@ -38,7 +38,7 @@ sonarr_series_downloaded_total{url="SOMEURL"} 5
 # HELP sonarr_series_filesize_bytes Total fizesize of all series in bytes
 # TYPE sonarr_series_filesize_bytes gauge
 sonarr_series_filesize_bytes{url="SOMEURL"} 7.91293980833e+11
-# HELP sonarr_series_tag_total Total number of series by tag
+# HELP sonarr_series_tag_total Total number of downloaded series by tag
 # TYPE sonarr_series_tag_total gauge
 sonarr_series_tag_total{tag="comedy",url="SOMEURL"} 3
 sonarr_series_tag_total{tag="drama",url="SOMEURL"} 2
