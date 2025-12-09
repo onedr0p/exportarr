@@ -1,0 +1,33 @@
+[
+  {
+    "label": "comedy",
+    "delayProfileIds": [],
+    "importListIds": [],
+    "notificationIds": [],
+    "restrictionIds": [],
+    "indexerIds": [],
+    "downloadClientIds": [],
+    "autoTagIds": [],
+    "seriesIds": [
+      37,
+      21,
+      46
+    ],
+    "id": 14
+  },
+  {
+    "label": "drama",
+    "delayProfileIds": [],
+    "importListIds": [],
+    "notificationIds": [],
+    "restrictionIds": [],
+    "indexerIds": [],
+    "downloadClientIds": [],
+    "autoTagIds": [],
+    "seriesIds": [
+      371,
+      464
+    ],
+    "id": 196
+  }
+]

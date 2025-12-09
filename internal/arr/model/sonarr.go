@@ -70,3 +70,11 @@ type Episode []struct {
 	HasFile   bool   `json:"hasFile"`
 	Monitored bool   `json:"monitored"`
 }
+
+// TagSeries - Stores struct of JSON response for tag details
+// https://sonarr.tv/docs/api/#/TagDetails/get_api_v3_tag_detail
+type TagSeries []struct {
+	ID        int    `json:"id"`
+	Label     string `json:"label"`
+	SeriesIds []int  `json:"seriesIds"`
+}
