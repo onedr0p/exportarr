@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"net/url"
+	"path/filepath"
 	"strings"
 
 	"github.com/gookit/validate"
@@ -87,12 +88,22 @@ func LoadArrConfig(conf base_config.Config, flags *flag.FlagSet) (*ArrConfig, er
 		return nil, err
 	}
 
-	// XMLConfig
-	xmlConfig := k.String("config")
-	if xmlConfig != "" {
-		err := k.Load(file.Provider(xmlConfig), XMLParser(), koanf.WithMergeFunc(XMLParser().Merge(conf.URL)))
-		if err != nil {
-			return nil, err
+	// Config file (XML for *arr apps, YAML for Bazarr)
+	configFile := k.String("config")
+	if configFile != "" {
+		ext := strings.ToLower(filepath.Ext(configFile))
+		switch ext {
+		case ".yaml", ".yml":
+			p := YAMLParser()
+			err := k.Load(file.Provider(configFile), p, koanf.WithMergeFunc(p.Merge(conf.URL)))
+			if err != nil {
+				return nil, err
+			}
+		default:
+			err := k.Load(file.Provider(configFile), XMLParser(), koanf.WithMergeFunc(XMLParser().Merge(conf.URL)))
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 

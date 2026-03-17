@@ -163,6 +163,50 @@ func TestLoadConfig_XMLConfig(t *testing.T) {
 	require.Equal("abcdef0123456789abcdef0123456789", config.ApiKey)
 }
 
+func TestLoadConfig_YAMLConfig(t *testing.T) {
+	flags := testFlagSet()
+	flags.Set("config", "test_fixtures/bazarr_config.yaml")
+	c := base_config.Config{
+		URL: "http://localhost",
+	}
+
+	config, err := LoadArrConfig(c, flags)
+
+	require := require.New(t)
+	require.NoError(err)
+	require.Equal("abcdef0123456789abcdef0123456789", config.ApiKey)
+	require.Equal("http://localhost", config.URL)
+}
+
+func TestLoadConfig_YMLConfig(t *testing.T) {
+	flags := testFlagSet()
+	flags.Set("config", "test_fixtures/bazarr_config.yaml")
+	c := base_config.Config{
+		URL: "http://localhost",
+	}
+
+	config, err := LoadArrConfig(c, flags)
+
+	require := require.New(t)
+	require.NoError(err)
+	require.Equal("abcdef0123456789abcdef0123456789", config.ApiKey)
+}
+
+func TestLoadConfig_YAMLConfigEnv(t *testing.T) {
+	flags := testFlagSet()
+	t.Setenv("CONFIG", "test_fixtures/bazarr_config.yaml")
+	c := base_config.Config{
+		URL: "http://localhost",
+	}
+
+	config, err := LoadArrConfig(c, flags)
+
+	require := require.New(t)
+	require.NoError(err)
+	require.Equal("abcdef0123456789abcdef0123456789", config.ApiKey)
+	require.Equal("http://localhost", config.URL)
+}
+
 func TestLoadConfig_XMLConfigEnv(t *testing.T) {
 	flags := testFlagSet()
 	t.Setenv("CONFIG", "test_fixtures/config.test_xml")
