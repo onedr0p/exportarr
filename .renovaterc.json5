@@ -1,11 +1,15 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
-  extends: [
-    "config:recommended"
+  extends: ["github>home-operations/renovate-config"],
+  postUpdateOptions: ["gomodTidy", "gomodUpdateImportPaths"],
+  packageRules: [
+    {
+      description: "Go Toolchain Group",
+      matchManagers: ["mise", "gomod"],
+      matchDepNames: ["go"],
+      matchFileNames: [".mise/config.toml", "go.mod"],
+      groupName: "Go toolchain",
+      groupSlug: "go-toolchain",
+    },
   ],
-  postUpdateOptions: [
-    "gomodTidy",
-    "gomodUpdateImportPaths"
-  ],
-  ignoreDeps: ["golang.org/x/exp"]
 }

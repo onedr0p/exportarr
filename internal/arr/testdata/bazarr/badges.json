@@ -1,0 +1,9 @@
+{
+  "episodes": 120,
+  "movies": 24,
+  "providers": 1,
+  "status": 0,
+  "sonarr_signalr": "",
+  "radarr_signalr": "LIVE",
+  "announcements": 0
+}

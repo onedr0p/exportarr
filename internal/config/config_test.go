@@ -1,10 +1,10 @@
 package config
 
 import (
+	"github.com/onedr0p/exportarr/internal/assert"
 	"testing"
 
 	"github.com/spf13/pflag"
-	"github.com/stretchr/testify/require"
 )
 
 func testFlagSet() *pflag.FlagSet {
@@ -13,43 +13,35 @@ func testFlagSet() *pflag.FlagSet {
 	return out
 }
 func TestLoadConfig_Defaults(t *testing.T) {
-	require := require.New(t)
 
 	config, err := LoadConfig(&pflag.FlagSet{})
-	require.NoError(err)
-	require.Equal("info", config.LogLevel)
-	require.Equal("console", config.LogFormat)
-	require.Equal(8081, config.Port)
-	require.Equal("0.0.0.0", config.Interface)
+	assert.NoError(t, err)
+	assert.Equal(t, config.LogLevel, "info")
+	assert.Equal(t, config.LogFormat, "console")
+	assert.Equal(t, config.Port, 8081)
+	assert.Equal(t, config.Interface, "0.0.0.0")
 }
 
 func TestLoadConfig_Flags(t *testing.T) {
 	flags := testFlagSet()
-	flags.Set("log-level", "debug")
-	flags.Set("url", "http://localhost:8989")
-	flags.Set("api-key", "abcdef0123456789abcdef0123456789")
-	flags.Set("port", "1234")
-	flags.Set("interface", "1.2.3.4")
-	flags.Set("disable-ssl-verify", "true")
-
-	require := require.New(t)
+	_ = flags.Set("log-level", "debug")
+	_ = flags.Set("url", "http://localhost:8989")
+	_ = flags.Set("api-key", "abcdef0123456789abcdef0123456789")
+	_ = flags.Set("port", "1234")
+	_ = flags.Set("interface", "1.2.3.4")
+	_ = flags.Set("disable-ssl-verify", "true")
 	config, err := LoadConfig(flags)
-	require.NoError(err)
+	assert.NoError(t, err)
 
-	require.Equal("debug", config.LogLevel)
-	require.Equal("http://localhost:8989", config.URL)
-	require.Equal("abcdef0123456789abcdef0123456789", config.ApiKey)
-	require.Equal(1234, config.Port)
-	require.Equal("1.2.3.4", config.Interface)
-	require.True(config.DisableSSLVerify)
-
-	flags.Set("form-auth", "false")
-	_, err = LoadConfig(flags)
-	require.NoError(err)
+	assert.Equal(t, config.LogLevel, "debug")
+	assert.Equal(t, config.URL, "http://localhost:8989")
+	assert.Equal(t, config.APIKey, "abcdef0123456789abcdef0123456789")
+	assert.Equal(t, config.Port, 1234)
+	assert.Equal(t, config.Interface, "1.2.3.4")
+	assert.True(t, config.DisableSSLVerify)
 }
 
 func TestLoadConfig_Environment(t *testing.T) {
-	require := require.New(t)
 
 	// Set environment variables
 	t.Setenv("URL", "http://localhost:8989")
@@ -59,101 +51,78 @@ func TestLoadConfig_Environment(t *testing.T) {
 	t.Setenv("DISABLE_SSL_VERIFY", "true")
 
 	config, err := LoadConfig(&pflag.FlagSet{})
-	require.NoError(err)
+	assert.NoError(t, err)
 
-	require.Equal("http://localhost:8989", config.URL)
-	require.Equal("abcdef0123456789abcdef0123456789", config.ApiKey)
-	require.Equal(1234, config.Port)
-	require.Equal("1.2.3.4", config.Interface)
-	require.True(config.DisableSSLVerify)
+	assert.Equal(t, config.URL, "http://localhost:8989")
+	assert.Equal(t, config.APIKey, "abcdef0123456789abcdef0123456789")
+	assert.Equal(t, config.Port, 1234)
+	assert.Equal(t, config.Interface, "1.2.3.4")
+	assert.True(t, config.DisableSSLVerify)
 }
 
 func TestLoadConfig_PartialEnvironment(t *testing.T) {
 	flags := testFlagSet()
-	flags.Set("url", "http://localhost:8989")
-	flags.Set("interface", "1.2.3.4")
+	_ = flags.Set("url", "http://localhost:8989")
+	_ = flags.Set("interface", "1.2.3.4")
 
 	t.Setenv("API_KEY", "abcdef0123456789abcdef0123456789")
 	t.Setenv("PORT", "1234")
-
-	require := require.New(t)
 	config, err := LoadConfig(flags)
-	require.NoError(err)
-
-	// Env
-	require.Equal("http://localhost:8989", config.URL)
-	require.Equal("1.2.3.4", config.Interface)
+	assert.NoError(t, err)
 
 	// Flags
-	require.Equal("abcdef0123456789abcdef0123456789", config.ApiKey)
-	require.Equal(1234, config.Port)
+	assert.Equal(t, config.URL, "http://localhost:8989")
+	assert.Equal(t, config.Interface, "1.2.3.4")
+
+	// Env
+	assert.Equal(t, config.APIKey, "abcdef0123456789abcdef0123456789")
+	assert.Equal(t, config.Port, 1234)
 
 	// Defaults
-	require.Equal("info", config.LogLevel)
-	require.Equal("console", config.LogFormat)
-}
-
-func TestLoadConfig_BackwardsCompatibility_ApiKeyFile(t *testing.T) {
-	require := require.New(t)
-
-	// Set environment variables
-	t.Setenv("URL", "http://localhost:8989")
-	t.Setenv("APIKEY_FILE", "./test_fixtures/api_key")
-	t.Setenv("PORT", "1234")
-	t.Setenv("BASIC_AUTH_USERNAME", "user")
-	t.Setenv("BASIC_AUTH_PASSWORD", "pass")
-
-	config, err := LoadConfig(&pflag.FlagSet{})
-	require.NoError(err)
-
-	require.Equal("abcdef0123456789abcdef0123456783", config.ApiKey)
-}
-
-func TestLoadConfig_BackwardsCompatibility_ApiKey(t *testing.T) {
-	require := require.New(t)
-
-	// Set environment variables
-	t.Setenv("URL", "http://localhost:8989")
-	t.Setenv("APIKEY", "abcdef0123456789abcdef0123456780")
-	t.Setenv("PORT", "1234")
-
-	config, err := LoadConfig(&pflag.FlagSet{})
-	require.NoError(err)
-
-	require.Equal("abcdef0123456789abcdef0123456780", config.ApiKey)
-}
-
-func TestLoadConfig_ApiKeyFile(t *testing.T) {
-	flags := testFlagSet()
-	flags.Set("api-key-file", "test_fixtures/api_key")
-
-	require := require.New(t)
-	config, err := LoadConfig(flags)
-	require.NoError(err)
-
-	require.Equal("abcdef0123456789abcdef0123456783", config.ApiKey)
+	assert.Equal(t, config.LogLevel, "info")
+	assert.Equal(t, config.LogFormat, "console")
 }
 
 func TestLoadConfig_OverrideOrder(t *testing.T) {
-
-	require := require.New(t)
 	flags := testFlagSet()
 
+	// Environment wins over defaults.
 	t.Setenv("API_KEY", "abcdef0123456789abcdef0123456781")
 	config, err := LoadConfig(flags)
-	require.NoError(err)
-	require.Equal("abcdef0123456789abcdef0123456781", config.ApiKey)
+	assert.NoError(t, err)
+	assert.Equal(t, config.APIKey, "abcdef0123456789abcdef0123456781")
 
-	flags.Set("api-key", "abcdef0123456789abcdef0123456780")
+	// Explicitly-set flags win over environment.
+	_ = flags.Set("api-key", "abcdef0123456789abcdef0123456780")
 
 	config, err = LoadConfig(flags)
-	require.NoError(err)
-	require.Equal("abcdef0123456789abcdef0123456780", config.ApiKey)
+	assert.NoError(t, err)
+	assert.Equal(t, config.APIKey, "abcdef0123456789abcdef0123456780")
+}
 
-	flags.Set("api-key-file", "test_fixtures/api_key")
-	config, err = LoadConfig(flags)
-	require.NoError(err)
-	require.Equal("abcdef0123456789abcdef0123456783", config.ApiKey)
+func TestLoadConfig_APIKeyFile(t *testing.T) {
+	t.Setenv("API_KEY_FILE", "testdata/api_key")
+
+	config, err := LoadConfig(&pflag.FlagSet{})
+	assert.NoError(t, err)
+	// The fixture ends with a newline, as mounted secrets do: it must be trimmed.
+	assert.Equal(t, config.APIKey, "abcdef0123456789abcdef0123456783")
+}
+
+func TestLoadConfig_APIKeyFile_WinsOverInlineKey(t *testing.T) {
+	t.Setenv("API_KEY_FILE", "testdata/api_key")
+	t.Setenv("API_KEY", "abcdef0123456789abcdef0123456780")
+
+	config, err := LoadConfig(&pflag.FlagSet{})
+	assert.NoError(t, err)
+	assert.Equal(t, config.APIKey, "abcdef0123456789abcdef0123456783")
+}
+
+func TestLoadConfig_APIKeyFileMissing(t *testing.T) {
+	t.Setenv("API_KEY_FILE", "testdata/does_not_exist")
+
+	_, err := LoadConfig(&pflag.FlagSet{})
+	assert.Error(t, err)
 }
 
 func TestValidate(t *testing.T) {
@@ -166,8 +135,9 @@ func TestValidate(t *testing.T) {
 			name: "good",
 			config: &Config{
 				LogLevel:  "debug",
+				LogFormat: "console",
 				URL:       "http://localhost",
-				ApiKey:    "abcdef0123456789abcdef0123456789",
+				APIKey:    "abcdef0123456789abcdef0123456789",
 				Port:      1234,
 				Interface: "0.0.0.0",
 			},
@@ -176,8 +146,9 @@ func TestValidate(t *testing.T) {
 			name: "missing-port",
 			config: &Config{
 				LogLevel:  "debug",
+				LogFormat: "console",
 				URL:       "http://localhost",
-				ApiKey:    "abcdef0123456789abcdef0123456789",
+				APIKey:    "abcdef0123456789abcdef0123456789",
 				Port:      0,
 				Interface: "0.0.0.0",
 			},
@@ -187,8 +158,9 @@ func TestValidate(t *testing.T) {
 			name: "bad-interface",
 			config: &Config{
 				LogLevel:  "debug",
+				LogFormat: "console",
 				URL:       "http://localhost",
-				ApiKey:    "abcdef0123456789abcdef0123456789",
+				APIKey:    "abcdef0123456789abcdef0123456789",
 				Port:      1234,
 				Interface: "0.0.0",
 			},
@@ -198,8 +170,21 @@ func TestValidate(t *testing.T) {
 			name: "bad-log-level",
 			config: &Config{
 				LogLevel:  "asdf",
+				LogFormat: "console",
 				URL:       "http://localhost",
-				ApiKey:    "abcdef0123456789abcdef0123456789",
+				APIKey:    "abcdef0123456789abcdef0123456789",
+				Port:      1234,
+				Interface: "0.0.0.0",
+			},
+			shouldError: true,
+		},
+		{
+			name: "bad-log-format",
+			config: &Config{
+				LogLevel:  "debug",
+				LogFormat: "yaml",
+				URL:       "http://localhost",
+				APIKey:    "abcdef0123456789abcdef0123456789",
 				Port:      1234,
 				Interface: "0.0.0.0",
 			},
@@ -209,13 +194,12 @@ func TestValidate(t *testing.T) {
 
 	for _, p := range parameters {
 		t.Run(p.name, func(t *testing.T) {
-			require := require.New(t)
 
 			err := p.config.Validate()
 			if p.shouldError {
-				require.Error(err)
+				assert.Error(t, err)
 			} else {
-				require.NoError(err)
+				assert.NoError(t, err)
 			}
 		})
 	}

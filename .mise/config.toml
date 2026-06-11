@@ -1,0 +1,29 @@
+[tools]
+go = "1.26.4"
+golangci-lint = "2.12.2"
+lefthook = "2.1.9"
+oxfmt = "0.53.0"
+zizmor = "1.25.2"
+
+[tasks.fmt]
+description = "Run go fmt against code"
+run = "go fmt ./..."
+
+[tasks.vet]
+description = "Run go vet against code"
+run = "go vet ./..."
+
+[tasks.test]
+description = "Run tests with coverage"
+run = "go test -race $(go list ./...) -coverprofile cover.out"
+
+[tasks.lint]
+description = "Run golangci-lint"
+run = "golangci-lint run"
+
+[tasks.lint-fix]
+description = "Run golangci-lint with --fix"
+run = "golangci-lint run --fix"
+
+[hooks]
+postinstall = "lefthook install"

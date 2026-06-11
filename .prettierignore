@@ -1,0 +1,6 @@
+*.toml
+CHANGELOG.md
+.release-please-manifest.json
+internal/arr/test_fixtures/
+internal/sabnzbd/test_fixtures/
+examples/grafana/

@@ -1,57 +1,50 @@
 package collector
 
 import (
-	"fmt"
+	"log/slog"
 
 	"github.com/onedr0p/exportarr/internal/arr/client"
 	"github.com/onedr0p/exportarr/internal/arr/config"
 	"github.com/onedr0p/exportarr/internal/arr/model"
 	"github.com/prometheus/client_golang/prometheus"
-	"go.uber.org/zap"
 )
 
 type historyCollector struct {
+	client        *client.Client
 	config        *config.ArrConfig // App configuration
 	historyMetric *prometheus.Desc  // Total number of history items
 	errorMetric   *prometheus.Desc  // Error Description for use with InvalidMetric
 }
 
-func NewHistoryCollector(c *config.ArrConfig) *historyCollector {
+// NewHistoryCollector builds a collector for the *arr history endpoint.
+func NewHistoryCollector(httpClient *client.Client, c *config.ArrConfig) prometheus.Collector {
 	return &historyCollector{
-		config: c,
-		historyMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_history_total", c.App),
-			"Total number of item in the history",
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		errorMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_history_collector_error", c.App),
-			"Error while collecting metrics",
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
+		client:        httpClient,
+		config:        c,
+		historyMetric: newDesc(c.App, "history_total", "Total number of item in the history", nil, c.URL),
+		errorMetric:   newDesc(c.App, "history_collector_error", "Error while collecting metrics", nil, c.URL),
 	}
 }
 
 func (collector *historyCollector) Describe(ch chan<- *prometheus.Desc) {
+	ch <- collector.errorMetric
 	ch <- collector.historyMetric
 }
 
 func (collector *historyCollector) Collect(ch chan<- prometheus.Metric) {
-	log := zap.S().With("collector", "history")
+	log := slog.With("collector", "history")
+	defer recoverCollect(log, ch, collector.errorMetric)
 	c, err := client.NewClient(collector.config)
 	if err != nil {
-		log.Errorw("Error creating client",
-			"error", err)
-		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+		emitError(log, ch, collector.errorMetric, "Error creating client", "error", err)
 		return
 	}
-	history := model.History{}
-	if err := c.DoRequest("history", &history); err != nil {
-		log.Errorw("Error getting history",
-			"error", err)
-		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+	// Only totalRecords is read: request the smallest page the API allows.
+	params := client.QueryParams{}
+	params.Add("pageSize", "1")
+	history, err := client.Get[model.History](c, "history", params)
+	if err != nil {
+		emitError(log, ch, collector.errorMetric, "Error getting history", "error", err)
 		return
 	}
 	ch <- prometheus.MustNewConstMetric(collector.historyMetric, prometheus.GaugeValue, float64(history.TotalRecords))

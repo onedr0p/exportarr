@@ -1,12 +1,13 @@
+// Package collector implements the SABnzbd Prometheus collector.
 package collector
 
 import (
-	"errors"
 	"sync"
 
 	"github.com/onedr0p/exportarr/internal/sabnzbd/model"
 )
 
+// ServerStats is a read-only view over accumulated per-server statistics.
 type ServerStats interface {
 	Update(stat model.ServerStat) (ServerStats, error)
 	GetTotal() int
@@ -25,9 +26,9 @@ type serverStatCache struct {
 
 func (s serverStatCache) Update(stat model.ServerStat) (ServerStats, error) {
 	if stat.DayParsed == "" && s.todayKey != "" {
-		// If the day parsed is empty, it means there are no server side stats.
-		// If we have exportarr stats, something likely went wrong,
-		return s, errors.New("no Parsed Dates from Server, but cache is not empty")
+		// SABnzbd's per-day stats disappeared (history reset server-side). Start
+		// accumulating again rather than failing every scrape until restart.
+		return serverStatCache{total: stat.Total}, nil
 	}
 	s.total = stat.Total
 
@@ -57,18 +58,22 @@ func (s serverStatCache) GetArticlesSuccess() int {
 	return s.articlesSuccessHistorical + s.articlesSuccessToday
 }
 
+// ServersStatsCache accumulates per-server statistics across scrapes so
+// counters survive SABnzbd's daily rollover.
 type ServersStatsCache struct {
 	lock    sync.RWMutex
 	Total   int
 	Servers map[string]serverStatCache
 }
 
+// NewServersStatsCache returns an empty ServersStatsCache.
 func NewServersStatsCache() *ServersStatsCache {
 	return &ServersStatsCache{
 		Servers: make(map[string]serverStatCache),
 	}
 }
 
+// Update folds a fresh ServerStats sample into the cache.
 func (c *ServersStatsCache) Update(stats model.ServerStats) error {
 	c.lock.Lock()
 	defer c.lock.Unlock()
@@ -90,6 +95,7 @@ func (c *ServersStatsCache) Update(stats model.ServerStats) error {
 	return nil
 }
 
+// GetTotal returns the total bytes downloaded across all servers.
 func (c *ServersStatsCache) GetTotal() int {
 	c.lock.RLock()
 	defer c.lock.RUnlock()
@@ -97,6 +103,7 @@ func (c *ServersStatsCache) GetTotal() int {
 	return c.Total
 }
 
+// GetServerMap returns a copy of the per-server statistics.
 func (c *ServersStatsCache) GetServerMap() map[string]ServerStats {
 	c.lock.RLock()
 	defer c.lock.RUnlock()

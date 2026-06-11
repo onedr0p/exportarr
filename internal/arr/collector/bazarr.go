@@ -1,7 +1,13 @@
+// Package collector implements the per-app *arr Prometheus collectors.
 package collector
 
 import (
 	"fmt"
+	"log/slog"
+	"maps"
+	"slices"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -9,7 +15,6 @@ import (
 	"github.com/onedr0p/exportarr/internal/arr/config"
 	"github.com/onedr0p/exportarr/internal/arr/model"
 	"github.com/prometheus/client_golang/prometheus"
-	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -36,6 +41,8 @@ func newStats() *stats {
 }
 
 type bazarrCollector struct {
+	collectMu                  sync.Mutex // Guards against overlapping collections (#380)
+	client                     *client.Client
 	config                     *config.ArrConfig // App configuration
 	subtitlesHistoryMetric     *prometheus.Desc  // Total number of subtitles history
 	subtitlesDownloadedMetric  *prometheus.Desc  // Total number of subtitles downloaded
@@ -65,196 +72,57 @@ type bazarrCollector struct {
 	subtitlesScoreMetric    *prometheus.Desc // Total number of subtitle by score
 	subtitlesProviderMetric *prometheus.Desc // Total number of subtitle by provider
 
-	systemHealthMetric *prometheus.Desc // Total number of health issues
-	systemStatusMetric *prometheus.Desc // Total number of system statuses
-	errorMetric        *prometheus.Desc // Error Description for use with InvalidMetric
+	systemHealthMetric       *prometheus.Desc // Total number of health issues
+	systemStatusMetric       *prometheus.Desc // Total number of system statuses
+	throttledProvidersMetric *prometheus.Desc // Number of throttled subtitle providers
+	signalrConnectedMetric   *prometheus.Desc // Upstream SignalR connection state
+	errorMetric              *prometheus.Desc // Error Description for use with InvalidMetric
 }
 
-func createIDBatches(ids []string, batchSize int) [][]string {
-	if len(ids) == 0 {
-		return [][]string{}
-	}
-	items := ids
-	ret := [][]string{}
-	for batchSize < len(items) {
-		ret = append(ret, items[0:batchSize:batchSize])
-		items = items[batchSize:]
-	}
-	return append(ret, items)
-}
-
-func NewBazarrCollector(c *config.ArrConfig) *bazarrCollector {
+// NewBazarrCollector builds a collector for bazarr subtitle statistics.
+func NewBazarrCollector(httpClient *client.Client, c *config.ArrConfig) prometheus.Collector {
 	subtitleText := "subtitles"
 	episodeText := "episode"
 	movieText := "movie"
 	return &bazarrCollector{
-		config: c,
-		subtitlesHistoryMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_%s_history_total", c.App, subtitleText),
-			fmt.Sprintf("Total number of history %s", subtitleText),
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		subtitlesDownloadedMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_%s_downloaded_total", c.App, subtitleText),
-			fmt.Sprintf("Total number of downloaded %s", subtitleText),
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		subtitlesMonitoredMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_%s_monitored_total", c.App, subtitleText),
-			fmt.Sprintf("Total number of monitored %s", subtitleText),
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		subtitlesUnmonitoredMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_%s_unmonitored_total", c.App, subtitleText),
-			fmt.Sprintf("Total number of unmonitored %s", subtitleText),
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		subtitlesWantedMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_%s_wanted_total", c.App, subtitleText),
-			fmt.Sprintf("Total number of wanted %s", subtitleText),
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		subtitlesMissingMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_%s_missing_total", c.App, subtitleText),
-			fmt.Sprintf("Total number of missing %s", subtitleText),
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		subtitlesFileSizeMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_%s_filesize_total", c.App, subtitleText),
-			fmt.Sprintf("Total filesize of all %s", subtitleText),
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		episodeSubtitlesHistoryMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_%s_%s_history_total", c.App, episodeText, subtitleText),
-			fmt.Sprintf("Total number of history %s %s", episodeText, subtitleText),
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		episodeSubtitlesDownloadedMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_%s_%s_downloaded_total", c.App, episodeText, subtitleText),
-			fmt.Sprintf("Total number of downloaded %s %s", episodeText, subtitleText),
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		episodeSubtitlesMonitoredMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_%s_%s_monitored_total", c.App, episodeText, subtitleText),
-			fmt.Sprintf("Total number of monitored %s %s", episodeText, subtitleText),
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		episodeSubtitlesUnmonitoredMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_%s_%s_unmonitored_total", c.App, episodeText, subtitleText),
-			fmt.Sprintf("Total number of unmonitored %s %s", episodeText, subtitleText),
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		episodeSubtitlesWantedMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_%s_%s_wanted_total", c.App, episodeText, subtitleText),
-			fmt.Sprintf("Total number of wanted %s %s", episodeText, subtitleText),
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		episodeSubtitlesMissingMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_%s_%s_missing_total", c.App, episodeText, subtitleText),
-			fmt.Sprintf("Total number of missing %s %s", episodeText, subtitleText),
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		episodeSubtitlesFileSizeMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_%s_%s_filesize_total", c.App, episodeText, subtitleText),
-			fmt.Sprintf("Total filesize of all %s %s", episodeText, subtitleText),
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		movieSubtitlesHistoryMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_%s_%s_history_total", c.App, movieText, subtitleText),
-			fmt.Sprintf("Total number of history %s %s", movieText, subtitleText),
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		movieSubtitlesDownloadedMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_%s_%s_downloaded_total", c.App, movieText, subtitleText),
-			fmt.Sprintf("Total number of downloaded %s %s", movieText, subtitleText),
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		movieSubtitlesMonitoredMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_%s_%s_monitored_total", c.App, movieText, subtitleText),
-			fmt.Sprintf("Total number of monitored %s %s", movieText, subtitleText),
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		movieSubtitlesUnmonitoredMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_%s_%s_unmonitored_total", c.App, movieText, subtitleText),
-			fmt.Sprintf("Total number of unmonitored %s %s", movieText, subtitleText),
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		movieSubtitlesWantedMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_%s_%s_wanted_total", c.App, movieText, subtitleText),
-			fmt.Sprintf("Total number of wanted %s %s", movieText, subtitleText),
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		movieSubtitlesMissingMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_%s_%s_missing_total", c.App, movieText, subtitleText),
-			fmt.Sprintf("Total number of missing %s %s", movieText, subtitleText),
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		movieSubtitlesFileSizeMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_%s_%s_filesize_total", c.App, movieText, subtitleText),
-			fmt.Sprintf("Total filesize of all %s %s", movieText, subtitleText),
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		subtitlesLanguageMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_%s_language_total", c.App, subtitleText),
-			fmt.Sprintf("Total number of downloaded %s by language", subtitleText),
-			[]string{"language"},
-			prometheus.Labels{"url": c.URL},
-		),
-		subtitlesScoreMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_%s_score_total", c.App, subtitleText),
-			fmt.Sprintf("Total number of downloaded %s by score", subtitleText),
-			[]string{"score"},
-			prometheus.Labels{"url": c.URL},
-		),
-		subtitlesProviderMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_%s_provider_total", c.App, subtitleText),
-			fmt.Sprintf("Total number of downloaded %s by provider", subtitleText),
-			[]string{"provider"},
-			prometheus.Labels{"url": c.URL},
-		),
-		systemHealthMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_system_health_issues", c.App),
-			"Total number of health issues by object and issue",
-			[]string{"object", "issue"},
-			prometheus.Labels{"url": c.URL},
-		),
-		systemStatusMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_system_status", c.App),
-			"System Status",
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		errorMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_collector_error", c.App),
-			"Error while collecting metrics",
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
+		client:                            httpClient,
+		config:                            c,
+		subtitlesHistoryMetric:            newDesc(c.App, fmt.Sprintf("%s_history_total", subtitleText), fmt.Sprintf("Total number of history %s", subtitleText), nil, c.URL),
+		subtitlesDownloadedMetric:         newDesc(c.App, fmt.Sprintf("%s_downloaded_total", subtitleText), fmt.Sprintf("Total number of downloaded %s", subtitleText), nil, c.URL),
+		subtitlesMonitoredMetric:          newDesc(c.App, fmt.Sprintf("%s_monitored_total", subtitleText), fmt.Sprintf("Total number of monitored %s", subtitleText), nil, c.URL),
+		subtitlesUnmonitoredMetric:        newDesc(c.App, fmt.Sprintf("%s_unmonitored_total", subtitleText), fmt.Sprintf("Total number of unmonitored %s", subtitleText), nil, c.URL),
+		subtitlesWantedMetric:             newDesc(c.App, fmt.Sprintf("%s_wanted_total", subtitleText), fmt.Sprintf("Total number of wanted %s", subtitleText), nil, c.URL),
+		subtitlesMissingMetric:            newDesc(c.App, fmt.Sprintf("%s_missing_total", subtitleText), fmt.Sprintf("Total number of missing %s", subtitleText), nil, c.URL),
+		subtitlesFileSizeMetric:           newDesc(c.App, fmt.Sprintf("%s_filesize_total", subtitleText), fmt.Sprintf("Total filesize of all %s", subtitleText), nil, c.URL),
+		episodeSubtitlesHistoryMetric:     newDesc(c.App, fmt.Sprintf("%s_%s_history_total", episodeText, subtitleText), fmt.Sprintf("Total number of history %s %s", episodeText, subtitleText), nil, c.URL),
+		episodeSubtitlesDownloadedMetric:  newDesc(c.App, fmt.Sprintf("%s_%s_downloaded_total", episodeText, subtitleText), fmt.Sprintf("Total number of downloaded %s %s", episodeText, subtitleText), nil, c.URL),
+		episodeSubtitlesMonitoredMetric:   newDesc(c.App, fmt.Sprintf("%s_%s_monitored_total", episodeText, subtitleText), fmt.Sprintf("Total number of monitored %s %s", episodeText, subtitleText), nil, c.URL),
+		episodeSubtitlesUnmonitoredMetric: newDesc(c.App, fmt.Sprintf("%s_%s_unmonitored_total", episodeText, subtitleText), fmt.Sprintf("Total number of unmonitored %s %s", episodeText, subtitleText), nil, c.URL),
+		episodeSubtitlesWantedMetric:      newDesc(c.App, fmt.Sprintf("%s_%s_wanted_total", episodeText, subtitleText), fmt.Sprintf("Total number of wanted %s %s", episodeText, subtitleText), nil, c.URL),
+		episodeSubtitlesMissingMetric:     newDesc(c.App, fmt.Sprintf("%s_%s_missing_total", episodeText, subtitleText), fmt.Sprintf("Total number of missing %s %s", episodeText, subtitleText), nil, c.URL),
+		episodeSubtitlesFileSizeMetric:    newDesc(c.App, fmt.Sprintf("%s_%s_filesize_total", episodeText, subtitleText), fmt.Sprintf("Total filesize of all %s %s", episodeText, subtitleText), nil, c.URL),
+		movieSubtitlesHistoryMetric:       newDesc(c.App, fmt.Sprintf("%s_%s_history_total", movieText, subtitleText), fmt.Sprintf("Total number of history %s %s", movieText, subtitleText), nil, c.URL),
+		movieSubtitlesDownloadedMetric:    newDesc(c.App, fmt.Sprintf("%s_%s_downloaded_total", movieText, subtitleText), fmt.Sprintf("Total number of downloaded %s %s", movieText, subtitleText), nil, c.URL),
+		movieSubtitlesMonitoredMetric:     newDesc(c.App, fmt.Sprintf("%s_%s_monitored_total", movieText, subtitleText), fmt.Sprintf("Total number of monitored %s %s", movieText, subtitleText), nil, c.URL),
+		movieSubtitlesUnmonitoredMetric:   newDesc(c.App, fmt.Sprintf("%s_%s_unmonitored_total", movieText, subtitleText), fmt.Sprintf("Total number of unmonitored %s %s", movieText, subtitleText), nil, c.URL),
+		movieSubtitlesWantedMetric:        newDesc(c.App, fmt.Sprintf("%s_%s_wanted_total", movieText, subtitleText), fmt.Sprintf("Total number of wanted %s %s", movieText, subtitleText), nil, c.URL),
+		movieSubtitlesMissingMetric:       newDesc(c.App, fmt.Sprintf("%s_%s_missing_total", movieText, subtitleText), fmt.Sprintf("Total number of missing %s %s", movieText, subtitleText), nil, c.URL),
+		movieSubtitlesFileSizeMetric:      newDesc(c.App, fmt.Sprintf("%s_%s_filesize_total", movieText, subtitleText), fmt.Sprintf("Total filesize of all %s %s", movieText, subtitleText), nil, c.URL),
+		subtitlesLanguageMetric:           newDesc(c.App, fmt.Sprintf("%s_language_total", subtitleText), fmt.Sprintf("Total number of downloaded %s by language", subtitleText), []string{"language"}, c.URL),
+		subtitlesScoreMetric:              newDesc(c.App, fmt.Sprintf("%s_score", subtitleText), fmt.Sprintf("Distribution of downloaded %s scores (percent)", subtitleText), nil, c.URL),
+		subtitlesProviderMetric:           newDesc(c.App, fmt.Sprintf("%s_provider_total", subtitleText), fmt.Sprintf("Total number of downloaded %s by provider", subtitleText), []string{"provider"}, c.URL),
+		systemHealthMetric:                newDesc(c.App, "system_health_issues", "Total number of health issues by object and issue", []string{"object", "issue"}, c.URL),
+		systemStatusMetric:                newDesc(c.App, "system_status", "System Status", nil, c.URL),
+		throttledProvidersMetric: newDesc(c.App, "throttled_providers",
+			"Number of currently throttled subtitle providers", nil, c.URL),
+		signalrConnectedMetric: newDesc(c.App, "signalr_connected",
+			"Whether bazarr's SignalR connection to the upstream app is live (1) or not (0)", []string{"app"}, c.URL),
+		errorMetric: newDesc(c.App, "collector_error", "Error while collecting metrics", nil, c.URL),
 	}
 }
 
 func (collector *bazarrCollector) Describe(ch chan<- *prometheus.Desc) {
+	ch <- collector.errorMetric
 	ch <- collector.subtitlesHistoryMetric
 	ch <- collector.subtitlesDownloadedMetric
 	ch <- collector.subtitlesMonitoredMetric
@@ -286,41 +154,79 @@ func (collector *bazarrCollector) Describe(ch chan<- *prometheus.Desc) {
 
 	ch <- collector.systemStatusMetric
 	ch <- collector.systemHealthMetric
+	ch <- collector.throttledProvidersMetric
+	ch <- collector.signalrConnectedMetric
 }
 
 func (collector *bazarrCollector) Collect(ch chan<- prometheus.Metric) {
-	log := zap.S().With("collector", "bazarr")
-	c, err := client.NewClient(collector.config)
-	if err != nil {
-		log.Errorw("Error creating client", "error", err)
-		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+	log := slog.With("collector", "bazarr")
+	defer recoverCollect(log, ch, collector.errorMetric)
+	// If a previous collection is still running (slow target, overlapping
+	// scrapes), skip this one instead of stacking more load onto the app —
+	// overlapping walks are how a slow instance ends up pinned at 100% CPU
+	// (https://github.com/onedr0p/exportarr/issues/380).
+	if !collector.collectMu.TryLock() {
+		log.Warn("previous collection still in progress; skipping this scrape")
+		ch <- prometheus.MustNewConstMetric(collector.errorMetric, prometheus.GaugeValue, 1)
 		return
 	}
+	defer collector.collectMu.Unlock()
+	c := collector.client
 	tseries := time.Now()
 
-	collector.EpisodeMovieMetrics(ch, c)
-	collector.SystemMetrics(ch, c)
-
-	mt := time.Since(tseries)
-	log.Debugw("All Completed", "duration", mt)
-}
-
-func (collector *bazarrCollector) EpisodeMovieMetrics(ch chan<- prometheus.Metric, c *client.Client) {
-
-	episodeStats := newStats()
-	if collector.config.EnableAdditionalMetrics {
-		episodeStats = collector.CollectEpisodeStats(ch, c)
-		if episodeStats == nil {
-			return
-		}
+	// Badges is one cheap call carrying the missing-episode count, throttled
+	// providers, and upstream connection state — fetch it first and share it
+	// (https://github.com/onedr0p/exportarr/issues/407).
+	var badges *model.BazarrBadges
+	if b, err := client.Get[model.BazarrBadges](c, "badges"); err != nil {
+		emitError(log, ch, collector.errorMetric, "Error getting badges", "error", err)
+	} else {
+		badges = &b
 	}
 
-	movieStats := collector.CollectMovieStats(ch, c)
-	if movieStats == nil {
+	// The subtitle walks and system endpoints are independent: overlap them.
+	var wg sync.WaitGroup
+	wg.Go(func() {
+		defer recoverCollect(log, ch, collector.errorMetric)
+		collector.episodeMovieMetrics(ch, c, badges)
+	})
+	wg.Go(func() {
+		defer recoverCollect(log, ch, collector.errorMetric)
+		collector.systemMetrics(ch, c, badges)
+	})
+	wg.Wait()
+
+	mt := time.Since(tseries)
+	log.Debug("All Completed", "duration", mt)
+}
+
+func (collector *bazarrCollector) episodeMovieMetrics(ch chan<- prometheus.Metric, c *client.Client, badges *model.BazarrBadges) {
+	// Episode and movie walks are independent: collect them concurrently.
+	episodeStats := newStats()
+	var movieStats *stats
+	var wg sync.WaitGroup
+	if !collector.config.DisableEpisodeMetrics {
+		wg.Go(func() {
+			defer recoverCollect(slog.With("collector", "bazarr"), ch, collector.errorMetric)
+			episodeStats = collector.collectEpisodeStats(ch, c)
+		})
+	} else if badges != nil {
+		// Without the per-episode walk, the badges endpoint still provides the
+		// missing-episode count for one cheap call — and keeps the combined
+		// totals honest (#407).
+		episodeStats.missing = badges.Episodes
+		ch <- prometheus.MustNewConstMetric(collector.episodeSubtitlesMissingMetric, prometheus.GaugeValue, float64(badges.Episodes))
+	}
+	wg.Go(func() {
+		defer recoverCollect(slog.With("collector", "bazarr"), ch, collector.errorMetric)
+		movieStats = collector.collectMovieStats(ch, c)
+	})
+	wg.Wait()
+	if episodeStats == nil || movieStats == nil {
 		return
 	}
 
-	if collector.config.EnableAdditionalMetrics {
+	if !collector.config.DisableEpisodeMetrics {
 		ch <- prometheus.MustNewConstMetric(collector.episodeSubtitlesHistoryMetric, prometheus.GaugeValue, float64(episodeStats.history))
 		ch <- prometheus.MustNewConstMetric(collector.episodeSubtitlesDownloadedMetric, prometheus.GaugeValue, float64(episodeStats.downloaded))
 		ch <- prometheus.MustNewConstMetric(collector.episodeSubtitlesMonitoredMetric, prometheus.GaugeValue, float64(episodeStats.monitored))
@@ -346,81 +252,84 @@ func (collector *bazarrCollector) EpisodeMovieMetrics(ch chan<- prometheus.Metri
 	ch <- prometheus.MustNewConstMetric(collector.subtitlesFileSizeMetric, prometheus.GaugeValue, float64(episodeStats.fileSize)+float64(movieStats.fileSize))
 	ch <- prometheus.MustNewConstMetric(collector.subtitlesHistoryMetric, prometheus.GaugeValue, float64(episodeStats.history)+float64(movieStats.history))
 
-	// just shove them into episode stats to avoid extra looping
-	if len(movieStats.languages) > 0 {
-		for languageName, count := range movieStats.languages {
-			episodeStats.languages[languageName] += count
+	// Merge movie counts into the episode maps, then emit one metric per label.
+	emitMergedCounts(ch, collector.subtitlesLanguageMetric, episodeStats.languages, movieStats.languages)
+	emitScoreHistogram(ch, collector.subtitlesScoreMetric, episodeStats.scores, movieStats.scores)
+	emitMergedCounts(ch, collector.subtitlesProviderMetric, episodeStats.providers, movieStats.providers)
+}
+
+// scoreBuckets are the inclusive upper bounds of the subtitle-score histogram;
+// subtitle scores cluster high, so resolution tightens toward 100%.
+var scoreBuckets = []float64{10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100}
+
+// emitScoreHistogram merges score counts and emits them as a histogram.
+// Scores are percentages with two decimals: as label values they would create
+// unbounded cardinality (https://github.com/onedr0p/exportarr/issues/239).
+func emitScoreHistogram(ch chan<- prometheus.Metric, desc *prometheus.Desc, dst, src map[string]int) {
+	for k, c := range src {
+		dst[k] += c
+	}
+	keys := slices.Sorted(maps.Keys(dst)) // deterministic float accumulation
+	var count uint64
+	var sum float64
+	buckets := make(map[float64]uint64, len(scoreBuckets))
+	for _, ub := range scoreBuckets {
+		buckets[ub] = 0 // emit every bucket, even when empty
+	}
+	for _, raw := range keys {
+		score, err := strconv.ParseFloat(strings.TrimSuffix(strings.TrimSpace(raw), "%"), 64)
+		if err != nil {
+			slog.Debug("Skipping unparseable subtitle score", "score", raw)
+			continue
+		}
+		n := uint64(dst[raw]) //nolint:gosec // history counts are small and non-negative
+		count += n
+		sum += score * float64(dst[raw])
+		for _, ub := range scoreBuckets {
+			if score <= ub {
+				buckets[ub] += n
+			}
 		}
 	}
+	ch <- prometheus.MustNewConstHistogram(desc, count, sum, buckets)
+}
 
-	if len(episodeStats.languages) > 0 {
-		for languageName, count := range episodeStats.languages {
-			ch <- prometheus.MustNewConstMetric(collector.subtitlesLanguageMetric, prometheus.GaugeValue, float64(count),
-				languageName,
-			)
-		}
+// emitMergedCounts merges src counts into dst, then emits dst as one gauge per
+// label value.
+func emitMergedCounts(ch chan<- prometheus.Metric, desc *prometheus.Desc, dst, src map[string]int) {
+	for k, count := range src {
+		dst[k] += count
 	}
-
-	// just shove them into episode stats to avoid extra looping
-	if len(movieStats.scores) > 0 {
-		for score, count := range movieStats.scores {
-			episodeStats.scores[score] += count
-		}
-	}
-
-	if len(episodeStats.scores) > 0 {
-		for score, count := range episodeStats.scores {
-			ch <- prometheus.MustNewConstMetric(collector.subtitlesScoreMetric, prometheus.GaugeValue, float64(count),
-				score,
-			)
-		}
-	}
-
-	// just shove them into episode stats to avoid extra looping
-	if len(movieStats.providers) > 0 {
-		for providerName, count := range movieStats.providers {
-			episodeStats.providers[providerName] += count
-		}
-	}
-
-	if len(episodeStats.providers) > 0 {
-		for providerName, count := range episodeStats.providers {
-			ch <- prometheus.MustNewConstMetric(collector.subtitlesProviderMetric, prometheus.GaugeValue, float64(count),
-				providerName,
-			)
-		}
+	for k, count := range dst {
+		ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, float64(count), k)
 	}
 }
 
-func (collector *bazarrCollector) CollectEpisodeStats(ch chan<- prometheus.Metric, c *client.Client) *stats {
-	log := zap.S().With("collector", "bazarr")
+func (collector *bazarrCollector) collectEpisodeStats(ch chan<- prometheus.Metric, c *client.Client) *stats {
+	log := slog.With("collector", "bazarr")
 	episodeStats := newStats()
 
 	mseries := time.Now()
 
-	series := model.BazarrSeries{}
-	if err := c.DoRequest("series", &series); err != nil {
-		log.Errorw("Error getting series",
-			"error", err)
-		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+	series, err := client.Get[model.BazarrSeries](c, "series")
+	if err != nil {
+		emitError(log, ch, collector.errorMetric, "Error getting series", "error", err)
 		return nil
 	}
 
 	ids := []string{}
 	for _, s := range series.Data {
-		ids = append(ids, fmt.Sprintf("%d", s.Id))
+		ids = append(ids, strconv.Itoa(s.ID))
 	}
-	batches := createIDBatches(ids, collector.config.Bazarr.SeriesBatchSize)
-
 	eg := errgroup.Group{}
-	sem := make(chan int, collector.config.Bazarr.SeriesBatchConcurrency) // limit concurrency via semaphore
-	for _, batch := range batches {
+	eg.SetLimit(collector.config.Bazarr.SeriesBatchConcurrency)
+	// slices.Chunk yields nothing for an empty id list, so an empty bazarr
+	// never hits the episodes endpoint (#244). max guards a zero batch size.
+	for batch := range slices.Chunk(ids, max(1, collector.config.Bazarr.SeriesBatchSize)) {
 		params := client.QueryParams{"seriesid[]": batch}
-		sem <- 1 //
-		eg.Go(func() error {
-			defer func() { <-sem }()
-			episodes := model.BazarrEpisodes{}
-			if err := c.DoRequest("episodes", &episodes, params); err != nil {
+		goRecoverable(&eg, func() error {
+			episodes, err := client.Get[model.BazarrEpisodes](c, "episodes", params)
+			if err != nil {
 				return err
 			}
 			episodeStats.mut.Lock()
@@ -459,51 +368,73 @@ func (collector *bazarrCollector) CollectEpisodeStats(ch chan<- prometheus.Metri
 			return nil
 		})
 	}
+	// Episode history is independent of the per-series walk: fetch it on the
+	// same group so the two overlap.
+	goRecoverable(&eg, func() error {
+		history, err := client.Get[model.BazarrHistory](c, "episodes/history")
+		if err != nil {
+			return fmt.Errorf("getting episodes history: %w", err)
+		}
+		episodeStats.mut.Lock()
+		defer episodeStats.mut.Unlock()
+		episodeStats.history = history.TotalRecords
+		for _, m := range history.Data {
+			if m.Score != "" {
+				episodeStats.scores[m.Score]++
+			}
+			if m.Provider != "" {
+				episodeStats.providers[m.Provider]++
+			}
+		}
+		return nil
+	})
+
 	if err := eg.Wait(); err != nil {
-		log.Errorw("Error getting episodes subtitles", "error", err)
-		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+		emitError(log, ch, collector.errorMetric, "Error getting episodes subtitles", "error", err)
 		return nil
-	}
-
-	history := model.BazarrHistory{}
-	if err := c.DoRequest("episodes/history", &history); err != nil {
-		log.Errorw("Error getting episodes history",
-			"error", err)
-		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
-		return nil
-	}
-	episodeStats.history = history.TotalRecords
-
-	for _, m := range history.Data {
-		if m.Score != "" {
-			episodeStats.scores[m.Score]++
-		}
-		if m.Provider != "" {
-			episodeStats.providers[m.Provider]++
-		}
 	}
 
 	et := time.Since(mseries)
-	log.Debugw("episode completed", "duration", et)
+	log.Debug("episode completed", "duration", et)
 
 	return episodeStats
 }
 
-func (collector *bazarrCollector) CollectMovieStats(ch chan<- prometheus.Metric, c *client.Client) *stats {
-	log := zap.S().With("collector", "bazarr")
+func (collector *bazarrCollector) collectMovieStats(ch chan<- prometheus.Metric, c *client.Client) *stats {
+	log := slog.With("collector", "bazarr")
 	mseries := time.Now()
 	movieStats := new(stats)
 	movieStats.languages = make(map[string]int)
 	movieStats.scores = make(map[string]int)
 	movieStats.providers = make(map[string]int)
 
-	movies := model.BazarrMovies{}
-	if err := c.DoRequest("movies", &movies); err != nil {
-		log.Errorw("Error getting subtitles", "error", err)
-		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+	eg := errgroup.Group{}
+	goRecoverable(&eg, func() error {
+		history, err := client.Get[model.BazarrHistory](c, "movies/history")
+		if err != nil {
+			return fmt.Errorf("getting movies history: %w", err)
+		}
+		movieStats.mut.Lock()
+		defer movieStats.mut.Unlock()
+		movieStats.history = history.TotalRecords
+		for _, m := range history.Data {
+			if m.Score != "" {
+				movieStats.scores[m.Score]++
+			}
+			if m.Provider != "" {
+				movieStats.providers[m.Provider]++
+			}
+		}
+		return nil
+	})
+
+	movies, err := client.Get[model.BazarrMovies](c, "movies")
+	if err != nil {
+		emitError(log, ch, collector.errorMetric, "Error getting subtitles", "error", err)
 		return nil
 	}
 
+	movieStats.mut.Lock()
 	for _, m := range movies.Data {
 		if !m.Monitored {
 			movieStats.unmonitored++
@@ -536,40 +467,27 @@ func (collector *bazarrCollector) CollectMovieStats(ch chan<- prometheus.Metric,
 		}
 	}
 
-	// Bazarr keeps separate histories for TV vs Movies, and therefore cannot leverage the shared HistoryCollector.
-	history := model.BazarrHistory{}
-	if err := c.DoRequest("movies/history", &history); err != nil {
-		log.Errorw("Error getting movies history",
-			"error", err)
-		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+	movieStats.mut.Unlock()
+
+	// Bazarr keeps separate histories for TV vs Movies, and therefore cannot
+	// leverage the shared HistoryCollector; it was fetched concurrently above.
+	if err := eg.Wait(); err != nil {
+		emitError(log, ch, collector.errorMetric, "Error getting movies history", "error", err)
 		return nil
 	}
 
-	movieStats.history = history.TotalRecords
-
-	for _, m := range history.Data {
-		if m.Score != "" {
-			movieStats.scores[m.Score]++
-		}
-		if m.Provider != "" {
-			movieStats.providers[m.Provider]++
-		}
-	}
-
 	mt := time.Since(mseries)
-	log.Debugw("Movies completed", "duration", mt)
+	log.Debug("Movies completed", "duration", mt)
 
 	return movieStats
 }
 
-func (collector *bazarrCollector) SystemMetrics(ch chan<- prometheus.Metric, c *client.Client) {
-	log := zap.S().With("collector", "bazarr")
+func (collector *bazarrCollector) systemMetrics(ch chan<- prometheus.Metric, c *client.Client, badges *model.BazarrBadges) {
+	log := slog.With("collector", "bazarr")
 
-	health := model.BazarrHealth{}
-	if err := c.DoRequest("system/health", &health); err != nil {
-		log.Errorw("Error getting movies history",
-			"error", err)
-		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+	health, err := client.Get[model.BazarrHealth](c, "system/health")
+	if err != nil {
+		emitError(log, ch, collector.errorMetric, "Error getting health", "error", err)
 		return
 	}
 
@@ -586,12 +504,27 @@ func (collector *bazarrCollector) SystemMetrics(ch chan<- prometheus.Metric, c *
 	}
 
 	// Bazarr uses it's own status format. and therefore cannot leverage the shared StatusCollector
-	systemStatus := model.BazarrStatus{}
-	if err := c.DoRequest("system/status", &systemStatus); err != nil {
+	if _, err := client.Get[model.BazarrStatus](c, "system/status"); err != nil {
 		ch <- prometheus.MustNewConstMetric(collector.systemStatusMetric, prometheus.GaugeValue, float64(0.0))
-		log.Errorw("Error getting system status", "error", err)
+		log.Error("Error getting system status", "error", err)
 	} else {
 		ch <- prometheus.MustNewConstMetric(collector.systemStatusMetric, prometheus.GaugeValue, float64(1.0))
 	}
 
+	// Badges were fetched once in Collect; a fetch failure already raised the
+	// error gauge there.
+	if badges == nil {
+		return
+	}
+	ch <- prometheus.MustNewConstMetric(collector.throttledProvidersMetric, prometheus.GaugeValue, float64(badges.Providers))
+	ch <- prometheus.MustNewConstMetric(collector.signalrConnectedMetric, prometheus.GaugeValue, boolToFloat(badges.SonarrSignalr == "LIVE"), "sonarr")
+	ch <- prometheus.MustNewConstMetric(collector.signalrConnectedMetric, prometheus.GaugeValue, boolToFloat(badges.RadarrSignalr == "LIVE"), "radarr")
+}
+
+// boolToFloat converts a bool to a 0/1 gauge value.
+func boolToFloat(b bool) float64 {
+	if b {
+		return 1
+	}
+	return 0
 }

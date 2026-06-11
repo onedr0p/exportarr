@@ -1,3 +1,4 @@
+// Package model contains parsed representations of SABnzbd API responses.
 package model
 
 import (
@@ -9,14 +10,17 @@ import (
 	"time"
 )
 
+// Status is SABnzbd's queue state.
 type Status int
 
+// Byte-size multipliers used to normalize SABnzbd's mixed units.
 const (
 	KB = 1024
 	MB = 1024 * KB
 	GB = 1024 * MB
 )
 
+// Queue states reported by SABnzbd.
 const (
 	UNKNOWN Status = iota
 	IDLE
@@ -24,6 +28,7 @@ const (
 	DOWNLOADING
 )
 
+// Float64 returns the status as a metric value.
 func (s Status) Float64() float64 {
 	return float64(s)
 }
@@ -40,6 +45,7 @@ func (s Status) String() string {
 	}
 }
 
+// StatusFromString parses SABnzbd's textual queue status.
 func StatusFromString(s string) Status {
 	switch s {
 	case "Idle":
@@ -53,11 +59,13 @@ func StatusFromString(s string) Status {
 	}
 }
 
+// ServerStats is the parsed response from the SABnzbd server_stats endpoint.
 type ServerStats struct {
 	Total   int                   `json:"total"` // Total Data Downloaded in bytes
 	Servers map[string]ServerStat `json:"servers"`
 }
 
+// ServerStat holds one news-server's download statistics.
 type ServerStat struct {
 	Total           int    // Total Data Downloaded in bytes
 	ArticlesTried   int    // Number of Articles Tried
@@ -65,6 +73,8 @@ type ServerStat struct {
 	DayParsed       string // Last Date Parsed
 }
 
+// UnmarshalJSON flattens SABnzbd's per-day article maps into the latest day's
+// values.
 func (s *ServerStat) UnmarshalJSON(data []byte) error {
 	var tmp struct {
 		Total           int            `json:"total"`            // Total Data Downloaded in bytes
@@ -84,7 +94,7 @@ func (s *ServerStat) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// QueueStatsResponse is the response from the sabnzbd queue endpoint
+// QueueStats is the parsed response from the sabnzbd queue endpoint.
 // Paused vs PausedAll -- as best I can tell, Paused is
 // "pause the queue but finish anything in flight"
 // PausedAll is "hard pause, including pausing in progress downloads"
@@ -113,8 +123,10 @@ type QueueStats struct {
 	TimeEstimate               time.Duration // Estimated time remaining to download queue
 }
 
+// UnmarshalJSON parses and unit-normalizes SABnzbd's stringly-typed queue
+// response.
 func (q *QueueStats) UnmarshalJSON(data []byte) error {
-	var v map[string]map[string]interface{}
+	var v map[string]map[string]any
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
@@ -182,7 +194,7 @@ func latestStat(m map[string]int) (string, int) {
 }
 
 // parseFloat is a monad version of strconv.ParseFloat
-func parseFloat(s interface{}, prevErr error) (float64, error) {
+func parseFloat(s any, prevErr error) (float64, error) {
 	if prevErr != nil {
 		return 0, prevErr
 	}
@@ -209,7 +221,7 @@ func parseFloat(s interface{}, prevErr error) (float64, error) {
 }
 
 // parseSize is a monad which parses a size string in the format of "123.45 KB" or "123.45"
-func parseSize(s interface{}, prevErr error) (float64, error) {
+func parseSize(s any, prevErr error) (float64, error) {
 	if prevErr != nil {
 		return 0, prevErr
 	}
@@ -260,7 +272,7 @@ func parseSize(s interface{}, prevErr error) (float64, error) {
 }
 
 // parseDuration is a monad which parses a duration string in the format of "HH:MM:SS" or "MM:SS"
-func parseDuration(sd interface{}, prevErr error) (time.Duration, error) {
+func parseDuration(sd any, prevErr error) (time.Duration, error) {
 	if prevErr != nil {
 		return 0, prevErr
 	}

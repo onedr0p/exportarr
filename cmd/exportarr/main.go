@@ -1,6 +1,9 @@
+// Command exportarr is an AIO Prometheus exporter for *arr applications.
 package main
 
 import (
+	"os"
+
 	"github.com/onedr0p/exportarr/internal/commands"
 )
 
@@ -19,6 +22,7 @@ func main() {
 		Revision:  revision,
 	})
 	if err != nil {
-		panic(err)
+		// cobra has already printed the error and usage.
+		os.Exit(1)
 	}
 }

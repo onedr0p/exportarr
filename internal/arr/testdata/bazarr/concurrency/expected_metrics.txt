@@ -1,0 +1,100 @@
+# HELP bazarr_episode_subtitles_downloaded_total Total number of downloaded episode subtitles
+# TYPE bazarr_episode_subtitles_downloaded_total gauge
+bazarr_episode_subtitles_downloaded_total{url="SOMEURL"} 13
+# HELP bazarr_episode_subtitles_filesize_total Total filesize of all episode subtitles
+# TYPE bazarr_episode_subtitles_filesize_total gauge
+bazarr_episode_subtitles_filesize_total{url="SOMEURL"} 1.039726e+06
+# HELP bazarr_episode_subtitles_history_total Total number of history episode subtitles
+# TYPE bazarr_episode_subtitles_history_total gauge
+bazarr_episode_subtitles_history_total{url="SOMEURL"} 71633
+# HELP bazarr_episode_subtitles_missing_total Total number of missing episode subtitles
+# TYPE bazarr_episode_subtitles_missing_total gauge
+bazarr_episode_subtitles_missing_total{url="SOMEURL"} 0
+# HELP bazarr_episode_subtitles_monitored_total Total number of monitored episode subtitles
+# TYPE bazarr_episode_subtitles_monitored_total gauge
+bazarr_episode_subtitles_monitored_total{url="SOMEURL"} 8
+# HELP bazarr_episode_subtitles_unmonitored_total Total number of unmonitored episode subtitles
+# TYPE bazarr_episode_subtitles_unmonitored_total gauge
+bazarr_episode_subtitles_unmonitored_total{url="SOMEURL"} 0
+# HELP bazarr_episode_subtitles_wanted_total Total number of wanted episode subtitles
+# TYPE bazarr_episode_subtitles_wanted_total gauge
+bazarr_episode_subtitles_wanted_total{url="SOMEURL"} 0
+# HELP bazarr_movie_subtitles_downloaded_total Total number of downloaded movie subtitles
+# TYPE bazarr_movie_subtitles_downloaded_total gauge
+bazarr_movie_subtitles_downloaded_total{url="SOMEURL"} 10
+# HELP bazarr_movie_subtitles_filesize_total Total filesize of all movie subtitles
+# TYPE bazarr_movie_subtitles_filesize_total gauge
+bazarr_movie_subtitles_filesize_total{url="SOMEURL"} 785627
+# HELP bazarr_movie_subtitles_history_total Total number of history movie subtitles
+# TYPE bazarr_movie_subtitles_history_total gauge
+bazarr_movie_subtitles_history_total{url="SOMEURL"} 3511
+# HELP bazarr_movie_subtitles_missing_total Total number of missing movie subtitles
+# TYPE bazarr_movie_subtitles_missing_total gauge
+bazarr_movie_subtitles_missing_total{url="SOMEURL"} 0
+# HELP bazarr_movie_subtitles_monitored_total Total number of monitored movie subtitles
+# TYPE bazarr_movie_subtitles_monitored_total gauge
+bazarr_movie_subtitles_monitored_total{url="SOMEURL"} 10
+# HELP bazarr_movie_subtitles_unmonitored_total Total number of unmonitored movie subtitles
+# TYPE bazarr_movie_subtitles_unmonitored_total gauge
+bazarr_movie_subtitles_unmonitored_total{url="SOMEURL"} 0
+# HELP bazarr_movie_subtitles_wanted_total Total number of wanted movie subtitles
+# TYPE bazarr_movie_subtitles_wanted_total gauge
+bazarr_movie_subtitles_wanted_total{url="SOMEURL"} 0
+# HELP bazarr_subtitles_downloaded_total Total number of downloaded subtitles
+# TYPE bazarr_subtitles_downloaded_total gauge
+bazarr_subtitles_downloaded_total{url="SOMEURL"} 23
+# HELP bazarr_subtitles_filesize_total Total filesize of all subtitles
+# TYPE bazarr_subtitles_filesize_total gauge
+bazarr_subtitles_filesize_total{url="SOMEURL"} 1.825353e+06
+# HELP bazarr_subtitles_history_total Total number of history subtitles
+# TYPE bazarr_subtitles_history_total gauge
+bazarr_subtitles_history_total{url="SOMEURL"} 75144
+# HELP bazarr_subtitles_language_total Total number of downloaded subtitles by language
+# TYPE bazarr_subtitles_language_total gauge
+bazarr_subtitles_language_total{language="English",url="SOMEURL"} 23
+# HELP bazarr_subtitles_missing_total Total number of missing subtitles
+# TYPE bazarr_subtitles_missing_total gauge
+bazarr_subtitles_missing_total{url="SOMEURL"} 0
+# HELP bazarr_subtitles_monitored_total Total number of monitored subtitles
+# TYPE bazarr_subtitles_monitored_total gauge
+bazarr_subtitles_monitored_total{url="SOMEURL"} 18
+# HELP bazarr_subtitles_provider_total Total number of downloaded subtitles by provider
+# TYPE bazarr_subtitles_provider_total gauge
+bazarr_subtitles_provider_total{provider="opensubtitlescom",url="SOMEURL"} 12
+bazarr_subtitles_provider_total{provider="podnapisi",url="SOMEURL"} 2
+bazarr_subtitles_provider_total{provider="yifysubtitles",url="SOMEURL"} 6
+# HELP bazarr_subtitles_score Distribution of downloaded subtitles scores (percent)
+# TYPE bazarr_subtitles_score histogram
+bazarr_subtitles_score_bucket{url="SOMEURL",le="10"} 0
+bazarr_subtitles_score_bucket{url="SOMEURL",le="20"} 0
+bazarr_subtitles_score_bucket{url="SOMEURL",le="30"} 0
+bazarr_subtitles_score_bucket{url="SOMEURL",le="40"} 0
+bazarr_subtitles_score_bucket{url="SOMEURL",le="50"} 0
+bazarr_subtitles_score_bucket{url="SOMEURL",le="60"} 0
+bazarr_subtitles_score_bucket{url="SOMEURL",le="70"} 0
+bazarr_subtitles_score_bucket{url="SOMEURL",le="80"} 2
+bazarr_subtitles_score_bucket{url="SOMEURL",le="90"} 9
+bazarr_subtitles_score_bucket{url="SOMEURL",le="95"} 16
+bazarr_subtitles_score_bucket{url="SOMEURL",le="100"} 20
+bazarr_subtitles_score_bucket{url="SOMEURL",le="+Inf"} 20
+bazarr_subtitles_score_sum{url="SOMEURL"} 1791.4
+bazarr_subtitles_score_count{url="SOMEURL"} 20
+# HELP bazarr_subtitles_unmonitored_total Total number of unmonitored subtitles
+# TYPE bazarr_subtitles_unmonitored_total gauge
+bazarr_subtitles_unmonitored_total{url="SOMEURL"} 0
+# HELP bazarr_subtitles_wanted_total Total number of wanted subtitles
+# TYPE bazarr_subtitles_wanted_total gauge
+bazarr_subtitles_wanted_total{url="SOMEURL"} 0
+# HELP bazarr_system_health_issues Total number of health issues by object and issue
+# TYPE bazarr_system_health_issues gauge
+bazarr_system_health_issues{issue="some/path",object="incorrectly configured!!!",url="SOMEURL"} 1
+# HELP bazarr_system_status System Status
+# TYPE bazarr_system_status gauge
+bazarr_system_status{url="SOMEURL"} 1
+# HELP bazarr_throttled_providers Number of currently throttled subtitle providers
+# TYPE bazarr_throttled_providers gauge
+bazarr_throttled_providers{url="SOMEURL"} 1
+# HELP bazarr_signalr_connected Whether bazarr's SignalR connection to the upstream app is live (1) or not (0)
+# TYPE bazarr_signalr_connected gauge
+bazarr_signalr_connected{app="radarr",url="SOMEURL"} 1
+bazarr_signalr_connected{app="sonarr",url="SOMEURL"} 0

@@ -3,11 +3,10 @@ package model
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/onedr0p/exportarr/internal/assert"
 	"os"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/require"
 )
 
 type TestServerStatsResponse struct {
@@ -22,61 +21,57 @@ type TestServerStatResponse struct {
 }
 
 func TestStatusToString(t *testing.T) {
-	require := require.New(t)
-	require.Equal("Downloading", DOWNLOADING.String())
-	require.Equal("Paused", PAUSED.String())
-	require.Equal("Idle", IDLE.String())
-	require.Equal("Unknown", Status(999).String())
+	assert.Equal(t, DOWNLOADING.String(), "Downloading")
+	assert.Equal(t, PAUSED.String(), "Paused")
+	assert.Equal(t, IDLE.String(), "Idle")
+	assert.Equal(t, Status(999).String(), "Unknown")
 }
 
 func TestStatusFromString(t *testing.T) {
-	require := require.New(t)
-	require.Equal(DOWNLOADING, StatusFromString("Downloading"))
-	require.Equal(PAUSED, StatusFromString("Paused"))
-	require.Equal(IDLE, StatusFromString("Idle"))
-	require.Equal(UNKNOWN, StatusFromString("Unknown"))
-	require.Equal(UNKNOWN, StatusFromString("Unknown"))
+	assert.Equal(t, StatusFromString("Downloading"), DOWNLOADING)
+	assert.Equal(t, StatusFromString("Paused"), PAUSED)
+	assert.Equal(t, StatusFromString("Idle"), IDLE)
+	assert.Equal(t, StatusFromString("Unknown"), UNKNOWN)
+	assert.Equal(t, StatusFromString("Unknown"), UNKNOWN)
 }
 
 func TestStatusToFloat(t *testing.T) {
-	require := require.New(t)
-	require.Equal(3.0, DOWNLOADING.Float64())
-	require.Equal(2.0, PAUSED.Float64())
-	require.Equal(1.0, IDLE.Float64())
-	require.Equal(0.0, UNKNOWN.Float64())
+	assert.Equal(t, DOWNLOADING.Float64(), 3.0)
+	assert.Equal(t, PAUSED.Float64(), 2.0)
+	assert.Equal(t, IDLE.Float64(), 1.0)
+	assert.Equal(t, UNKNOWN.Float64(), 0.0)
 }
 
 func TestQueueStats_UnmarshalJSON(t *testing.T) {
-	require := require.New(t)
-	queue, err := os.ReadFile("../test_fixtures/queue.json")
-	require.NoError(err)
+	queue, err := os.ReadFile("../testdata/queue.json")
+	assert.NoError(t, err)
 
 	var queueStats QueueStats
 	err = queueStats.UnmarshalJSON(queue)
-	require.NoError(err)
-	require.Equal("3.7.2", queueStats.Version)
-	require.False(queueStats.Paused)
-	require.False(queueStats.PausedAll)
-	require.Equal(time.Duration(0), queueStats.PauseDuration)
-	require.Equal(8.712770656665602e+12, queueStats.DownloadDirDiskspaceUsed)
-	require.Equal(4.6050639347712e+13, queueStats.DownloadDirDiskspaceTotal)
-	require.Equal(8.771826456985602e+12, queueStats.CompletedDirDiskspaceUsed)
-	require.Equal(4.6051713089536e+13, queueStats.CompletedDirDiskspaceTotal)
-	require.Equal(100.0, queueStats.SpeedLimit)
-	require.Equal(1.048576e+09, queueStats.SpeedLimitAbs)
-	require.Equal(0.0, queueStats.HaveWarnings)
-	require.Equal(1.07911053312e+12, queueStats.Quota)
-	require.True(queueStats.HaveQuota)
-	require.Equal(1.073741824e+12, queueStats.RemainingQuota)
-	require.Equal(0.0, queueStats.CacheArt)
-	require.Equal(0.0, queueStats.CacheSize)
-	require.Equal(358.4, queueStats.Speed)
-	require.Equal(3.21070825472e+09, queueStats.RemainingSize)
-	require.Equal(3.21175683072e+09, queueStats.Size)
-	require.Equal(2.0, queueStats.ItemsInQueue)
-	require.Equal(DOWNLOADING, queueStats.Status)
+	assert.NoError(t, err)
+	assert.Equal(t, queueStats.Version, "3.7.2")
+	assert.False(t, queueStats.Paused)
+	assert.False(t, queueStats.PausedAll)
+	assert.Equal(t, queueStats.PauseDuration, time.Duration(0))
+	assert.Equal(t, queueStats.DownloadDirDiskspaceUsed, 8.712770656665602e+12)
+	assert.Equal(t, queueStats.DownloadDirDiskspaceTotal, 4.6050639347712e+13)
+	assert.Equal(t, queueStats.CompletedDirDiskspaceUsed, 8.771826456985602e+12)
+	assert.Equal(t, queueStats.CompletedDirDiskspaceTotal, 4.6051713089536e+13)
+	assert.Equal(t, queueStats.SpeedLimit, 100.0)
+	assert.Equal(t, queueStats.SpeedLimitAbs, 1.048576e+09)
+	assert.Equal(t, queueStats.HaveWarnings, 0.0)
+	assert.Equal(t, queueStats.Quota, 1.07911053312e+12)
+	assert.True(t, queueStats.HaveQuota)
+	assert.Equal(t, queueStats.RemainingQuota, 1.073741824e+12)
+	assert.Equal(t, queueStats.CacheArt, 0.0)
+	assert.Equal(t, queueStats.CacheSize, 0.0)
+	assert.Equal(t, queueStats.Speed, 358.4)
+	assert.Equal(t, queueStats.RemainingSize, 3.21070825472e+09)
+	assert.Equal(t, queueStats.Size, 3.21175683072e+09)
+	assert.Equal(t, queueStats.ItemsInQueue, 2.0)
+	assert.Equal(t, queueStats.Status, DOWNLOADING)
 	d, _ := time.ParseDuration("2495h59m3s")
-	require.Equal(d, queueStats.TimeEstimate)
+	assert.Equal(t, queueStats.TimeEstimate, d)
 
 }
 
@@ -100,14 +95,12 @@ func TestQueueStats_ParseSize(t *testing.T) {
 		{"10.0 PB", 11258999068426240.0},
 	}
 
-	require := require.New(t)
-
 	for _, parameter := range parameters {
 		statsResponse := fmt.Sprintf(`{"queue": {"left_quota": "%s"}}`, parameter.input)
 		var stats QueueStats
 		err := json.Unmarshal([]byte(statsResponse), &stats)
-		require.NoError(err)
-		require.Equal(parameter.expected, stats.RemainingQuota)
+		assert.NoError(t, err)
+		assert.Equal(t, stats.RemainingQuota, parameter.expected)
 	}
 }
 
@@ -123,19 +116,16 @@ func TestQueueStatus_ParseDuration(t *testing.T) {
 		{"14:13:12:11", time.Duration(349)*time.Hour + time.Duration(12)*time.Minute + time.Duration(11)*time.Second},
 	}
 
-	require := require.New(t)
-
 	for _, parameter := range parameters {
 		var stats QueueStats
 		statsResponse := fmt.Sprintf(`{ "queue": {"timeleft": "%s"}}`, parameter.input)
 		err := json.Unmarshal([]byte(statsResponse), &stats)
-		require.NoError(err)
-		require.Equal(parameter.expected, stats.TimeEstimate)
+		assert.NoError(t, err)
+		assert.Equal(t, stats.TimeEstimate, parameter.expected)
 	}
 }
 
 func TestServerStats_UnmarshalJSON(t *testing.T) {
-	require := require.New(t)
 
 	statsResponse := TestServerStatsResponse{
 		Total: 123456789,
@@ -165,19 +155,19 @@ func TestServerStats_UnmarshalJSON(t *testing.T) {
 		},
 	}
 	b, err := json.Marshal(statsResponse)
-	require.NoError(err)
+	assert.NoError(t, err)
 
 	var stats ServerStats
 	err = json.Unmarshal(b, &stats)
-	require.NoError(err)
-	require.Equal(123456789, stats.Total)
-	require.Equal(2, len(stats.Servers))
-	require.Equal(234567890, stats.Servers["server1"].Total)
-	require.Equal(2, stats.Servers["server1"].ArticlesTried)
-	require.Equal(4, stats.Servers["server1"].ArticlesSuccess)
-	require.Equal("2020-01-02", stats.Servers["server1"].DayParsed)
-	require.Equal(345678901, stats.Servers["server2"].Total)
-	require.Equal(6, stats.Servers["server2"].ArticlesTried)
-	require.Equal(8, stats.Servers["server2"].ArticlesSuccess)
-	require.Equal("2020-01-02", stats.Servers["server2"].DayParsed)
+	assert.NoError(t, err)
+	assert.Equal(t, stats.Total, 123456789)
+	assert.Equal(t, len(stats.Servers), 2)
+	assert.Equal(t, stats.Servers["server1"].Total, 234567890)
+	assert.Equal(t, stats.Servers["server1"].ArticlesTried, 2)
+	assert.Equal(t, stats.Servers["server1"].ArticlesSuccess, 4)
+	assert.Equal(t, stats.Servers["server1"].DayParsed, "2020-01-02")
+	assert.Equal(t, stats.Servers["server2"].Total, 345678901)
+	assert.Equal(t, stats.Servers["server2"].ArticlesTried, 6)
+	assert.Equal(t, stats.Servers["server2"].ArticlesSuccess, 8)
+	assert.Equal(t, stats.Servers["server2"].DayParsed, "2020-01-02")
 }

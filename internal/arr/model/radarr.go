@@ -18,10 +18,11 @@ type Movie []struct {
 	QualityProfileID int `json:"qualityProfileId"`
 }
 
+// TagMovies is the response from radarr's tag/detail endpoint.
 type TagMovies []struct {
 	ID       int    `json:"id"`
 	Label    string `json:"label"`
-	MovieIds []int  `json:"movieIds"`
+	MovieIDs []int  `json:"movieIds"`
 }
 
 // CutoffUnmetMovies - Stores struct of JSON response

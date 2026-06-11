@@ -1,48 +1,51 @@
 package collector
 
 import (
+	"github.com/onedr0p/exportarr/internal/assert"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
 
+	client "github.com/onedr0p/exportarr/internal/arr/client"
 	"github.com/onedr0p/exportarr/internal/arr/config"
-	"github.com/onedr0p/exportarr/internal/test_util"
+	"github.com/onedr0p/exportarr/internal/fixtures"
 	"github.com/prometheus/client_golang/prometheus/testutil"
-	"github.com/stretchr/testify/require"
-	"golang.org/x/exp/slices"
+	"slices"
 )
 
-const bazarr_test_fixtures_path = "../test_fixtures/bazarr/"
+const bazarrTestFixturesPath = "../testdata/bazarr/"
 
 func newTestBazarrServer(t *testing.T, fn func(http.ResponseWriter, *http.Request)) (*httptest.Server, error) {
-	return test_util.NewTestServer(t, bazarr_test_fixtures_path, fn)
+	return fixtures.NewTestServer(t, bazarrTestFixturesPath, fn)
 }
 
 func TestBazarrCollect(t *testing.T) {
-	require := require.New(t)
-	ts, err := newTestBazarrServer(t, func(w http.ResponseWriter, r *http.Request) {
-		require.Contains(r.URL.Path, "/api/")
+	ts, err := newTestBazarrServer(t, func(_ http.ResponseWriter, r *http.Request) {
+		assert.Contains(t, r.URL.Path, "/api/")
 	})
-	require.NoError(err)
+	assert.NoError(t, err)
 
 	defer ts.Close()
 
 	config := &config.ArrConfig{
-		URL:    ts.URL,
-		App:    "bazarr",
-		ApiKey: test_util.API_KEY,
+		URL:                   ts.URL,
+		App:                   "bazarr",
+		APIKey:                fixtures.APIKey,
+		DisableEpisodeMetrics: true,
 		Bazarr: config.BazarrConfig{
 			SeriesBatchSize:        1,
 			SeriesBatchConcurrency: 1,
 		},
 	}
-	collector := NewBazarrCollector(config)
-	require.NoError(err)
+	cl, err := client.NewClient(config)
+	assert.NoError(t, err)
+	collector := NewBazarrCollector(cl, config)
+	assert.NoError(t, err)
 
-	b, err := os.ReadFile(bazarr_test_fixtures_path + "expected_metrics.txt")
-	require.NoError(err)
+	b, err := os.ReadFile(bazarrTestFixturesPath + "expected_metrics.txt")
+	assert.NoError(t, err)
 
 	expected := strings.ReplaceAll(string(b), "SOMEURL", ts.URL)
 	f := strings.NewReader(expected)
@@ -70,68 +73,70 @@ func TestBazarrCollect(t *testing.T) {
 		"bazarr_subtitles_missing_total",
 		"bazarr_subtitles_monitored_total",
 		"bazarr_subtitles_provider_total",
-		"bazarr_subtitles_score_total",
+		"bazarr_subtitles_score",
 		"bazarr_subtitles_unmonitored_total",
 		"bazarr_subtitles_wanted_total",
+		"bazarr_signalr_connected",
 		"bazarr_system_health_issues",
 		"bazarr_system_status",
+		"bazarr_throttled_providers",
 		"exportarr_app_info",
 	}
 
-	require.NotPanics(func() {
+	assert.NotPanics(t, func() {
 		err = testutil.CollectAndCompare(collector, f,
 			collections...,
 		)
 	})
-	require.NoError(err)
+	assert.NoError(t, err)
 
 	// TODO: can this become more magic?
 	totalLanguages := 1
-	totalScores := 15
+	totalScores := 1 // the score histogram gathers as a single metric
 	totalProviders := 3
 
-	require.GreaterOrEqual(len(collections)+totalLanguages+totalProviders+totalScores, testutil.CollectAndCount(collector))
+	// +1: bazarr_signalr_connected emits one series per upstream app.
+	assert.GreaterOrEqual(t, len(collections)+totalLanguages+totalProviders+totalScores+1, testutil.CollectAndCount(collector))
 }
 
 func TestBazarrCollect_Concurrency(t *testing.T) {
-	require := require.New(t)
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		require.Contains(r.URL.Path, "/api/")
+		assert.Contains(t, r.URL.Path, "/api/")
 
 		switch r.URL.Path {
 		case "/api/series":
 			w.WriteHeader(http.StatusOK)
-			json, err := os.ReadFile(bazarr_test_fixtures_path + "concurrency/series.json")
-			require.NoError(err)
+			json, err := os.ReadFile(bazarrTestFixturesPath + "concurrency/series.json")
+			assert.NoError(t, err)
 			_, err = w.Write(json)
-			require.NoError(err)
+			assert.NoError(t, err)
 
 		case "/api/episodes":
 			seriesIDs := r.URL.Query()["seriesid[]"]
-			require.Len(seriesIDs, 2)
+			assert.Len(t, seriesIDs, 2)
 
 			if slices.Contains(seriesIDs, "944") && slices.Contains(seriesIDs, "945") {
 				w.WriteHeader(http.StatusOK)
-				json, err := os.ReadFile(bazarr_test_fixtures_path + "concurrency/episodes944_945.json")
-				require.NoError(err)
+				json, err := os.ReadFile(bazarrTestFixturesPath + "concurrency/episodes944_945.json")
+				assert.NoError(t, err)
 				_, err = w.Write(json)
-				require.NoError(err)
+				assert.NoError(t, err)
 			} else if slices.Contains(seriesIDs, "946") && slices.Contains(seriesIDs, "947") {
 				w.WriteHeader(http.StatusOK)
-				json, err := os.ReadFile(bazarr_test_fixtures_path + "concurrency/episodes946_947.json")
-				require.NoError(err)
+				json, err := os.ReadFile(bazarrTestFixturesPath + "concurrency/episodes946_947.json")
+				assert.NoError(t, err)
 				_, err = w.Write(json)
-				require.NoError(err)
+				assert.NoError(t, err)
 			} else {
-				w.WriteHeader(http.StatusInternalServerError)
+				w.WriteHeader(http.StatusBadRequest)
 			}
 
 		default:
-			ts2, err := newTestBazarrServer(t, func(w http.ResponseWriter, r *http.Request) {
-				require.Contains(r.URL.Path, "/api/")
+			ts2, err := newTestBazarrServer(t, func(_ http.ResponseWriter, r *http.Request) {
+				assert.Contains(t, r.URL.Path, "/api/")
 			})
-			require.NoError(err)
+			assert.NoError(t, err)
 			ts2.Config.Handler.ServeHTTP(w, r)
 		}
 	}))
@@ -139,19 +144,20 @@ func TestBazarrCollect_Concurrency(t *testing.T) {
 	defer ts.Close()
 
 	config := &config.ArrConfig{
-		URL:                     ts.URL,
-		App:                     "bazarr",
-		ApiKey:                  test_util.API_KEY,
-		EnableAdditionalMetrics: true,
+		URL:    ts.URL,
+		App:    "bazarr",
+		APIKey: fixtures.APIKey,
 		Bazarr: config.BazarrConfig{
 			SeriesBatchSize:        2,
 			SeriesBatchConcurrency: 2,
 		},
 	}
-	collector := NewBazarrCollector(config)
+	cl, err := client.NewClient(config)
+	assert.NoError(t, err)
+	collector := NewBazarrCollector(cl, config)
 
-	b, err := os.ReadFile(bazarr_test_fixtures_path + "concurrency/expected_metrics.txt")
-	require.NoError(err)
+	b, err := os.ReadFile(bazarrTestFixturesPath + "concurrency/expected_metrics.txt")
+	assert.NoError(t, err)
 
 	expected := strings.ReplaceAll(string(b), "SOMEURL", ts.URL)
 	f := strings.NewReader(expected)
@@ -179,47 +185,133 @@ func TestBazarrCollect_Concurrency(t *testing.T) {
 		"bazarr_subtitles_missing_total",
 		"bazarr_subtitles_monitored_total",
 		"bazarr_subtitles_provider_total",
-		"bazarr_subtitles_score_total",
+		"bazarr_subtitles_score",
 		"bazarr_subtitles_unmonitored_total",
 		"bazarr_subtitles_wanted_total",
+		"bazarr_signalr_connected",
 		"bazarr_system_health_issues",
 		"bazarr_system_status",
+		"bazarr_throttled_providers",
 		"exportarr_app_info",
 	}
 
-	require.NotPanics(func() {
+	assert.NotPanics(t, func() {
 		err = testutil.CollectAndCompare(collector, f,
 			collections...,
 		)
 	})
-	require.NoError(err)
+	assert.NoError(t, err)
 
 	// TODO: can this become more magic?
 	totalLanguages := 1
-	totalScores := 15
+	totalScores := 1 // the score histogram gathers as a single metric
 	totalProviders := 3
 
-	require.GreaterOrEqual(len(collections)+totalLanguages+totalProviders+totalScores, testutil.CollectAndCount(collector))
+	// +1: bazarr_signalr_connected emits one series per upstream app.
+	assert.GreaterOrEqual(t, len(collections)+totalLanguages+totalProviders+totalScores+1, testutil.CollectAndCount(collector))
 }
 
 func TestBazarrCollect_FailureDoesntPanic(t *testing.T) {
-	require := require.New(t)
 
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusInternalServerError)
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusBadRequest)
 	}))
 	defer ts.Close()
 
 	config := &config.ArrConfig{
 		URL:    ts.URL,
-		ApiKey: test_util.API_KEY,
+		APIKey: fixtures.APIKey,
 	}
-	collector := NewBazarrCollector(config)
+	cl, err := client.NewClient(config)
+	assert.NoError(t, err)
+	collector := NewBazarrCollector(cl, config)
 
 	f := strings.NewReader("")
 
-	require.NotPanics(func() {
+	assert.NotPanics(t, func() {
 		err := testutil.CollectAndCompare(collector, f)
-		require.Error(err)
+		assert.Error(t, err)
 	}, "Collecting metrics should not panic on failure")
+}
+
+// TestBazarrCollect_SkipsOverlappingScrapes pins
+// https://github.com/onedr0p/exportarr/issues/380: while one collection is
+// still running against a slow instance, a second scrape must skip (emitting
+// only the error gauge) instead of stacking more load onto the app.
+func TestBazarrCollect_SkipsOverlappingScrapes(t *testing.T) {
+	release := make(chan struct{})
+	started := make(chan struct{}, 1)
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		select {
+		case started <- struct{}{}:
+		default:
+		}
+		<-release
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"data":[],"total":0}`))
+	}))
+	defer ts.Close()
+
+	config := &config.ArrConfig{
+		URL:    ts.URL,
+		App:    "bazarr",
+		APIKey: fixtures.APIKey,
+		Bazarr: config.BazarrConfig{
+			SeriesBatchSize:        1,
+			SeriesBatchConcurrency: 1,
+		},
+	}
+	cl, err := client.NewClient(config)
+	assert.NoError(t, err)
+	collector := NewBazarrCollector(cl, config)
+
+	done := make(chan int, 1)
+	go func() { done <- testutil.CollectAndCount(collector) }()
+	<-started // the first collection is now blocked inside the server
+
+	// The overlapping scrape must return immediately with just the error gauge.
+	assert.Equal(t, testutil.CollectAndCount(collector), 1)
+
+	close(release) // let the first collection finish
+	<-done
+}
+
+// TestBazarrCollect_NoSeries pins https://github.com/onedr0p/exportarr/issues/244:
+// a bazarr instance with no series must scrape cleanly — in particular the
+// episodes endpoint must never be called with an empty series list (bazarr
+// answers that with a 404).
+func TestBazarrCollect_NoSeries(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, "/api/episodes") && !strings.Contains(r.URL.Path, "history") {
+			t.Errorf("episodes endpoint must not be queried when there are no series")
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		switch {
+		case strings.HasSuffix(r.URL.Path, "/badges"):
+			_, _ = w.Write([]byte(`{"episodes":0,"providers":0,"sonarr_signalr":"LIVE","radarr_signalr":"LIVE"}`))
+		default:
+			_, _ = w.Write([]byte(`{"data":[],"total":0}`))
+		}
+	}))
+	defer ts.Close()
+
+	config := &config.ArrConfig{
+		URL:    ts.URL,
+		App:    "bazarr",
+		APIKey: fixtures.APIKey,
+		Bazarr: config.BazarrConfig{
+			SeriesBatchSize:        300,
+			SeriesBatchConcurrency: 10,
+		},
+	}
+	cl, err := client.NewClient(config)
+	assert.NoError(t, err)
+	collector := NewBazarrCollector(cl, config)
+
+	count := testutil.CollectAndCount(collector)
+	assert.GreaterOrEqual(t, count, 20, "an empty bazarr must still emit its metric families")
+	assert.Equal(t, testutil.CollectAndCount(collector, "bazarr_collector_error"), 0,
+		"an empty bazarr must not raise the error gauge")
 }

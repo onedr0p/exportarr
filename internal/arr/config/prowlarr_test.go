@@ -1,35 +1,31 @@
 package config
 
 import (
+	"github.com/onedr0p/exportarr/internal/assert"
 	"testing"
 	"time"
 
-	"github.com/knadh/koanf/v2"
 	"github.com/spf13/pflag"
-	"github.com/stretchr/testify/require"
 )
 
 func TestLoadProwlarrConfig(t *testing.T) {
 	flags := pflag.FlagSet{}
 	RegisterProwlarrFlags(&flags)
 
-	flags.Set("backfill", "true")
-	flags.Set("backfill-since-date", "2021-01-01")
+	_ = flags.Set("backfill", "true")
+	_ = flags.Set("backfill-since-date", "2021-01-01")
 	c := ArrConfig{
 		URL:              "http://localhost",
-		ApiKey:           "abcdef0123456789abcdef0123456789",
+		APIKey:           "abcdef0123456789abcdef0123456789",
 		DisableSSLVerify: true,
-		k:                koanf.New("."),
 	}
-	c.LoadProwlarrConfig(&flags)
-
-	require := require.New(t)
-	require.True(c.Prowlarr.Backfill)
-	require.Equal("2021-01-01", c.Prowlarr.BackfillSinceDate)
-	require.Equal("2021-01-01", c.Prowlarr.BackfillSinceTime.Format("2006-01-02"))
-	require.Equal("http://localhost", c.URL)
-	require.Equal("abcdef0123456789abcdef0123456789", c.ApiKey)
-	require.True(c.DisableSSLVerify)
+	_ = c.LoadProwlarrConfig(&flags)
+	assert.True(t, c.Prowlarr.Backfill)
+	assert.Equal(t, c.Prowlarr.BackfillSinceDate, "2021-01-01")
+	assert.Equal(t, c.Prowlarr.BackfillSinceTime.Format("2006-01-02"), "2021-01-01")
+	assert.Equal(t, c.URL, "http://localhost")
+	assert.Equal(t, c.APIKey, "abcdef0123456789abcdef0123456789")
+	assert.True(t, c.DisableSSLVerify)
 }
 
 func TestValidateProwlarr(t *testing.T) {
@@ -62,9 +58,9 @@ func TestValidateProwlarr(t *testing.T) {
 		t.Run(parameter.name, func(t *testing.T) {
 			err := parameter.config.Validate()
 			if parameter.shouldError {
-				require.Error(t, err)
+				assert.Error(t, err)
 			} else {
-				require.NoError(t, err)
+				assert.NoError(t, err)
 			}
 		})
 	}

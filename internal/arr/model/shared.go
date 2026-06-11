@@ -42,9 +42,18 @@ type History struct {
 	TotalRecords int `json:"totalRecords"`
 }
 
+// DiskSpace is the response from the shared diskspace endpoint.
+type DiskSpace []struct {
+	Path       string `json:"path"`
+	Label      string `json:"label"`
+	FreeSpace  int64  `json:"freeSpace"`
+	TotalSpace int64  `json:"totalSpace"`
+}
+
+// SystemHealth is the response from the shared health endpoint.
 type SystemHealth []SystemHealthMessage
 
-// SystemHealth - Stores struct of JSON response
+// SystemHealthMessage is one health issue reported by an *arr instance.
 type SystemHealthMessage struct {
 	Source  string `json:"source"`
 	Type    string `json:"type"`

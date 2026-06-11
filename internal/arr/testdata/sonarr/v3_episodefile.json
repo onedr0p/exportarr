@@ -1,0 +1,35 @@
+[
+  {
+    "size": 3542020991,
+    "quality": {
+      "quality": {
+        "id": 15,
+        "name": "WEBRip-1080p",
+        "source": "webRip",
+        "resolution": 1080
+      }
+    }
+  },
+  {
+    "size": 3525173623,
+    "quality": {
+      "quality": {
+        "id": 3,
+        "name": "WEBDL-1080p",
+        "source": "web",
+        "resolution": 1080
+      }
+    }
+  },
+  {
+    "size": 3525173625,
+    "quality": {
+      "quality": {
+        "id": 3,
+        "name": "WEBDL-1080p",
+        "source": "web",
+        "resolution": 1080
+      }
+    }
+  }
+]

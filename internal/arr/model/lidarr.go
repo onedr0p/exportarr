@@ -2,7 +2,7 @@ package model
 
 // Artist - Stores struct of JSON response
 type Artist []struct {
-	Id         int    `json:"id"`
+	ID         int    `json:"id"`
 	Status     string `json:"status"`
 	Ended      bool   `json:"ended"`
 	Monitored  bool   `json:"monitored"`
@@ -19,7 +19,7 @@ type Artist []struct {
 
 // Album - Stores struct of JSON response
 type Album []struct {
-	Id        int      `json:"id"`
+	ID        int      `json:"id"`
 	Monitored bool     `json:"monitored"`
 	Genres    []string `json:"genres"`
 	Duration  int      `json:"duration"`

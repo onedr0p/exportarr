@@ -7,7 +7,7 @@ package model
 // Series - Stores struct of JSON response
 // https://github.com/Sonarr/Sonarr/wiki/Series
 type Series []struct {
-	Id         int       `json:"id"`
+	ID         int       `json:"id"`
 	Monitored  bool      `json:"monitored"`
 	Seasons    []Seasons `json:"seasons"`
 	Statistics struct {
@@ -76,5 +76,5 @@ type Episode []struct {
 type TagSeries []struct {
 	ID        int    `json:"id"`
 	Label     string `json:"label"`
-	SeriesIds []int  `json:"seriesIds"`
+	SeriesIDs []int  `json:"seriesIds"`
 }

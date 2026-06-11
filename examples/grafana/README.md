@@ -8,7 +8,7 @@
 
 # Dashboard 2
 
-[Dashboard 2](./dashboard2.json) covers Prowlarr, Sabnzbd, Radarr, Sonarr, Lidarr, Readarr.
+[Dashboard 2](./dashboard2.json) covers Prowlarr, Sabnzbd, Radarr, Sonarr, Lidarr.
 
 ![image](../../.github/images/dashboard-2.png)
 

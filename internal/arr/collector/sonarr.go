@@ -2,17 +2,21 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/onedr0p/exportarr/internal/arr/client"
 	"github.com/onedr0p/exportarr/internal/arr/config"
 	"github.com/onedr0p/exportarr/internal/arr/model"
 	"github.com/prometheus/client_golang/prometheus"
-	"go.uber.org/zap"
+	"golang.org/x/sync/errgroup"
 )
 
 type sonarrCollector struct {
+	collectMu                sync.Mutex // Guards against overlapping collections (#380)
+	client                   *client.Client
 	config                   *config.ArrConfig // App configuration
 	seriesMetric             *prometheus.Desc  // Total number of series
 	seriesDownloadedMetric   *prometheus.Desc  // Total number of downloaded series
@@ -34,121 +38,34 @@ type sonarrCollector struct {
 	errorMetric              *prometheus.Desc  // Error Description for use with InvalidMetric
 }
 
-func NewSonarrCollector(conf *config.ArrConfig) *sonarrCollector {
+// NewSonarrCollector builds a collector for sonarr library statistics.
+func NewSonarrCollector(httpClient *client.Client, conf *config.ArrConfig) prometheus.Collector {
 	return &sonarrCollector{
-		config: conf,
-		seriesMetric: prometheus.NewDesc(
-			"sonarr_series_total",
-			"Total number of series",
-			nil,
-			prometheus.Labels{"url": conf.URL},
-		),
-		seriesDownloadedMetric: prometheus.NewDesc(
-			"sonarr_series_downloaded_total",
-			"Total number of downloaded series",
-			nil,
-			prometheus.Labels{"url": conf.URL},
-		),
-		seriesMonitoredMetric: prometheus.NewDesc(
-			"sonarr_series_monitored_total",
-			"Total number of monitored series",
-			nil,
-			prometheus.Labels{"url": conf.URL},
-		),
-		seriesUnmonitoredMetric: prometheus.NewDesc(
-			"sonarr_series_unmonitored_total",
-			"Total number of unmonitored series",
-			nil,
-			prometheus.Labels{"url": conf.URL},
-		),
-		seriesFileSizeMetric: prometheus.NewDesc(
-			"sonarr_series_filesize_bytes",
-			"Total fizesize of all series in bytes",
-			nil,
-			prometheus.Labels{"url": conf.URL},
-		),
-		seriesTagsMetric: prometheus.NewDesc(
-			"sonarr_series_tag_total",
-			"Total number of downloaded series by tag",
-			[]string{"tag"},
-			prometheus.Labels{"url": conf.URL},
-		),
-		seasonMetric: prometheus.NewDesc(
-			"sonarr_season_total",
-			"Total number of seasons",
-			nil,
-			prometheus.Labels{"url": conf.URL},
-		),
-		seasonDownloadedMetric: prometheus.NewDesc(
-			"sonarr_season_downloaded_total",
-			"Total number of downloaded seasons",
-			nil,
-			prometheus.Labels{"url": conf.URL},
-		),
-		seasonMonitoredMetric: prometheus.NewDesc(
-			"sonarr_season_monitored_total",
-			"Total number of monitored seasons",
-			nil,
-			prometheus.Labels{"url": conf.URL},
-		),
-		seasonUnmonitoredMetric: prometheus.NewDesc(
-			"sonarr_season_unmonitored_total",
-			"Total number of unmonitored seasons",
-			nil,
-			prometheus.Labels{"url": conf.URL},
-		),
-		episodeMetric: prometheus.NewDesc(
-			"sonarr_episode_total",
-			"Total number of episodes",
-			nil,
-			prometheus.Labels{"url": conf.URL},
-		),
-		episodeMonitoredMetric: prometheus.NewDesc(
-			"sonarr_episode_monitored_total",
-			"Total number of monitored episodes",
-			nil,
-			prometheus.Labels{"url": conf.URL},
-		),
-		episodeUnmonitoredMetric: prometheus.NewDesc(
-			"sonarr_episode_unmonitored_total",
-			"Total number of unmonitored episodes",
-			nil,
-			prometheus.Labels{"url": conf.URL},
-		),
-		episodeDownloadedMetric: prometheus.NewDesc(
-			"sonarr_episode_downloaded_total",
-			"Total number of downloaded episodes",
-			nil,
-			prometheus.Labels{"url": conf.URL},
-		),
-		episodeMissingMetric: prometheus.NewDesc(
-			"sonarr_episode_missing_total",
-			"Total number of missing episodes",
-			nil,
-			prometheus.Labels{"url": conf.URL},
-		),
-		episodeCutoffUnmetMetric: prometheus.NewDesc(
-			"sonarr_episode_cutoff_unmet_total",
-			"Total number of episodes with cutoff unmet",
-			nil,
-			prometheus.Labels{"url": conf.URL},
-		),
-		episodeQualitiesMetric: prometheus.NewDesc(
-			"sonarr_episode_quality_total",
-			"Total number of downloaded episodes by quality",
-			[]string{"quality", "weight"},
-			prometheus.Labels{"url": conf.URL},
-		),
-		errorMetric: prometheus.NewDesc(
-			"sonarr_collector_error",
-			"Error while collecting metrics",
-			nil,
-			prometheus.Labels{"url": conf.URL},
-		),
+		client:                   httpClient,
+		config:                   conf,
+		seriesMetric:             newDesc("sonarr", "series_total", "Total number of series", nil, conf.URL),
+		seriesDownloadedMetric:   newDesc("sonarr", "series_downloaded_total", "Total number of downloaded series", nil, conf.URL),
+		seriesMonitoredMetric:    newDesc("sonarr", "series_monitored_total", "Total number of monitored series", nil, conf.URL),
+		seriesUnmonitoredMetric:  newDesc("sonarr", "series_unmonitored_total", "Total number of unmonitored series", nil, conf.URL),
+		seriesFileSizeMetric:     newDesc("sonarr", "series_filesize_bytes", "Total fizesize of all series in bytes", nil, conf.URL),
+		seriesTagsMetric:         newDesc("sonarr", "series_tag_total", "Total number of downloaded series by tag", []string{"tag"}, conf.URL),
+		seasonMetric:             newDesc("sonarr", "season_total", "Total number of seasons", nil, conf.URL),
+		seasonDownloadedMetric:   newDesc("sonarr", "season_downloaded_total", "Total number of downloaded seasons", nil, conf.URL),
+		seasonMonitoredMetric:    newDesc("sonarr", "season_monitored_total", "Total number of monitored seasons", nil, conf.URL),
+		seasonUnmonitoredMetric:  newDesc("sonarr", "season_unmonitored_total", "Total number of unmonitored seasons", nil, conf.URL),
+		episodeMetric:            newDesc("sonarr", "episode_total", "Total number of episodes", nil, conf.URL),
+		episodeMonitoredMetric:   newDesc("sonarr", "episode_monitored_total", "Total number of monitored episodes", nil, conf.URL),
+		episodeUnmonitoredMetric: newDesc("sonarr", "episode_unmonitored_total", "Total number of unmonitored episodes", nil, conf.URL),
+		episodeDownloadedMetric:  newDesc("sonarr", "episode_downloaded_total", "Total number of downloaded episodes", nil, conf.URL),
+		episodeMissingMetric:     newDesc("sonarr", "episode_missing_total", "Total number of missing episodes", nil, conf.URL),
+		episodeCutoffUnmetMetric: newDesc("sonarr", "episode_cutoff_unmet_total", "Total number of episodes with cutoff unmet", nil, conf.URL),
+		episodeQualitiesMetric:   newDesc("sonarr", "episode_quality_total", "Total number of downloaded episodes by quality", []string{"quality", "weight"}, conf.URL),
+		errorMetric:              newDesc("sonarr", "collector_error", "Error while collecting metrics", nil, conf.URL),
 	}
 }
 
 func (collector *sonarrCollector) Describe(ch chan<- *prometheus.Desc) {
+	ch <- collector.errorMetric
 	ch <- collector.seriesMetric
 	ch <- collector.seriesDownloadedMetric
 	ch <- collector.seriesMonitoredMetric
@@ -170,12 +87,21 @@ func (collector *sonarrCollector) Describe(ch chan<- *prometheus.Desc) {
 
 func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 	total := time.Now()
-	log := zap.S().With("collector", "sonarr")
+	log := slog.With("collector", "sonarr")
+	defer recoverCollect(log, ch, collector.errorMetric)
+	// If a previous collection is still running (slow target, overlapping
+	// scrapes), skip this one instead of stacking more load onto the app —
+	// overlapping walks are how a slow instance ends up pinned at 100% CPU
+	// (https://github.com/onedr0p/exportarr/issues/380).
+	if !collector.collectMu.TryLock() {
+		log.Warn("previous collection still in progress; skipping this scrape")
+		ch <- prometheus.MustNewConstMetric(collector.errorMetric, prometheus.GaugeValue, 1)
+		return
+	}
+	defer collector.collectMu.Unlock()
 	c, err := client.NewClient(collector.config)
 	if err != nil {
-		log.Errorw("Error creating client",
-			"error", err)
-		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+		emitError(log, ch, collector.errorMetric, "Error creating client", "error", err)
 		return
 	}
 	var seriesFileSize int64
@@ -195,18 +121,30 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 		qualityWeights      = map[string]string{}
 	)
 
-	cseries := []time.Duration{}
-	series := model.Series{}
-	if err := c.DoRequest("series", &series); err != nil {
-		log.Errorw("Error getting series",
-			"error", err)
-		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+	series, err := client.Get[model.Series](c, "series")
+	if err != nil {
+		emitError(log, ch, collector.errorMetric, "Error getting series", "error", err)
 		return
 	}
 
-	for _, s := range series {
-		tseries := time.Now()
+	collectQuality := !collector.config.DisableQualityMetrics
+	collectEpisodes := !collector.config.DisableEpisodeMetrics
 
+	// Quality definitions are repository-global: fetch once, not per series.
+	if collectQuality {
+		qualities, err := client.Get[model.Qualities](c, "qualitydefinition")
+		if err != nil {
+			emitError(log, ch, collector.errorMetric, "Error getting qualities", "error", err)
+			return
+		}
+		for _, q := range qualities {
+			if q.Quality.Name != "" {
+				qualityWeights[q.Quality.Name] = strconv.Itoa(q.Weight)
+			}
+		}
+	}
+
+	for _, s := range series {
 		if s.Monitored {
 			seriesMonitored++
 		} else {
@@ -233,92 +171,85 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 				seasonsDownloaded++
 			}
 		}
+	}
 
-		if collector.config.EnableAdditionalMetrics {
-			textra := time.Now()
-			episodeFile := model.EpisodeFile{}
+	// The per-series episode lookups dominate scrape time on large libraries:
+	// fan them out with bounded concurrency instead of ~2×N serial requests.
+	if collectQuality || collectEpisodes {
+		var mu sync.Mutex
+		eg := errgroup.Group{}
+		eg.SetLimit(maxConcurrentSeriesFetches)
+		for _, s := range series {
+			goRecoverable(&eg, func() error {
+				params := client.QueryParams{}
+				params.Add("seriesId", strconv.Itoa(s.ID))
 
-			params := client.QueryParams{}
-			params.Add("seriesId", fmt.Sprintf("%d", s.Id))
-
-			if err := c.DoRequest("episodefile", &episodeFile, params); err != nil {
-				log.Errorw("Error getting episodefile",
-					"error", err)
-				ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
-				return
-			}
-			for _, e := range episodeFile {
-				if e.Quality.Quality.Name != "" {
-					episodesQualities[e.Quality.Quality.Name]++
+				if collectQuality {
+					episodeFile, err := client.Get[model.EpisodeFile](c, "episodefile", params)
+					if err != nil {
+						return fmt.Errorf("getting episodefile for series %d: %w", s.ID, err)
+					}
+					mu.Lock()
+					for _, e := range episodeFile {
+						if e.Quality.Quality.Name != "" {
+							episodesQualities[e.Quality.Quality.Name]++
+						}
+					}
+					mu.Unlock()
 				}
-			}
-
-			episode := model.Episode{}
-			if err := c.DoRequest("episode", &episode, params); err != nil {
-				log.Errorw("Error getting episode",
-					"error", err)
-				ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
-				return
-			}
-			for _, e := range episode {
-				if e.Monitored {
-					episodesMonitored++
-				} else {
-					episodesUnmonitored++
+				if collectEpisodes {
+					episode, err := client.Get[model.Episode](c, "episode", params)
+					if err != nil {
+						return fmt.Errorf("getting episode for series %d: %w", s.ID, err)
+					}
+					mu.Lock()
+					for _, e := range episode {
+						if e.Monitored {
+							episodesMonitored++
+						} else {
+							episodesUnmonitored++
+						}
+					}
+					mu.Unlock()
 				}
-			}
-
-			qualities := model.Qualities{}
-			if err := c.DoRequest("qualitydefinition", &qualities); err != nil {
-				log.Errorw("Error getting qualities",
-					"error", err)
-				ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
-				return
-			}
-			for _, q := range qualities {
-				if q.Quality.Name != "" {
-					qualityWeights[q.Quality.Name] = strconv.Itoa(q.Weight)
-				}
-			}
-
-			log.Debugw("Extra options completed",
-				"duration", time.Since(textra))
+				return nil
+			})
 		}
-		e := time.Since(tseries)
-		cseries = append(cseries, e)
-		log.Debugw("series completed",
-			"series_id", s.Id,
-			"duration", e)
+		if err := eg.Wait(); err != nil {
+			emitError(log, ch, collector.errorMetric, "Error getting per-series episode metrics", "error", err)
+			return
+		}
 	}
 
-	episodesMissing := model.Missing{}
+	// Only totalRecords is read from the wanted endpoints: request a single
+	// record and skip server-side sorting entirely — *arr sorts slowly, and
+	// ordering is Prometheus/Grafana's job anyway. These totals force full
+	// table counts, so they are skippable on huge instances.
+	var episodesMissing, episodesCutoffUnmet int
+	if !collector.config.DisableWantedMetrics {
+		params := client.QueryParams{}
+		params.Add("pageSize", "1")
 
-	params := client.QueryParams{}
-	params.Add("sortKey", "airDateUtc")
+		missing, err := client.Get[model.Missing](c, "wanted/missing", params)
+		if err != nil {
+			emitError(log, ch, collector.errorMetric, "Error getting missing", "error", err)
+			return
+		}
+		episodesMissing = missing.TotalRecords
 
-	if err := c.DoRequest("wanted/missing", &episodesMissing, params); err != nil {
-		log.Errorw("Error getting missing",
-			"error", err)
-		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
-		return
-	}
-
-	episodesCutoffUnmet := model.CutoffUnmet{}
-
-	// Cutoff unmet endpoint uses the same params as missing
-	if err := c.DoRequest("wanted/cutoff", &episodesCutoffUnmet, params); err != nil {
-		log.Errorw("Error getting cutoff unmet",
-			"error", err)
-		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
-		return
+		// Cutoff unmet endpoint uses the same params as missing
+		cutoffUnmet, err := client.Get[model.CutoffUnmet](c, "wanted/cutoff", params)
+		if err != nil {
+			emitError(log, ch, collector.errorMetric, "Error getting cutoff unmet", "error", err)
+			return
+		}
+		episodesCutoffUnmet = cutoffUnmet.TotalRecords
 	}
 
 	// Get tag details for series
-	tagObjects := model.TagSeries{}
-	if err := c.DoRequest("tag/detail", &tagObjects); err != nil {
-		log.Errorw("Error getting tags",
-			"error", err)
-		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+	tagObjects, err := client.Get[model.TagSeries](c, "tag/detail")
+	if err != nil {
+		emitError(log, ch, collector.errorMetric, "Error getting tags", "error", err)
 		return
 	}
 
@@ -328,7 +259,7 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(collector.seriesUnmonitoredMetric, prometheus.GaugeValue, float64(seriesUnmonitored))
 	ch <- prometheus.MustNewConstMetric(collector.seriesFileSizeMetric, prometheus.GaugeValue, float64(seriesFileSize))
 	for _, tag := range tagObjects {
-		ch <- prometheus.MustNewConstMetric(collector.seriesTagsMetric, prometheus.GaugeValue, float64(len(tag.SeriesIds)),
+		ch <- prometheus.MustNewConstMetric(collector.seriesTagsMetric, prometheus.GaugeValue, float64(len(tag.SeriesIDs)),
 			tag.Label,
 		)
 	}
@@ -338,24 +269,22 @@ func (collector *sonarrCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(collector.seasonUnmonitoredMetric, prometheus.GaugeValue, float64(seasonsUnmonitored))
 	ch <- prometheus.MustNewConstMetric(collector.episodeMetric, prometheus.GaugeValue, float64(episodes))
 	ch <- prometheus.MustNewConstMetric(collector.episodeDownloadedMetric, prometheus.GaugeValue, float64(episodesDownloaded))
-	ch <- prometheus.MustNewConstMetric(collector.episodeMissingMetric, prometheus.GaugeValue, float64(episodesMissing.TotalRecords))
-	ch <- prometheus.MustNewConstMetric(collector.episodeCutoffUnmetMetric, prometheus.GaugeValue, float64(episodesCutoffUnmet.TotalRecords))
+	if !collector.config.DisableWantedMetrics {
+		ch <- prometheus.MustNewConstMetric(collector.episodeMissingMetric, prometheus.GaugeValue, float64(episodesMissing))
+		ch <- prometheus.MustNewConstMetric(collector.episodeCutoffUnmetMetric, prometheus.GaugeValue, float64(episodesCutoffUnmet))
+	}
 
-	if collector.config.EnableAdditionalMetrics {
+	if collectEpisodes {
 		ch <- prometheus.MustNewConstMetric(collector.episodeMonitoredMetric, prometheus.GaugeValue, float64(episodesMonitored))
 		ch <- prometheus.MustNewConstMetric(collector.episodeUnmonitoredMetric, prometheus.GaugeValue, float64(episodesUnmonitored))
-
-		if len(episodesQualities) > 0 {
-			for qualityName, count := range episodesQualities {
-				ch <- prometheus.MustNewConstMetric(collector.episodeQualitiesMetric, prometheus.GaugeValue, float64(count),
-					qualityName, qualityWeights[qualityName],
-				)
-			}
+	}
+	if collectQuality && len(episodesQualities) > 0 {
+		for qualityName, count := range episodesQualities {
+			ch <- prometheus.MustNewConstMetric(collector.episodeQualitiesMetric, prometheus.GaugeValue, float64(count),
+				qualityName, qualityWeights[qualityName],
+			)
 		}
 	}
-	log.Debugw("Sonarr cycle completed",
-		"duration", time.Since(total),
-		"series_durations", cseries,
-	)
+	log.Debug("Sonarr cycle completed", "duration", time.Since(total))
 
 }

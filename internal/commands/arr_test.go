@@ -1,15 +1,15 @@
 package commands
 
 import (
+	"github.com/onedr0p/exportarr/internal/assert"
 	"testing"
 
 	"github.com/onedr0p/exportarr/internal/arr/config"
 	base_config "github.com/onedr0p/exportarr/internal/config"
 	"github.com/spf13/pflag"
-	"github.com/stretchr/testify/require"
 )
 
-func TestBackwardsCompatibility(t *testing.T) {
+func TestAuthFlagsRegistered(t *testing.T) {
 	params := []struct {
 		name  string
 		flags *pflag.FlagSet
@@ -27,10 +27,6 @@ func TestBackwardsCompatibility(t *testing.T) {
 			flags: lidarrCmd.PersistentFlags(),
 		},
 		{
-			name:  "readarr",
-			flags: readarrCmd.PersistentFlags(),
-		},
-		{
 			name:  "prowlarr",
 			flags: prowlarrCmd.PersistentFlags(),
 		},
@@ -41,14 +37,12 @@ func TestBackwardsCompatibility(t *testing.T) {
 	}
 	for _, p := range params {
 		t.Run(p.name, func(t *testing.T) {
-			p.flags.Set("basic-auth-username", "user")
-			p.flags.Set("basic-auth-password", "pass")
-
-			require := require.New(t)
+			_ = p.flags.Set("auth-username", "user")
+			_ = p.flags.Set("auth-password", "pass")
 			config, err := config.LoadArrConfig(base_config.Config{}, p.flags)
-			require.NoError(err)
-			require.Equal("user", config.AuthUsername)
-			require.Equal("pass", config.AuthPassword)
+			assert.NoError(t, err)
+			assert.Equal(t, config.AuthUsername, "user")
+			assert.Equal(t, config.AuthPassword, "pass")
 		})
 	}
 
