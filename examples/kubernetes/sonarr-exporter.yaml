@@ -74,7 +74,7 @@ spec:
               value: "9707"
             - name: URL
               value: "http://sonarr.default.svc.cluster.local:7878"
-            - name: APIKEY
+            - name: API_KEY
               valueFrom:
                 secretKeyRef:
                   name: sonarr-exporter

@@ -2,16 +2,20 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 	"strconv"
+	"sync"
 
 	"github.com/onedr0p/exportarr/internal/arr/client"
 	"github.com/onedr0p/exportarr/internal/arr/config"
 	"github.com/onedr0p/exportarr/internal/arr/model"
 	"github.com/prometheus/client_golang/prometheus"
-	"go.uber.org/zap"
+	"golang.org/x/sync/errgroup"
 )
 
 type lidarrCollector struct {
+	collectMu              sync.Mutex // Guards against overlapping collections (#380)
+	client                 *client.Client
 	config                 *config.ArrConfig // App configuration
 	artistsMetric          *prometheus.Desc  // Total number of artists
 	artistsMonitoredMetric *prometheus.Desc  // Total number of monitored artists
@@ -28,91 +32,29 @@ type lidarrCollector struct {
 	errorMetric            *prometheus.Desc  // Error Description for use with InvalidMetric
 }
 
-func NewLidarrCollector(c *config.ArrConfig) *lidarrCollector {
+// NewLidarrCollector builds a collector for lidarr library statistics.
+func NewLidarrCollector(httpClient *client.Client, c *config.ArrConfig) prometheus.Collector {
 	return &lidarrCollector{
-		config: c,
-		artistsMetric: prometheus.NewDesc(
-			"lidarr_artists_total",
-			"Total number of artists",
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		artistsMonitoredMetric: prometheus.NewDesc(
-			"lidarr_artists_monitored_total",
-			"Total number of monitored artists",
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		artistGenresMetric: prometheus.NewDesc(
-			"lidarr_artists_genres_total",
-			"Total number of artists by genre",
-			[]string{"genre"},
-			prometheus.Labels{"url": c.URL},
-		),
-		artistsFileSizeMetric: prometheus.NewDesc(
-			"lidarr_artists_filesize_bytes",
-			"Total fizesize of all artists in bytes",
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		albumsMetric: prometheus.NewDesc(
-			"lidarr_albums_total",
-			"Total number of albums",
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		albumsMonitoredMetric: prometheus.NewDesc(
-			"lidarr_albums_monitored_total",
-			"Total number of albums",
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		albumsGenresMetric: prometheus.NewDesc(
-			"lidarr_albums_genres_total",
-			"Total number of albums by genre",
-			[]string{"genre"},
-			prometheus.Labels{"url": c.URL},
-		),
-		albumsMissingMetric: prometheus.NewDesc(
-			"lidarr_albums_missing_total",
-			"Total number of missing albums",
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		songsMetric: prometheus.NewDesc(
-			"lidarr_songs_total",
-			"Total number of songs",
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		songsMonitoredMetric: prometheus.NewDesc(
-			"lidarr_songs_monitored_total",
-			"Total number of monitored songs",
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		songsDownloadedMetric: prometheus.NewDesc(
-			"lidarr_songs_downloaded_total",
-			"Total number of downloaded songs",
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		songsQualitiesMetric: prometheus.NewDesc(
-			"lidarr_songs_quality_total",
-			"Total number of downloaded songs by quality",
-			[]string{"quality", "weight"},
-			prometheus.Labels{"url": c.URL},
-		),
-		errorMetric: prometheus.NewDesc(
-			"lidarr_collector_error",
-			"Error while collecting metrics",
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
+		client:                 httpClient,
+		config:                 c,
+		artistsMetric:          newDesc("lidarr", "artists_total", "Total number of artists", nil, c.URL),
+		artistsMonitoredMetric: newDesc("lidarr", "artists_monitored_total", "Total number of monitored artists", nil, c.URL),
+		artistGenresMetric:     newDesc("lidarr", "artists_genres_total", "Total number of artists by genre", []string{"genre"}, c.URL),
+		artistsFileSizeMetric:  newDesc("lidarr", "artists_filesize_bytes", "Total fizesize of all artists in bytes", nil, c.URL),
+		albumsMetric:           newDesc("lidarr", "albums_total", "Total number of albums", nil, c.URL),
+		albumsMonitoredMetric:  newDesc("lidarr", "albums_monitored_total", "Total number of albums", nil, c.URL),
+		albumsGenresMetric:     newDesc("lidarr", "albums_genres_total", "Total number of albums by genre", []string{"genre"}, c.URL),
+		albumsMissingMetric:    newDesc("lidarr", "albums_missing_total", "Total number of missing albums", nil, c.URL),
+		songsMetric:            newDesc("lidarr", "songs_total", "Total number of songs", nil, c.URL),
+		songsMonitoredMetric:   newDesc("lidarr", "songs_monitored_total", "Total number of monitored songs", nil, c.URL),
+		songsDownloadedMetric:  newDesc("lidarr", "songs_downloaded_total", "Total number of downloaded songs", nil, c.URL),
+		songsQualitiesMetric:   newDesc("lidarr", "songs_quality_total", "Total number of downloaded songs by quality", []string{"quality", "weight"}, c.URL),
+		errorMetric:            newDesc("lidarr", "collector_error", "Error while collecting metrics", nil, c.URL),
 	}
 }
 
 func (collector *lidarrCollector) Describe(ch chan<- *prometheus.Desc) {
+	ch <- collector.errorMetric
 	ch <- collector.artistsMetric
 	ch <- collector.artistsMonitoredMetric
 	ch <- collector.artistGenresMetric
@@ -128,13 +70,19 @@ func (collector *lidarrCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
-	log := zap.S().With("collector", "lidarr")
-	c, err := client.NewClient(collector.config)
-	if err != nil {
-		log.Errorf("Error creating client", "error", err)
-		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+	log := slog.With("collector", "lidarr")
+	defer recoverCollect(log, ch, collector.errorMetric)
+	// If a previous collection is still running (slow target, overlapping
+	// scrapes), skip this one instead of stacking more load onto the app —
+	// overlapping walks are how a slow instance ends up pinned at 100% CPU
+	// (https://github.com/onedr0p/exportarr/issues/380).
+	if !collector.collectMu.TryLock() {
+		log.Warn("previous collection still in progress; skipping this scrape")
+		ch <- prometheus.MustNewConstMetric(collector.errorMetric, prometheus.GaugeValue, 1)
 		return
 	}
+	defer collector.collectMu.Unlock()
+	c := collector.client
 	var artistsFileSize int64
 	var (
 		artistsMonitored = 0
@@ -148,11 +96,27 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 		qualityWeights   = map[string]string{}
 	)
 
-	artists := model.Artist{}
-	if err := c.DoRequest("artist", &artists); err != nil {
-		log.Errorw("Error creating client", "error", err)
-		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+	artists, err := client.Get[model.Artist](c, "artist")
+	if err != nil {
+		emitError(log, ch, collector.errorMetric, "Error creating client", "error", err)
 		return
+	}
+
+	collectQuality := !collector.config.DisableQualityMetrics
+	collectAlbums := !collector.config.DisableAlbumMetrics
+
+	// Quality definitions are repository-global: fetch once, not per artist.
+	if collectQuality {
+		qualities, err := client.Get[model.Qualities](c, "qualitydefinition")
+		if err != nil {
+			emitError(log, ch, collector.errorMetric, "Error getting qualities", "error", err)
+			return
+		}
+		for _, q := range qualities {
+			if q.Quality.Name != "" {
+				qualityWeights[q.Quality.Name] = strconv.Itoa(q.Weight)
+			}
+		}
 	}
 
 	for _, s := range artists {
@@ -167,66 +131,78 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 		for _, genre := range s.Genres {
 			artistGenres[genre]++
 		}
+	}
 
-		if collector.config.EnableAdditionalMetrics {
-			songFile := model.SongFile{}
+	// The per-artist lookups dominate scrape time on large libraries: fan
+	// them out with bounded concurrency instead of ~2×N serial requests.
+	if collectQuality || collectAlbums {
+		var mu sync.Mutex
+		eg := errgroup.Group{}
+		eg.SetLimit(maxConcurrentSeriesFetches)
+		for _, s := range artists {
+			goRecoverable(&eg, func() error {
+				params := client.QueryParams{}
+				params.Add("artistid", strconv.Itoa(s.ID))
 
-			params := client.QueryParams{}
-			params.Add("artistid", fmt.Sprintf("%d", s.Id))
-
-			if err := c.DoRequest("trackfile", &songFile, params); err != nil {
-				log.Errorw("Error getting trackfile", "error", err)
-				ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
-				return
-			}
-			for _, e := range songFile {
-				if e.Quality.Quality.Name != "" {
-					songsQualities[e.Quality.Quality.Name]++
+				if collectQuality {
+					songFile, err := client.Get[model.SongFile](c, "trackfile", params)
+					if err != nil {
+						return fmt.Errorf("getting trackfile for artist %d: %w", s.ID, err)
+					}
+					mu.Lock()
+					for _, e := range songFile {
+						if e.Quality.Quality.Name != "" {
+							songsQualities[e.Quality.Quality.Name]++
+						}
+					}
+					mu.Unlock()
 				}
-			}
-
-			album := model.Album{}
-			if err := c.DoRequest("album", &album, params); err != nil {
-				log.Errorw("Error getting album", "error", err)
-				ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
-				return
-			}
-			for _, a := range album {
-				if a.Monitored {
-					albumsMonitored++
+				if collectAlbums {
+					album, err := client.Get[model.Album](c, "album", params)
+					if err != nil {
+						return fmt.Errorf("getting album for artist %d: %w", s.ID, err)
+					}
+					mu.Lock()
+					for _, a := range album {
+						if a.Monitored {
+							albumsMonitored++
+						}
+						for _, genre := range s.Genres {
+							albumGenres[genre]++
+						}
+					}
+					mu.Unlock()
 				}
-				for _, genre := range s.Genres {
-					albumGenres[genre]++
-				}
-			}
-
-			qualities := model.Qualities{}
-			if err := c.DoRequest("qualitydefinition", &qualities); err != nil {
-				log.Errorw("Error getting qualities",
-					"error", err)
-				ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
-				return
-			}
-			for _, q := range qualities {
-				if q.Quality.Name != "" {
-					qualityWeights[q.Quality.Name] = strconv.Itoa(q.Weight)
-				}
-			}
+				return nil
+			})
+		}
+		if err := eg.Wait(); err != nil {
+			emitError(log, ch, collector.errorMetric, "Error getting per-artist metrics", "error", err)
+			return
 		}
 	}
 
-	albumsMissing := model.Missing{}
-	if err := c.DoRequest("wanted/missing", &albumsMissing); err != nil {
-		log.Errorw("Error getting missing albums", "error", err)
-		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
-		return
+	// Only totalRecords is read: request the smallest page the API allows.
+	// This total forces a full count, so it is skippable on huge instances.
+	var albumsMissing int
+	if !collector.config.DisableWantedMetrics {
+		missingParams := client.QueryParams{}
+		missingParams.Add("pageSize", "1")
+		missing, err := client.Get[model.Missing](c, "wanted/missing", missingParams)
+		if err != nil {
+			emitError(log, ch, collector.errorMetric, "Error getting missing albums", "error", err)
+			return
+		}
+		albumsMissing = missing.TotalRecords
 	}
 
 	ch <- prometheus.MustNewConstMetric(collector.artistsMetric, prometheus.GaugeValue, float64(len(artists)))
 	ch <- prometheus.MustNewConstMetric(collector.artistsMonitoredMetric, prometheus.GaugeValue, float64(artistsMonitored))
 	ch <- prometheus.MustNewConstMetric(collector.artistsFileSizeMetric, prometheus.GaugeValue, float64(artistsFileSize))
 	ch <- prometheus.MustNewConstMetric(collector.albumsMetric, prometheus.GaugeValue, float64(albums))
-	ch <- prometheus.MustNewConstMetric(collector.albumsMissingMetric, prometheus.GaugeValue, float64(albumsMissing.TotalRecords))
+	if !collector.config.DisableWantedMetrics {
+		ch <- prometheus.MustNewConstMetric(collector.albumsMissingMetric, prometheus.GaugeValue, float64(albumsMissing))
+	}
 	ch <- prometheus.MustNewConstMetric(collector.songsMetric, prometheus.GaugeValue, float64(songs))
 	ch <- prometheus.MustNewConstMetric(collector.songsDownloadedMetric, prometheus.GaugeValue, float64(songsDownloaded))
 
@@ -236,19 +212,18 @@ func (collector *lidarrCollector) Collect(ch chan<- prometheus.Metric) {
 		}
 	}
 
-	if collector.config.EnableAdditionalMetrics {
+	if collectAlbums {
 		ch <- prometheus.MustNewConstMetric(collector.albumsMonitoredMetric, prometheus.GaugeValue, float64(albumsMonitored))
-
-		if len(songsQualities) > 0 {
-			for qualityName, count := range songsQualities {
-				ch <- prometheus.MustNewConstMetric(collector.songsQualitiesMetric, prometheus.GaugeValue, float64(count), qualityName, qualityWeights[qualityName])
-			}
-		}
 
 		if len(albumGenres) > 0 {
 			for genre, count := range albumGenres {
 				ch <- prometheus.MustNewConstMetric(collector.albumsGenresMetric, prometheus.GaugeValue, float64(count), genre)
 			}
+		}
+	}
+	if collectQuality && len(songsQualities) > 0 {
+		for qualityName, count := range songsQualities {
+			ch <- prometheus.MustNewConstMetric(collector.songsQualitiesMetric, prometheus.GaugeValue, float64(count), qualityName, qualityWeights[qualityName])
 		}
 	}
 }

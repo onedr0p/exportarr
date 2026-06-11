@@ -1,72 +1,75 @@
 package collector
 
 import (
+	"github.com/onedr0p/exportarr/internal/assert"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
 
+	client "github.com/onedr0p/exportarr/internal/arr/client"
 	"github.com/onedr0p/exportarr/internal/arr/config"
-	"github.com/onedr0p/exportarr/internal/test_util"
+	"github.com/onedr0p/exportarr/internal/fixtures"
 	"github.com/prometheus/client_golang/prometheus/testutil"
-	"github.com/stretchr/testify/require"
 )
 
-const radarr_test_fixtures_path = "../test_fixtures/radarr/"
+const radarrTestFixturesPath = "../testdata/radarr/"
 
 func newTestRadarrServer(t *testing.T, fn func(http.ResponseWriter, *http.Request)) (*httptest.Server, error) {
-	return test_util.NewTestServer(t, radarr_test_fixtures_path, fn)
+	return fixtures.NewTestServer(t, radarrTestFixturesPath, fn)
 }
 
 func TestRadarrCollect(t *testing.T) {
-	require := require.New(t)
-	ts, err := newTestRadarrServer(t, func(w http.ResponseWriter, r *http.Request) {
-		require.Contains(r.URL.Path, "/api/")
+	ts, err := newTestRadarrServer(t, func(_ http.ResponseWriter, r *http.Request) {
+		assert.Contains(t, r.URL.Path, "/api/")
 	})
-	require.NoError(err)
+	assert.NoError(t, err)
 
 	defer ts.Close()
 
 	config := &config.ArrConfig{
 		URL:        ts.URL,
 		App:        "radarr",
-		ApiKey:     test_util.API_KEY,
-		ApiVersion: "v3",
+		APIKey:     fixtures.APIKey,
+		APIVersion: "v3",
 	}
-	collector := NewRadarrCollector(config)
-	require.NoError(err)
+	cl, err := client.NewClient(config)
+	assert.NoError(t, err)
+	collector := NewRadarrCollector(cl, config)
+	assert.NoError(t, err)
 
-	b, err := os.ReadFile(radarr_test_fixtures_path + "expected_metrics.txt")
-	require.NoError(err)
+	b, err := os.ReadFile(radarrTestFixturesPath + "expected_metrics.txt")
+	assert.NoError(t, err)
 
 	expected := strings.ReplaceAll(string(b), "SOMEURL", ts.URL)
 	f := strings.NewReader(expected)
 
-	require.NotPanics(func() {
+	assert.NotPanics(t, func() {
 		err = testutil.CollectAndCompare(collector, f)
 	})
-	require.NoError(err)
+	assert.NoError(t, err)
 }
 
 func TestRadarrCollect_FailureDoesntPanic(t *testing.T) {
-	require := require.New(t)
 
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusInternalServerError)
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusBadRequest)
 	}))
 	defer ts.Close()
 
 	config := &config.ArrConfig{
 		URL:    ts.URL,
-		ApiKey: test_util.API_KEY,
+		APIKey: fixtures.APIKey,
 	}
-	collector := NewRadarrCollector(config)
+	cl, err := client.NewClient(config)
+	assert.NoError(t, err)
+	collector := NewRadarrCollector(cl, config)
 
 	f := strings.NewReader("")
 
-	require.NotPanics(func() {
+	assert.NotPanics(t, func() {
 		err := testutil.CollectAndCompare(collector, f)
-		require.Error(err)
+		assert.Error(t, err)
 	}, "Collecting metrics should not panic on failure")
 }

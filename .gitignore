@@ -1,16 +1,35 @@
+# OS generated files
+.DS_Store*
+.Spotlight-V100
+.Trashes
+._*
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.claude
+.idea
+.private
+.vscode
+
+# Others
+.dev/
+.run/
+bin/
+dist/
+tmp/
+
+# Preserve files
+!.gitkeep
+
+# Go test + profiling artifacts (go test -c binaries, coverage, pprof)
+*.test
+*.out
+*.prof
+*.pprof
+
 # Project
 /exportarr
-*.xml
-
-# Go
 /vendor
-
-# IDEs
-.idea
-
-# Operating System
-.DS_Store
-**/.DS_Store
-
+*.xml
 .env
-covprofile

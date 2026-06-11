@@ -1,0 +1,8 @@
+# HELP APP_diskspace_free_bytes Free disk space in bytes by path and label
+# TYPE APP_diskspace_free_bytes gauge
+APP_diskspace_free_bytes{label="",path="/",url="SOMEURL"} 1.073741824e+10
+APP_diskspace_free_bytes{label="media",path="/data",url="SOMEURL"} 5.36870912e+11
+# HELP APP_diskspace_total_bytes Total disk space in bytes by path and label
+# TYPE APP_diskspace_total_bytes gauge
+APP_diskspace_total_bytes{label="",path="/",url="SOMEURL"} 2.147483648e+10
+APP_diskspace_total_bytes{label="media",path="/data",url="SOMEURL"} 1.073741824e+12

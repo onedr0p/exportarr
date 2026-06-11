@@ -1,12 +1,13 @@
+// Package handlers provides exportarr's HTTP handlers and middleware.
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 )
 
+// HealthzHandler always reports OK; it signals process liveness, not backend
+// reachability.
 func HealthzHandler(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("OK")) //nolint:errcheck
-	fmt.Fprint(w)
+	_, _ = w.Write([]byte("OK"))
 }

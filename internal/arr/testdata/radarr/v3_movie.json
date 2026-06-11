@@ -1,0 +1,93 @@
+[
+  {
+    "status": "released",
+    "hasFile": true,
+    "monitored": true,
+    "isAvailable": true,
+    "movieFile": {
+      "size": 75973665026,
+      "quality": {
+        "quality": {
+          "name": "Remux-2160p"
+        }
+      }
+    },
+    "qualityProfileId": 11
+  },
+  {
+    "status": "released",
+    "hasFile": true,
+    "monitored": true,
+    "isAvailable": true,
+    "movieFile": {
+      "size": 29102046776,
+      "quality": {
+        "quality": {
+          "name": "Bluray-2160p"
+        }
+      }
+    },
+    "qualityProfileId": 10
+  },
+  {
+    "status": "released",
+    "hasFile": true,
+    "qualityProfileId": 10,
+    "monitored": true,
+    "isAvailable": true,
+    "movieFile": {
+      "size": 27913422877,
+      "quality": {
+        "quality": {
+          "name": "Bluray-2160p"
+        }
+      },
+      "edition": "someOther"
+    }
+  },
+  {
+    "status": "announced",
+    "hasFile": false,
+    "qualityProfileId": 10,
+    "monitored": true,
+    "isAvailable": true
+  },
+  {
+    "status": "announced",
+    "hasFile": false,
+    "qualityProfileId": 11,
+    "monitored": true,
+    "isAvailable": true
+  },
+  {
+    "status": "announced",
+    "hasFile": false,
+    "qualityProfileId": 10,
+    "monitored": false,
+    "isAvailable": true
+  },
+  {
+    "status": "announced",
+    "hasFile": false,
+    "qualityProfileId": 10,
+    "monitored": true,
+    "isAvailable": false
+  },
+  {
+    "status": "released",
+    "hasFile": true,
+    "qualityProfileId": 9,
+    "monitored": true,
+    "minimumAvailability": "announced",
+    "isAvailable": true,
+    "movieFile": {
+      "size": 14073822010,
+      "quality": {
+        "quality": {
+          "name": "Bluray-1080p"
+        }
+      },
+      "edition": "IMAX"
+    }
+  }
+]

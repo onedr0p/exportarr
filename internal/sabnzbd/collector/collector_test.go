@@ -1,6 +1,7 @@
 package collector
 
 import (
+	"github.com/onedr0p/exportarr/internal/assert"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -9,58 +10,56 @@ import (
 
 	"github.com/onedr0p/exportarr/internal/sabnzbd/config"
 	"github.com/prometheus/client_golang/prometheus/testutil"
-	"github.com/stretchr/testify/require"
 )
 
-const API_KEY = "abcdef0123456789abcdef0123456789"
+const testAPIKey = "abcdef0123456789abcdef0123456789"
 
 func newTestServer(t *testing.T, fn func(http.ResponseWriter, *http.Request)) (*httptest.Server, error) {
-	queue, err := os.ReadFile("../test_fixtures/queue.json")
-	require.NoError(t, err)
-	serverStats, err := os.ReadFile("../test_fixtures/server_stats.json")
-	require.NoError(t, err)
+	queue, err := os.ReadFile("../testdata/queue.json")
+	assert.NoError(t, err)
+	serverStats, err := os.ReadFile("../testdata/server_stats.json")
+	assert.NoError(t, err)
 
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fn(w, r)
-		require.NotEmpty(t, r.URL.Query().Get("mode"))
+		assert.NotEmpty(t, r.URL.Query().Get("mode"))
 		switch r.URL.Query().Get("mode") {
 		case "queue":
 			w.WriteHeader(http.StatusOK)
 			_, err := w.Write(queue)
-			require.NoError(t, err)
+			assert.NoError(t, err)
 		case "server_stats":
 			w.WriteHeader(http.StatusOK)
 			_, err := w.Write(serverStats)
-			require.NoError(t, err)
+			assert.NoError(t, err)
 		}
 	})), nil
 }
 
 func TestCollect(t *testing.T) {
-	require := require.New(t)
-	ts, err := newTestServer(t, func(w http.ResponseWriter, r *http.Request) {
-		require.Equal("/api", r.URL.Path)
-		require.Equal(API_KEY, r.URL.Query().Get("apikey"))
-		require.Equal("json", r.URL.Query().Get("output"))
+	ts, err := newTestServer(t, func(_ http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, r.URL.Path, "/api")
+		assert.Equal(t, r.URL.Query().Get("apikey"), testAPIKey)
+		assert.Equal(t, r.URL.Query().Get("output"), "json")
 	})
-	require.NoError(err)
+	assert.NoError(t, err)
 
 	defer ts.Close()
 
 	config := &config.SabnzbdConfig{
 		URL:    ts.URL,
-		ApiKey: API_KEY,
+		APIKey: testAPIKey,
 	}
 	collector, err := NewSabnzbdCollector(config)
-	require.NoError(err)
+	assert.NoError(t, err)
 
-	b, err := os.ReadFile("../test_fixtures/expected_metrics.txt")
-	require.NoError(err)
+	b, err := os.ReadFile("../testdata/expected_metrics.txt")
+	assert.NoError(t, err)
 
 	expected := strings.ReplaceAll(string(b), "http://127.0.0.1:39965", ts.URL)
 	f := strings.NewReader(expected)
 
-	require.NotPanics(func() {
+	assert.NotPanics(t, func() {
 		err = testutil.CollectAndCompare(collector, f,
 			"sabnzbd_downloaded_bytes",
 			"sabnzbd_server_downloaded_bytes",
@@ -77,6 +76,8 @@ func TestCollect(t *testing.T) {
 			"sabnzbd_article_cache_articles",
 			"sabnzbd_article_cache_bytes",
 			"sabnzbd_speed_bps",
+			"sabnzbd_speed_limit_bps",
+			"sabnzbd_speed_limit_percent",
 			"sabnzbd_remaining_bytes",
 			"sabnzbd_total_bytes",
 			"sabnzbd_queue_size",
@@ -86,31 +87,30 @@ func TestCollect(t *testing.T) {
 			"sabnzbd_warnings",
 		)
 	})
-	require.NoError(err)
+	assert.NoError(t, err)
 
-	require.GreaterOrEqual(29, testutil.CollectAndCount(collector))
+	assert.GreaterOrEqual(t, 31, testutil.CollectAndCount(collector))
 }
 
 func TestCollect_FailureDoesntPanic(t *testing.T) {
-	require := require.New(t)
 
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusInternalServerError)
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusBadRequest)
 	}))
 	defer ts.Close()
 
 	config := &config.SabnzbdConfig{
 		URL:    ts.URL,
-		ApiKey: API_KEY,
+		APIKey: testAPIKey,
 	}
 	collector, err := NewSabnzbdCollector(config)
-	require.NoError(err)
+	assert.NoError(t, err)
 
 	f := strings.NewReader("")
 
-	require.NotPanics(func() {
+	assert.NotPanics(t, func() {
 		err = testutil.CollectAndCompare(collector, f)
-		require.Error(err)
+		assert.Error(t, err)
 	}, "Collecting metrics should not panic on failure")
-	require.Error(err)
+	assert.Error(t, err)
 }

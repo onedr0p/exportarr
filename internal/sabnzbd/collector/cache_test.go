@@ -1,16 +1,15 @@
 package collector
 
 import (
+	"github.com/onedr0p/exportarr/internal/assert"
 	"testing"
 
 	"github.com/onedr0p/exportarr/internal/sabnzbd/model"
-	"github.com/stretchr/testify/require"
 )
 
 func TestUpdateServerStatsCache_SameDay(t *testing.T) {
-	require := require.New(t)
 	cache := NewServersStatsCache()
-	cache.Update(model.ServerStats{
+	_ = cache.Update(model.ServerStats{
 		Total: 1,
 		Servers: map[string]model.ServerStat{
 			"server1": {
@@ -27,20 +26,20 @@ func TestUpdateServerStatsCache_SameDay(t *testing.T) {
 			},
 		},
 	})
-	require.Equal(1, cache.GetTotal())
+	assert.Equal(t, cache.GetTotal(), 1)
 	m := cache.GetServerMap()
-	require.Equal(2, len(m))
+	assert.Equal(t, len(m), 2)
 
 	server1 := m["server1"]
-	require.Equal(1, server1.GetTotal())
-	require.Equal(2, server1.GetArticlesTried())
-	require.Equal(2, server1.GetArticlesSuccess())
+	assert.Equal(t, server1.GetTotal(), 1)
+	assert.Equal(t, server1.GetArticlesTried(), 2)
+	assert.Equal(t, server1.GetArticlesSuccess(), 2)
 
 	server2 := m["server2"]
-	require.Equal(2, server2.GetTotal())
-	require.Equal(4, server2.GetArticlesTried())
-	require.Equal(4, server2.GetArticlesSuccess())
-	cache.Update(model.ServerStats{
+	assert.Equal(t, server2.GetTotal(), 2)
+	assert.Equal(t, server2.GetArticlesTried(), 4)
+	assert.Equal(t, server2.GetArticlesSuccess(), 4)
+	_ = cache.Update(model.ServerStats{
 		Total: 2,
 		Servers: map[string]model.ServerStat{
 			"server1": {
@@ -57,25 +56,24 @@ func TestUpdateServerStatsCache_SameDay(t *testing.T) {
 			},
 		},
 	})
-	require.Equal(2, cache.GetTotal())
+	assert.Equal(t, cache.GetTotal(), 2)
 	m = cache.GetServerMap()
-	require.Equal(2, len(m))
+	assert.Equal(t, len(m), 2)
 
 	server1 = m["server1"]
-	require.Equal(2, server1.GetTotal())
-	require.Equal(6, server1.GetArticlesTried())
-	require.Equal(6, server1.GetArticlesSuccess())
+	assert.Equal(t, server1.GetTotal(), 2)
+	assert.Equal(t, server1.GetArticlesTried(), 6)
+	assert.Equal(t, server1.GetArticlesSuccess(), 6)
 
 	server2 = m["server2"]
-	require.Equal(3, server2.GetTotal())
-	require.Equal(8, server2.GetArticlesTried())
-	require.Equal(8, server2.GetArticlesSuccess())
+	assert.Equal(t, server2.GetTotal(), 3)
+	assert.Equal(t, server2.GetArticlesTried(), 8)
+	assert.Equal(t, server2.GetArticlesSuccess(), 8)
 }
 
 func TestUpdateServerStatsCache_DifferentDay(t *testing.T) {
-	require := require.New(t)
 	cache := NewServersStatsCache()
-	cache.Update(model.ServerStats{
+	_ = cache.Update(model.ServerStats{
 		Total: 1,
 		Servers: map[string]model.ServerStat{
 			"server1": {
@@ -92,20 +90,20 @@ func TestUpdateServerStatsCache_DifferentDay(t *testing.T) {
 			},
 		},
 	})
-	require.Equal(1, cache.GetTotal())
+	assert.Equal(t, cache.GetTotal(), 1)
 	m := cache.GetServerMap()
-	require.Equal(2, len(m))
+	assert.Equal(t, len(m), 2)
 
 	server1 := m["server1"]
-	require.Equal(1, server1.GetTotal())
-	require.Equal(2, server1.GetArticlesTried())
-	require.Equal(2, server1.GetArticlesSuccess())
+	assert.Equal(t, server1.GetTotal(), 1)
+	assert.Equal(t, server1.GetArticlesTried(), 2)
+	assert.Equal(t, server1.GetArticlesSuccess(), 2)
 
 	server2 := m["server2"]
-	require.Equal(2, server2.GetTotal())
-	require.Equal(4, server2.GetArticlesTried())
-	require.Equal(4, server2.GetArticlesSuccess())
-	cache.Update(model.ServerStats{
+	assert.Equal(t, server2.GetTotal(), 2)
+	assert.Equal(t, server2.GetArticlesTried(), 4)
+	assert.Equal(t, server2.GetArticlesSuccess(), 4)
+	_ = cache.Update(model.ServerStats{
 		Total: 2,
 		Servers: map[string]model.ServerStat{
 			"server1": {
@@ -122,19 +120,19 @@ func TestUpdateServerStatsCache_DifferentDay(t *testing.T) {
 			},
 		},
 	})
-	require.Equal(2, cache.GetTotal())
+	assert.Equal(t, cache.GetTotal(), 2)
 	m = cache.GetServerMap()
-	require.Equal(2, len(m))
+	assert.Equal(t, len(m), 2)
 
 	server1 = m["server1"]
-	require.Equal(2, server1.GetTotal())
-	require.Equal(8, server1.GetArticlesTried())
-	require.Equal(8, server1.GetArticlesSuccess())
+	assert.Equal(t, server1.GetTotal(), 2)
+	assert.Equal(t, server1.GetArticlesTried(), 8)
+	assert.Equal(t, server1.GetArticlesSuccess(), 8)
 
 	server2 = m["server2"]
-	require.Equal(3, server2.GetTotal())
-	require.Equal(12, server2.GetArticlesTried())
-	require.Equal(12, server2.GetArticlesSuccess())
+	assert.Equal(t, server2.GetTotal(), 3)
+	assert.Equal(t, server2.GetArticlesTried(), 12)
+	assert.Equal(t, server2.GetArticlesSuccess(), 12)
 }
 
 func TestUpdateServerStatsCache_EmptyServerStats(t *testing.T) {
@@ -164,16 +162,15 @@ func TestUpdateServerStatsCache_EmptyServerStats(t *testing.T) {
 					},
 				},
 			},
-			shouldError: true,
+			// A server-side stats reset self-heals instead of erroring.
+			shouldError: false,
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			require := require.New(t)
 			cache := NewServersStatsCache()
 			err := cache.Update(tt.startingStats)
-			require.NoError(err)
+			assert.NoError(t, err)
 			err = cache.Update(model.ServerStats{
 				Total: 1,
 				Servers: map[string]model.ServerStat{
@@ -184,24 +181,22 @@ func TestUpdateServerStatsCache_EmptyServerStats(t *testing.T) {
 				},
 			})
 			if tt.shouldError {
-				require.Error(err)
+				assert.Error(t, err)
 			} else {
-				require.NoError(err)
+				assert.NoError(t, err)
 			}
 		})
 	}
 }
 
 func TestNewServerStatsCache_SetsServers(t *testing.T) {
-	require := require.New(t)
 	cache := NewServersStatsCache()
-	require.NotNil(cache.Servers)
+	assert.NotNil(t, cache.Servers)
 }
 
 func TestUpdateServerStatsCache(t *testing.T) {
-	require := require.New(t)
 	cache := NewServersStatsCache()
-	cache.Update(model.ServerStats{
+	_ = cache.Update(model.ServerStats{
 		Total: 1,
 		Servers: map[string]model.ServerStat{
 			"server1": {
@@ -222,14 +217,14 @@ func TestUpdateServerStatsCache(t *testing.T) {
 	server1 := cache.Servers["server1"]
 	server2 := cache.Servers["server2"]
 
-	require.Equal(1, server1.GetTotal())
-	require.Equal(2, server1.GetArticlesTried())
-	require.Equal(2, server1.GetArticlesSuccess())
-	require.Equal(2, server2.GetTotal())
-	require.Equal(4, server2.GetArticlesTried())
-	require.Equal(4, server2.GetArticlesSuccess())
+	assert.Equal(t, server1.GetTotal(), 1)
+	assert.Equal(t, server1.GetArticlesTried(), 2)
+	assert.Equal(t, server1.GetArticlesSuccess(), 2)
+	assert.Equal(t, server2.GetTotal(), 2)
+	assert.Equal(t, server2.GetArticlesTried(), 4)
+	assert.Equal(t, server2.GetArticlesSuccess(), 4)
 
-	cache.Update(model.ServerStats{
+	_ = cache.Update(model.ServerStats{
 		Total: 2,
 		Servers: map[string]model.ServerStat{
 			"server1": {
@@ -244,21 +239,20 @@ func TestUpdateServerStatsCache(t *testing.T) {
 	server1 = cache.Servers["server1"]
 	server2 = cache.Servers["server2"]
 
-	require.Equal(2, cache.GetTotal())
-	require.Equal(3, server1.GetTotal())
-	require.Equal(6, server1.GetArticlesTried())
-	require.Equal(6, server1.GetArticlesSuccess())
-	require.Equal(2, server2.GetTotal())
-	require.Equal(4, server2.GetArticlesTried())
-	require.Equal(4, server2.GetArticlesSuccess())
+	assert.Equal(t, cache.GetTotal(), 2)
+	assert.Equal(t, server1.GetTotal(), 3)
+	assert.Equal(t, server1.GetArticlesTried(), 6)
+	assert.Equal(t, server1.GetArticlesSuccess(), 6)
+	assert.Equal(t, server2.GetTotal(), 2)
+	assert.Equal(t, server2.GetArticlesTried(), 4)
+	assert.Equal(t, server2.GetArticlesSuccess(), 4)
 }
 
 func TestGetServerMap_ReturnsCopy(t *testing.T) {
 	// It's important to return a true copy to maintain thread safety
-	require := require.New(t)
 
 	cache := NewServersStatsCache()
-	cache.Update(model.ServerStats{
+	_ = cache.Update(model.ServerStats{
 		Total: 1,
 		Servers: map[string]model.ServerStat{
 			"server1": {
@@ -273,12 +267,17 @@ func TestGetServerMap_ReturnsCopy(t *testing.T) {
 	serverMap := cache.GetServerMap()
 
 	for k, v := range serverMap {
-		require.Equal(cache.Servers[k], v)
+		assert.DeepEqual(t, v, cache.Servers[k])
 	}
 
-	require.NotSame(&cache.Servers, &serverMap)
+	// GetServerMap must return a copy: writes to it must not leak into the
+	// cache's internal map.
+	serverMap["sentinel"] = serverStatCache{}
+	_, leaked := cache.Servers["sentinel"]
+	assert.False(t, leaked, "GetServerMap must return a copy")
+	delete(serverMap, "sentinel")
 
-	cache.Update(model.ServerStats{
+	_ = cache.Update(model.ServerStats{
 		Total: 2,
 		Servers: map[string]model.ServerStat{
 			"server1": {
@@ -293,7 +292,7 @@ func TestGetServerMap_ReturnsCopy(t *testing.T) {
 	cServer := cache.Servers["server1"]
 	sServer := serverMap["server1"]
 
-	require.NotEqual(cServer.GetTotal(), sServer.GetTotal())
-	require.NotEqual(cServer.GetArticlesTried(), sServer.GetArticlesTried())
-	require.NotEqual(cServer.GetArticlesSuccess(), sServer.GetArticlesSuccess())
+	assert.NotEqual(t, sServer.GetTotal(), cServer.GetTotal())
+	assert.NotEqual(t, sServer.GetArticlesTried(), cServer.GetArticlesTried())
+	assert.NotEqual(t, sServer.GetArticlesSuccess(), cServer.GetArticlesSuccess())
 }

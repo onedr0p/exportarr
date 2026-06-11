@@ -3,25 +3,20 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/onedr0p/exportarr/internal/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/stretchr/testify/require"
 )
 
 func TestNewClient(t *testing.T) {
 	u := "http://localhost"
-
-	require := require.New(t)
-	c, err := NewClient(u, true, nil)
-	require.NoError(err, "NewClient should not return an error")
-	require.NotNil(c, "NewClient should return a client")
-	require.Equal(u, c.URL.String(), "NewClient should set the correct URL")
-	require.True(c.httpClient.Transport.(*ExportarrTransport).inner.(*http.Transport).TLSClientConfig.InsecureSkipVerify)
+	c, err := NewClient(u, true, 0, nil)
+	assert.NoError(t, err, "NewClient should not return an error")
+	assert.NotNil(t, c, "NewClient should return a client")
+	assert.Equal(t, c.URL.String(), u, "NewClient should set the correct URL")
+	assert.True(t, c.httpClient.Transport.(*ExportarrTransport).inner.(*http.Transport).TLSClientConfig.InsecureSkipVerify)
 }
-
-// Need tests for FormAuth & BasicAuth
 
 func TestDoRequest(t *testing.T) {
 	parameters := []struct {
@@ -56,9 +51,8 @@ func TestDoRequest(t *testing.T) {
 	}
 	for _, param := range parameters {
 		t.Run(param.name, func(t *testing.T) {
-			require := require.New(t)
 			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				require.Equal(param.expectedURL, r.URL.String(), "DoRequest should use the correct URL")
+				assert.Equal(t, r.URL.String(), param.expectedURL, "DoRequest should use the correct URL")
 				fmt.Fprintln(w, "{\"test\": \"asdf2\"}")
 			}))
 			defer ts.Close()
@@ -68,22 +62,21 @@ func TestDoRequest(t *testing.T) {
 			}{}
 			expected := target
 			expected.Test = "asdf2"
-			client, err := NewClient(ts.URL, false, nil)
+			client, err := NewClient(ts.URL, false, 0, nil)
 			if err != nil {
 				panic(err)
 			}
-			require.Nil(err, "NewClient should not return an error")
-			require.NotNil(client, "NewClient should return a client")
+			assert.Nil(t, err, "NewClient should not return an error")
+			assert.NotNil(t, client, "NewClient should return a client")
 			err = client.DoRequest(param.endpoint, &target, param.queryParams)
-			require.Nil(err, "DoRequest should not return an error: %s", err)
-			require.Equal(expected, target, "DoRequest should return the correct data")
+			assert.Nil(t, err, "DoRequest should not return an error: %s", err)
+			assert.Equal(t, target, expected, "DoRequest should return the correct data")
 		})
 	}
 }
 
 func TestDoRequest_PanicRecovery(t *testing.T) {
-	require := require.New(t)
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		ret := struct {
 			TestField  string
 			TestField2 string
@@ -92,18 +85,18 @@ func TestDoRequest_PanicRecovery(t *testing.T) {
 			TestField2: "asdf2",
 		}
 		s, err := json.Marshal(ret)
-		require.NoError(err)
-		w.Write(s)
+		assert.NoError(t, err)
+		_, _ = w.Write(s)
 		w.WriteHeader(http.StatusOK)
 	}))
 	defer ts.Close()
 
-	client, err := NewClient(ts.URL, false, nil)
-	require.Nil(err, "NewClient should not return an error")
-	require.NotNil(client, "NewClient should return a client")
+	client, err := NewClient(ts.URL, false, 0, nil)
+	assert.Nil(t, err, "NewClient should not return an error")
+	assert.NotNil(t, client, "NewClient should return a client")
 
 	err = client.DoRequest("test", nil)
-	require.NotPanics(func() {
-		require.Error(err, "DoRequest should return an error: %s", err)
+	assert.NotPanics(t, func() {
+		assert.Error(t, err, "DoRequest should return an error: %s", err)
 	}, "DoRequest should recover from a panic")
 }

@@ -1,3 +1,4 @@
+// Package model contains typed representations of *arr API responses.
 package model
 
 // Subtitle - Stores struct of JSON response
@@ -9,37 +10,40 @@ type Subtitle []struct {
 	Code3    string `json:"code3"`
 }
 
-// Series - Stores struct of JSON response
-// /api/swagger.json#/definitions/SeriesGetResponse
-// https://github.com/morpheus65535/bazarr/blob/master/bazarr/api/series/series.py
+// BazarrSeries is the response from bazarr's series endpoint
+// (/api/swagger.json#/definitions/SeriesGetResponse,
+// bazarr/api/series/series.py).
 type BazarrSeries struct {
 	Data []struct {
-		Id        int  `json:"sonarrSeriesId"`
+		ID        int  `json:"sonarrSeriesId"`
 		Monitored bool `json:"monitored"`
 	} `json:"data"`
 }
 
+// BazarrEpisodes is the response from bazarr's episodes endpoint.
 type BazarrEpisodes struct {
 	Data []struct {
-		Id               int      `json:"sonarrEpisodeId"`
-		SeriesId         int      `json:"sonarrSeriesId"`
+		ID               int      `json:"sonarrEpisodeId"`
+		SeriesID         int      `json:"sonarrSeriesId"`
 		Monitored        bool     `json:"monitored"`
 		Subtitles        Subtitle `json:"subtitles"`
 		MissingSubtitles Subtitle `json:"missing_subtitles"`
 	} `json:"data"`
 }
 
-// /api/swagger.json#/definitions/MoviesGetResponse
-// https://github.com/morpheus65535/bazarr/blob/master/bazarr/api/movies/movies.py
+// BazarrMovies is the response from bazarr's movies endpoint
+// (/api/swagger.json#/definitions/MoviesGetResponse,
+// bazarr/api/movies/movies.py).
 type BazarrMovies struct {
 	Data []struct {
-		Id               int      `json:"radarrId"`
+		ID               int      `json:"radarrId"`
 		Monitored        bool     `json:"monitored"`
 		Subtitles        Subtitle `json:"subtitles"`
 		MissingSubtitles Subtitle `json:"missing_subtitles"`
 	} `json:"data"`
 }
 
+// BazarrHistory is the response from bazarr's history endpoints.
 type BazarrHistory struct {
 	Data []struct {
 		Score    string `json:"score"`
@@ -48,6 +52,7 @@ type BazarrHistory struct {
 	TotalRecords int `json:"total"`
 }
 
+// BazarrHealth is the response from bazarr's system/health endpoint.
 type BazarrHealth struct {
 	Data []struct {
 		Object string `json:"object"`
@@ -55,6 +60,17 @@ type BazarrHealth struct {
 	} `json:"data"`
 }
 
+// BazarrBadges is the subset of bazarr's badges endpoint the collector uses
+// (the endpoint also returns wanted counts, health-issue and announcement
+// totals, which are covered by other collectors/endpoints).
+type BazarrBadges struct {
+	Episodes      int    `json:"episodes"`  // episodes with missing subtitles
+	Providers     int    `json:"providers"` // currently throttled providers
+	SonarrSignalr string `json:"sonarr_signalr"`
+	RadarrSignalr string `json:"radarr_signalr"`
+}
+
+// BazarrStatus is the response from bazarr's system/status endpoint.
 type BazarrStatus struct {
 	Data struct {
 		Version       string  `json:"bazarr_version"`

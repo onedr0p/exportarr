@@ -1,16 +1,24 @@
+// Package client provides the shared authenticated HTTP client used by every
+// exporter.
 package client
 
 import (
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strings"
-
-	"go.uber.org/zap"
+	"time"
 )
+
+// defaultRequestTimeout caps each HTTP request so a hung instance cannot pin
+// scrape goroutines forever; large bazarr/lidarr history payloads can take
+// tens of seconds, so the default is generous and overridable via config.
+const defaultRequestTimeout = 60 * time.Second
 
 // Client struct is an *Arr client.
 type Client struct {
@@ -18,10 +26,14 @@ type Client struct {
 	URL        url.URL
 }
 
+// QueryParams holds URL query parameters.
 type QueryParams = url.Values
 
 // NewClient method initializes a new *Arr client.
-func NewClient(baseURL string, insecureSkipVerify bool, auth Authenticator) (*Client, error) {
+func NewClient(baseURL string, insecureSkipVerify bool, timeout time.Duration, auth Authenticator) (*Client, error) {
+	if timeout <= 0 {
+		timeout = defaultRequestTimeout
+	}
 
 	u, err := url.Parse(baseURL)
 	if err != nil {
@@ -30,33 +42,32 @@ func NewClient(baseURL string, insecureSkipVerify bool, auth Authenticator) (*Cl
 
 	return &Client{
 		httpClient: http.Client{
-			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			CheckRedirect: func(_ *http.Request, _ []*http.Request) error {
 				return http.ErrUseLastResponse
 			},
+			Timeout:   timeout,
 			Transport: NewExportarrTransport(BaseTransport(insecureSkipVerify), auth),
 		},
 		URL: *u,
 	}, nil
 }
 
-func (c *Client) unmarshalBody(b io.Reader, target interface{}) (err error) {
+func (c *Client) unmarshalBody(b io.Reader, target any) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			// return recovered panic as error
 			err = fmt.Errorf("recovered from panic: %s", r)
 
-			log := zap.S()
-			if zap.S().Level() == zap.DebugLevel {
+			log := slog.Default()
+			if log.Enabled(context.Background(), slog.LevelDebug) {
 				s := new(strings.Builder)
-				_, copyErr := io.Copy(s, b)
-				if copyErr != nil {
-					zap.S().Errorw("Failed to copy body to string in recover",
-						"error", err, "recover", r)
+				if _, copyErr := io.Copy(s, b); copyErr != nil {
+					log.Error("Failed to copy body to string in recover",
+						"error", copyErr, "recover", r)
 				}
 				log = log.With("body", s.String())
 			}
-			log.Errorw("Recovered while unmarshalling response", "error", r)
-
+			log.Error("Recovered while unmarshalling response", "error", r)
 		}
 	}()
 	err = json.NewDecoder(b).Decode(target)
@@ -64,7 +75,7 @@ func (c *Client) unmarshalBody(b io.Reader, target interface{}) (err error) {
 }
 
 // DoRequest - Take a HTTP Request and return Unmarshaled data
-func (c *Client) DoRequest(endpoint string, target interface{}, queryParams ...QueryParams) error {
+func (c *Client) DoRequest(endpoint string, target any, queryParams ...QueryParams) error {
 	values := c.URL.Query()
 
 	// merge all query params
@@ -76,27 +87,39 @@ func (c *Client) DoRequest(endpoint string, target interface{}, queryParams ...Q
 		}
 	}
 
-	url := c.URL.JoinPath(endpoint)
-	url.RawQuery = values.Encode()
-	zap.S().Infow("Sending HTTP request",
-		"url", url)
+	endpointURL := c.URL.JoinPath(endpoint)
+	endpointURL.RawQuery = values.Encode()
+	slog.Debug("Sending HTTP request", "url", endpointURL)
 
-	req, err := http.NewRequest("GET", url.String(), nil)
+	req, err := http.NewRequest(http.MethodGet, endpointURL.String(), nil)
 	if err != nil {
-		return fmt.Errorf("failed to create HTTP Request(%s): %w", url, err)
+		return fmt.Errorf("failed to create HTTP Request(%s): %w", endpointURL, err)
 	}
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("failed to execute HTTP Request(%s): %w", url, err)
+		return fmt.Errorf("failed to execute HTTP Request(%s): %w", endpointURL, err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	return c.unmarshalBody(resp.Body, target)
 }
 
+// Get fetches an endpoint and decodes the JSON response into T.
+func Get[T any](c *Client, endpoint string, queryParams ...QueryParams) (T, error) {
+	var out T
+	err := c.DoRequest(endpoint, &out, queryParams...)
+	return out, err
+}
+
+// BaseTransport returns a clone of the default transport, optionally with TLS
+// verification disabled. Cloning keeps the insecure setting scoped to this
+// client instead of mutating the process-wide http.DefaultTransport.
 func BaseTransport(insecureSkipVerify bool) http.RoundTripper {
-	baseTransport := http.DefaultTransport
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	// Every collector in a command scrapes the same host concurrently; the
+	// default of 2 idle conns per host forces constant TLS re-handshakes.
+	transport.MaxIdleConnsPerHost = 16
 	if insecureSkipVerify {
-		baseTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+		transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true} //nolint:gosec // opt-in via --disable-ssl-verify
 	}
-	return baseTransport
+	return transport
 }

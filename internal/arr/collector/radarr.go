@@ -1,16 +1,17 @@
 package collector
 
 import (
+	"log/slog"
 	"strconv"
 
 	"github.com/onedr0p/exportarr/internal/arr/client"
 	"github.com/onedr0p/exportarr/internal/arr/config"
 	"github.com/onedr0p/exportarr/internal/arr/model"
 	"github.com/prometheus/client_golang/prometheus"
-	"go.uber.org/zap"
 )
 
 type radarrCollector struct {
+	client                 *client.Client
 	config                 *config.ArrConfig // App configuration
 	movieEdition           *prometheus.Desc  // Total number of movies with an `edition` set
 	movieMetric            *prometheus.Desc  // Total number of movies
@@ -26,85 +27,28 @@ type radarrCollector struct {
 	movieTagsMetric        *prometheus.Desc  // Total number of downloaded movies by tag
 }
 
-func NewRadarrCollector(c *config.ArrConfig) *radarrCollector {
+// NewRadarrCollector builds a collector for radarr library statistics.
+func NewRadarrCollector(httpClient *client.Client, c *config.ArrConfig) prometheus.Collector {
 	return &radarrCollector{
-		config: c,
-		movieEdition: prometheus.NewDesc(
-			"radarr_movie_editions",
-			"Total number of movies with `edition` set",
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		movieMetric: prometheus.NewDesc(
-			"radarr_movie_total",
-			"Total number of movies",
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		movieDownloadedMetric: prometheus.NewDesc(
-			"radarr_movie_downloaded_total",
-			"Total number of downloaded movies",
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		movieMonitoredMetric: prometheus.NewDesc(
-			"radarr_movie_monitored_total",
-			"Total number of monitored movies",
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		movieUnmonitoredMetric: prometheus.NewDesc(
-			"radarr_movie_unmonitored_total",
-			"Total number of unmonitored movies",
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		movieWantedMetric: prometheus.NewDesc(
-			"radarr_movie_wanted_total",
-			"Total number of wanted movies",
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		movieMissingMetric: prometheus.NewDesc(
-			"radarr_movie_missing_total",
-			"Total number of missing movies",
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		movieCutoffUnmetMetric: prometheus.NewDesc(
-			"radarr_movie_cutoff_unmet_total",
-			"Total number of movies with cutoff unmet",
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		movieFileSizeMetric: prometheus.NewDesc(
-			"radarr_movie_filesize_total",
-			"Total filesize of all movies",
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		movieQualitiesMetric: prometheus.NewDesc(
-			"radarr_movie_quality_total",
-			"Total number of downloaded movies by quality",
-			[]string{"quality", "weight"},
-			prometheus.Labels{"url": c.URL},
-		),
-		movieTagsMetric: prometheus.NewDesc(
-			"radarr_movie_tag_total",
-			"Total number of downloaded movies by tag",
-			[]string{"tag"},
-			prometheus.Labels{"url": c.URL},
-		),
-		errorMetric: prometheus.NewDesc(
-			"radarr_collector_error",
-			"Error while collecting metrics",
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
+		client:                 httpClient,
+		config:                 c,
+		movieEdition:           newDesc("radarr", "movie_editions", "Total number of movies with `edition` set", nil, c.URL),
+		movieMetric:            newDesc("radarr", "movie_total", "Total number of movies", nil, c.URL),
+		movieDownloadedMetric:  newDesc("radarr", "movie_downloaded_total", "Total number of downloaded movies", nil, c.URL),
+		movieMonitoredMetric:   newDesc("radarr", "movie_monitored_total", "Total number of monitored movies", nil, c.URL),
+		movieUnmonitoredMetric: newDesc("radarr", "movie_unmonitored_total", "Total number of unmonitored movies", nil, c.URL),
+		movieWantedMetric:      newDesc("radarr", "movie_wanted_total", "Total number of wanted movies", nil, c.URL),
+		movieMissingMetric:     newDesc("radarr", "movie_missing_total", "Total number of missing movies", nil, c.URL),
+		movieCutoffUnmetMetric: newDesc("radarr", "movie_cutoff_unmet_total", "Total number of movies with cutoff unmet", nil, c.URL),
+		movieFileSizeMetric:    newDesc("radarr", "movie_filesize_total", "Total filesize of all movies", nil, c.URL),
+		movieQualitiesMetric:   newDesc("radarr", "movie_quality_total", "Total number of downloaded movies by quality", []string{"quality", "weight"}, c.URL),
+		movieTagsMetric:        newDesc("radarr", "movie_tag_total", "Total number of downloaded movies by tag", []string{"tag"}, c.URL),
+		errorMetric:            newDesc("radarr", "collector_error", "Error while collecting metrics", nil, c.URL),
 	}
 }
 
 func (collector *radarrCollector) Describe(ch chan<- *prometheus.Desc) {
+	ch <- collector.errorMetric
 	ch <- collector.movieEdition
 	ch <- collector.movieMetric
 	ch <- collector.movieDownloadedMetric
@@ -119,13 +63,9 @@ func (collector *radarrCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
-	log := zap.S().With("collector", "radarr")
-	c, err := client.NewClient(collector.config)
-	if err != nil {
-		log.Errorw("Error creating client", "error", err)
-		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
-		return
-	}
+	log := slog.With("collector", "radarr")
+	defer recoverCollect(log, ch, collector.errorMetric)
+	c := collector.client
 	var fileSize int64
 	var (
 		editions    = 0
@@ -142,14 +82,13 @@ func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
 		qualityWeights = map[string]string{}
 	)
 
-	movies := model.Movie{}
 	params := client.QueryParams{}
 	params.Add("excludeLocalCovers", "true")
 
 	// https://radarr.video/docs/api/#/Movie/get_api_v3_movie
-	if err := c.DoRequest("movie", &movies, params); err != nil {
-		log.Errorw("Error getting movies", "error", err)
-		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+	movies, err := client.Get[model.Movie](c, "movie", params)
+	if err != nil {
+		emitError(log, ch, collector.errorMetric, "Error getting movies", "error", err)
 		return
 	}
 	for _, s := range movies {
@@ -179,11 +118,10 @@ func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
 		}
 	}
 
-	tagObjects := model.TagMovies{}
 	// https://radarr.video/docs/api/#/TagDetails/get_api_v3_tag_detail
-	if err := c.DoRequest("tag/detail", &tagObjects); err != nil {
-		log.Errorw("Error getting Tags", "error", err)
-		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+	tagObjects, err := client.Get[model.TagMovies](c, "tag/detail")
+	if err != nil {
+		emitError(log, ch, collector.errorMetric, "Error getting Tags", "error", err)
 		return
 	}
 	for _, s := range tagObjects {
@@ -192,16 +130,14 @@ func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
 			Movies int
 		}{
 			Label:  s.Label,
-			Movies: len(s.MovieIds),
+			Movies: len(s.MovieIDs),
 		}
 		tags = append(tags, tag)
 	}
 
-	qualityDefs := model.Qualities{}
-	if err := c.DoRequest("qualitydefinition", &qualityDefs); err != nil {
-		log.Errorw("Error getting qualities",
-			"error", err)
-		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
+	qualityDefs, err := client.Get[model.Qualities](c, "qualitydefinition")
+	if err != nil {
+		emitError(log, ch, collector.errorMetric, "Error getting qualities", "error", err)
 		return
 	}
 	for _, q := range qualityDefs {
@@ -210,15 +146,18 @@ func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
 		}
 	}
 
-	moviesCutoffUnmet := model.CutoffUnmetMovies{}
-	moviesCutoffUnmetParams := client.QueryParams{}
-	params.Add("sortKey", "airDateUtc")
-
-	if err := c.DoRequest("wanted/cutoff", &moviesCutoffUnmet, moviesCutoffUnmetParams); err != nil {
-		log.Errorw("Error getting cutoff unmet",
-			"error", err)
-		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
-		return
+	// Only totalRecords is read: request the smallest page the API allows.
+	// This total forces a full count, so it is skippable on huge instances.
+	var moviesCutoffUnmet int
+	if !collector.config.DisableWantedMetrics {
+		cutoffParams := client.QueryParams{}
+		cutoffParams.Add("pageSize", "1")
+		cutoffUnmet, err := client.Get[model.CutoffUnmetMovies](c, "wanted/cutoff", cutoffParams)
+		if err != nil {
+			emitError(log, ch, collector.errorMetric, "Error getting cutoff unmet", "error", err)
+			return
+		}
+		moviesCutoffUnmet = cutoffUnmet.TotalRecords
 	}
 
 	ch <- prometheus.MustNewConstMetric(collector.movieEdition, prometheus.GaugeValue, float64(editions))
@@ -228,7 +167,9 @@ func (collector *radarrCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(collector.movieUnmonitoredMetric, prometheus.GaugeValue, float64(unmonitored))
 	ch <- prometheus.MustNewConstMetric(collector.movieWantedMetric, prometheus.GaugeValue, float64(wanted))
 	ch <- prometheus.MustNewConstMetric(collector.movieMissingMetric, prometheus.GaugeValue, float64(missing))
-	ch <- prometheus.MustNewConstMetric(collector.movieCutoffUnmetMetric, prometheus.GaugeValue, float64(moviesCutoffUnmet.TotalRecords))
+	if !collector.config.DisableWantedMetrics {
+		ch <- prometheus.MustNewConstMetric(collector.movieCutoffUnmetMetric, prometheus.GaugeValue, float64(moviesCutoffUnmet))
+	}
 	ch <- prometheus.MustNewConstMetric(collector.movieFileSizeMetric, prometheus.GaugeValue, float64(fileSize))
 
 	if len(qualities) > 0 {

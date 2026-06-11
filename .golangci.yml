@@ -1,0 +1,30 @@
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  default: standard
+  enable:
+    - gosec
+    - intrange
+    - misspell
+    - modernize
+    - revive
+    - unconvert
+    - unparam
+    - usestdlibvars
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - errcheck
+          - unparam
+      # SA5011 trips on `if x == nil { t.Fatal(...) }` followed by
+      # `x.Field`. testing.T.Fatal* calls runtime.Goexit, so the
+      # deref is unreachable — but the staticcheck build bundled in
+      # some golangci-lint platform binaries doesn't recognize it as
+      # terminating. Suppress for test files where this idiom is
+      # canonical.
+      - path: _test\.go
+        text: "SA5011"

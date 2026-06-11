@@ -1,30 +1,26 @@
-FROM golang:1.24.6-alpine as builder
-ARG TARGETOS
-ARG TARGETARCH
-ARG TARGETVARIANT=""
-
-ARG VERSION="development"
+ARG GO_VERSION
+FROM golang:${GO_VERSION}-alpine AS build
+ARG VERSION=dev
+ARG REVISION=dev
 ARG BUILDTIME=""
-ARG REVISION=""
+WORKDIR /src
+# ca-certificates lets the scratch stage verify TLS to the target apps;
+# catatonit (static-pie) is the container init; upx shrinks the final binary.
+RUN apk add --no-cache ca-certificates catatonit upx
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . ./
+RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w -X main.version=${VERSION} -X main.revision=${REVISION} -X main.buildTime=${BUILDTIME}" -o /out/exportarr ./cmd/exportarr
+RUN upx --best --lzma /out/exportarr
 
-ENV GO111MODULE=on \
-    CGO_ENABLED=0 \
-    GOOS=${TARGETOS} \
-    GOARCH=${TARGETARCH} \
-    GOARM=${TARGETVARIANT}
-RUN apk add --no-cache ca-certificates tini-static \
-    && update-ca-certificates
-WORKDIR /build
-COPY . .
-RUN go build -a -tags netgo -ldflags "-w -extldflags '-static' -X main.version=${VERSION} -X main.buildTime=${BUILDTIME} -X main.revision=${REVISION}" -o exportarr /build/cmd/exportarr/.
-
-FROM gcr.io/distroless/static:nonroot
+FROM scratch
 ENV PORT="9707"
-USER nonroot:nonroot
-COPY --from=builder --chown=nonroot:nonroot /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=builder --chown=nonroot:nonroot /build/exportarr /exportarr
-COPY --from=builder --chown=nonroot:nonroot /sbin/tini-static /tini
-ENTRYPOINT [ "/tini", "--", "/exportarr" ]
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY --from=build /usr/bin/catatonit /catatonit
+COPY --from=build /out/exportarr /exportarr
+USER 65532:65532
+EXPOSE 9707/tcp
+ENTRYPOINT ["/catatonit", "--", "/exportarr"]
 LABEL \
     org.opencontainers.image.title="exportarr" \
     org.opencontainers.image.source="https://github.com/onedr0p/exportarr"

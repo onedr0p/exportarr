@@ -1,96 +1,129 @@
 package collector
 
 import (
+	"github.com/onedr0p/exportarr/internal/assert"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
 
+	client "github.com/onedr0p/exportarr/internal/arr/client"
 	"github.com/onedr0p/exportarr/internal/arr/config"
-	"github.com/onedr0p/exportarr/internal/test_util"
+	"github.com/onedr0p/exportarr/internal/fixtures"
 	"github.com/prometheus/client_golang/prometheus/testutil"
-	"github.com/stretchr/testify/require"
 )
 
-const sonarr_test_fixtures_path = "../test_fixtures/sonarr/"
+const sonarrTestFixturesPath = "../testdata/sonarr/"
 
 func newTestSonarrServer(t *testing.T, fn func(http.ResponseWriter, *http.Request)) (*httptest.Server, error) {
-	return test_util.NewTestServer(t, sonarr_test_fixtures_path, fn)
+	return fixtures.NewTestServer(t, sonarrTestFixturesPath, fn)
 }
 
 func TestSonarrCollect(t *testing.T) {
 	tests := []struct {
-		name                  string
-		config                *config.ArrConfig
-		expected_metrics_file string
+		name                string
+		config              *config.ArrConfig
+		expectedMetricsFile string
 	}{
 		{
 			name: "basic",
 			config: &config.ArrConfig{
-				App:        "sonarr",
-				ApiVersion: "v3",
+				App:                   "sonarr",
+				APIVersion:            "v3",
+				DisableQualityMetrics: true,
+				DisableEpisodeMetrics: true,
 			},
-			expected_metrics_file: "expected_metrics.txt",
+			expectedMetricsFile: "expected_metrics.txt",
 		},
 		{
-			name: "additional_metrics",
+			name: "default_collects_everything",
 			config: &config.ArrConfig{
-				App:                     "sonarr",
-				ApiVersion:              "v3",
-				EnableAdditionalMetrics: true,
+				App:        "sonarr",
+				APIVersion: "v3",
 			},
-			expected_metrics_file: "expected_metrics_extended.txt",
+			expectedMetricsFile: "expected_metrics_extended.txt",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			require := require.New(t)
-			ts, err := newTestSonarrServer(t, func(w http.ResponseWriter, r *http.Request) {
-				require.Contains(r.URL.Path, "/api/")
+			ts, err := newTestSonarrServer(t, func(_ http.ResponseWriter, r *http.Request) {
+				assert.Contains(t, r.URL.Path, "/api/")
 			})
-			require.NoError(err)
+			assert.NoError(t, err)
 
 			defer ts.Close()
 
 			tt.config.URL = ts.URL
-			tt.config.ApiKey = test_util.API_KEY
+			tt.config.APIKey = fixtures.APIKey
 
-			collector := NewSonarrCollector(tt.config)
-			require.NoError(err)
+			cl, err := client.NewClient(tt.config)
+			assert.NoError(t, err)
+			collector := NewSonarrCollector(cl, tt.config)
+			assert.NoError(t, err)
 
-			b, err := os.ReadFile(sonarr_test_fixtures_path + tt.expected_metrics_file)
-			require.NoError(err)
+			b, err := os.ReadFile(sonarrTestFixturesPath + tt.expectedMetricsFile)
+			assert.NoError(t, err)
 
 			expected := strings.ReplaceAll(string(b), "SOMEURL", ts.URL)
 			f := strings.NewReader(expected)
 
-			require.NotPanics(func() {
+			assert.NotPanics(t, func() {
 				err = testutil.CollectAndCompare(collector, f)
 			})
-			require.NoError(err)
+			assert.NoError(t, err)
 		})
 	}
 }
 
 func TestSonarrCollect_FailureDoesntPanic(t *testing.T) {
-	require := require.New(t)
 
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusInternalServerError)
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusBadRequest)
 	}))
 	defer ts.Close()
 
 	config := &config.ArrConfig{
 		URL:    ts.URL,
-		ApiKey: test_util.API_KEY,
+		APIKey: fixtures.APIKey,
 	}
-	collector := NewRadarrCollector(config)
+	cl, err := client.NewClient(config)
+	assert.NoError(t, err)
+	collector := NewRadarrCollector(cl, config)
 
 	f := strings.NewReader("")
 
-	require.NotPanics(func() {
+	assert.NotPanics(t, func() {
 		err := testutil.CollectAndCompare(collector, f)
-		require.Error(err)
+		assert.Error(t, err)
 	}, "Collecting metrics should not panic on failure")
+}
+
+// TestSonarrCollect_DisableWantedMetrics proves the wanted endpoints are never
+// queried when disabled — their totals force full table counts that can hang
+// multi-year instances.
+func TestSonarrCollect_DisableWantedMetrics(t *testing.T) {
+	ts, err := newTestSonarrServer(t, func(_ http.ResponseWriter, r *http.Request) {
+		if strings.Contains(r.URL.Path, "/wanted/") {
+			t.Errorf("wanted endpoint %q must not be queried when disabled", r.URL.Path)
+		}
+	})
+	assert.NoError(t, err)
+	defer ts.Close()
+
+	config := &config.ArrConfig{
+		App:                  "sonarr",
+		APIVersion:           "v3",
+		URL:                  ts.URL,
+		APIKey:               fixtures.APIKey,
+		DisableWantedMetrics: true,
+	}
+	cl, err := client.NewClient(config)
+	assert.NoError(t, err)
+	collector := NewSonarrCollector(cl, config)
+
+	assert.GreaterOrEqual(t, testutil.CollectAndCount(collector), 5)
+	assert.Equal(t, testutil.CollectAndCount(collector, "sonarr_episode_missing_total", "sonarr_episode_cutoff_unmet_total"), 0,
+		"wanted series must be absent when disabled")
+	assert.Equal(t, testutil.CollectAndCount(collector, "sonarr_collector_error"), 0)
 }

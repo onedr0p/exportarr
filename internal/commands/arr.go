@@ -1,12 +1,12 @@
+// Package commands wires the exportarr CLI: one subcommand per supported app.
 package commands
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
 
+	"github.com/onedr0p/exportarr/internal/arr/client"
 	"github.com/onedr0p/exportarr/internal/arr/collector"
 	"github.com/onedr0p/exportarr/internal/arr/config"
 )
@@ -15,7 +15,6 @@ func init() {
 	config.RegisterArrFlags(radarrCmd.PersistentFlags())
 	config.RegisterArrFlags(sonarrCmd.PersistentFlags())
 	config.RegisterArrFlags(lidarrCmd.PersistentFlags())
-	config.RegisterArrFlags(readarrCmd.PersistentFlags())
 	config.RegisterArrFlags(prowlarrCmd.PersistentFlags())
 	config.RegisterArrFlags(bazarrCmd.PersistentFlags())
 	config.RegisterProwlarrFlags(prowlarrCmd.PersistentFlags())
@@ -25,20 +24,66 @@ func init() {
 		radarrCmd,
 		sonarrCmd,
 		lidarrCmd,
-		readarrCmd,
 		bazarrCmd,
 		prowlarrCmd,
 	)
 }
 
-func UsageOnError(cmd *cobra.Command, err error) {
+// arrCommand describes what varies between the *arr subcommands; runE supplies
+// the shared skeleton (load config → validate → build client → serve).
+type arrCommand struct {
+	apiVersion string
+	// loadExtra parses app-specific flags/env into the sub-config (optional).
+	loadExtra func(*config.ArrConfig, *flag.FlagSet) error
+	// validateExtra checks the sub-config (optional).
+	validateExtra func(*config.ArrConfig) error
+	// collectors builds the collectors to register for this app.
+	collectors func(*client.Client, *config.ArrConfig) []prometheus.Collector
+}
+
+func (a arrCommand) runE(cmd *cobra.Command, _ []string) error {
+	c, err := config.LoadArrConfig(*conf, cmd.PersistentFlags())
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		if err := cmd.Usage(); err != nil {
-			panic(err)
-		}
-		os.Exit(1)
+		return err
 	}
+	c.APIVersion = a.apiVersion
+	if a.loadExtra != nil {
+		if err := a.loadExtra(c, cmd.PersistentFlags()); err != nil {
+			return err
+		}
+	}
+	if err := c.Validate(); err != nil {
+		return err
+	}
+	if a.validateExtra != nil {
+		if err := a.validateExtra(c); err != nil {
+			return err
+		}
+	}
+	httpClient, err := client.NewClient(c)
+	if err != nil {
+		return err
+	}
+	return serveHTTP(func(r prometheus.Registerer) {
+		r.MustRegister(a.collectors(httpClient, c)...)
+	})
+}
+
+// sharedArrCollectors returns the collectors common to the full *arr apps
+// (radarr, sonarr, lidarr): queue, root folder, disk space, status, health,
+// and — unless disabled — history.
+func sharedArrCollectors(httpClient *client.Client, c *config.ArrConfig) []prometheus.Collector {
+	out := []prometheus.Collector{
+		collector.NewQueueCollector(httpClient, c),
+		collector.NewRootFolderCollector(httpClient, c),
+		collector.NewDiskSpaceCollector(httpClient, c),
+		collector.NewSystemStatusCollector(httpClient, c),
+		collector.NewSystemHealthCollector(httpClient, c),
+	}
+	if !c.DisableHistoryMetrics {
+		out = append(out, collector.NewHistoryCollector(httpClient, c))
+	}
+	return out
 }
 
 var radarrCmd = &cobra.Command{
@@ -46,26 +91,12 @@ var radarrCmd = &cobra.Command{
 	Aliases: []string{"r"},
 	Short:   "Prometheus Exporter for Radarr",
 	Long:    "Prometheus Exporter for Radarr.",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		c, err := config.LoadArrConfig(*conf, cmd.PersistentFlags())
-		if err != nil {
-			return err
-		}
-		c.ApiVersion = "v3"
-		UsageOnError(cmd, c.Validate())
-
-		serveHttp(func(r prometheus.Registerer) {
-			r.MustRegister(
-				collector.NewRadarrCollector(c),
-				collector.NewQueueCollector(c),
-				collector.NewHistoryCollector(c),
-				collector.NewRootFolderCollector(c),
-				collector.NewSystemStatusCollector(c),
-				collector.NewSystemHealthCollector(c),
-			)
-		})
-		return nil
-	},
+	RunE: arrCommand{
+		apiVersion: "v3",
+		collectors: func(httpClient *client.Client, c *config.ArrConfig) []prometheus.Collector {
+			return append(sharedArrCollectors(httpClient, c), collector.NewRadarrCollector(httpClient, c))
+		},
+	}.runE,
 }
 
 var sonarrCmd = &cobra.Command{
@@ -73,79 +104,24 @@ var sonarrCmd = &cobra.Command{
 	Aliases: []string{"s"},
 	Short:   "Prometheus Exporter for Sonarr",
 	Long:    "Prometheus Exporter for Sonarr.",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		c, err := config.LoadArrConfig(*conf, cmd.PersistentFlags())
-		if err != nil {
-			return err
-		}
-		c.ApiVersion = "v3"
-		UsageOnError(cmd, c.Validate())
-
-		serveHttp(func(r prometheus.Registerer) {
-			r.MustRegister(
-				collector.NewSonarrCollector(c),
-				collector.NewQueueCollector(c),
-				collector.NewHistoryCollector(c),
-				collector.NewRootFolderCollector(c),
-				collector.NewSystemStatusCollector(c),
-				collector.NewSystemHealthCollector(c),
-			)
-		})
-		return nil
-	},
+	RunE: arrCommand{
+		apiVersion: "v3",
+		collectors: func(httpClient *client.Client, c *config.ArrConfig) []prometheus.Collector {
+			return append(sharedArrCollectors(httpClient, c), collector.NewSonarrCollector(httpClient, c))
+		},
+	}.runE,
 }
 
 var lidarrCmd = &cobra.Command{
 	Use:   "lidarr",
 	Short: "Prometheus Exporter for Lidarr",
 	Long:  "Prometheus Exporter for Lidarr.",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		c, err := config.LoadArrConfig(*conf, cmd.PersistentFlags())
-		if err != nil {
-			return err
-		}
-		c.ApiVersion = "v1"
-		UsageOnError(cmd, c.Validate())
-
-		serveHttp(func(r prometheus.Registerer) {
-			r.MustRegister(
-				collector.NewLidarrCollector(c),
-				collector.NewQueueCollector(c),
-				collector.NewHistoryCollector(c),
-				collector.NewRootFolderCollector(c),
-				collector.NewSystemStatusCollector(c),
-				collector.NewSystemHealthCollector(c),
-			)
-		})
-		return nil
-	},
-}
-
-var readarrCmd = &cobra.Command{
-	Use:     "readarr",
-	Aliases: []string{"b"},
-	Short:   "Prometheus Exporter for Readarr",
-	Long:    "Prometheus Exporter for Readarr.",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		c, err := config.LoadArrConfig(*conf, cmd.PersistentFlags())
-		if err != nil {
-			return err
-		}
-		c.ApiVersion = "v1"
-		UsageOnError(cmd, c.Validate())
-
-		serveHttp(func(r prometheus.Registerer) {
-			r.MustRegister(
-				collector.NewReadarrCollector(c),
-				collector.NewQueueCollector(c),
-				collector.NewHistoryCollector(c),
-				collector.NewRootFolderCollector(c),
-				collector.NewSystemStatusCollector(c),
-				collector.NewSystemHealthCollector(c),
-			)
-		})
-		return nil
-	},
+	RunE: arrCommand{
+		apiVersion: "v1",
+		collectors: func(httpClient *client.Client, c *config.ArrConfig) []prometheus.Collector {
+			return append(sharedArrCollectors(httpClient, c), collector.NewLidarrCollector(httpClient, c))
+		},
+	}.runE,
 }
 
 var bazarrCmd = &cobra.Command{
@@ -153,25 +129,16 @@ var bazarrCmd = &cobra.Command{
 	Aliases: []string{"b"},
 	Short:   "Prometheus Exporter for Bazarr",
 	Long:    "Prometheus Exporter for Bazarr.",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		c, err := config.LoadArrConfig(*conf, cmd.PersistentFlags())
-		if err != nil {
-			return err
-		}
-		c.ApiVersion = ""
-		if err := c.LoadBazarrConfig(cmd.PersistentFlags()); err != nil {
-			return err
-		}
-		UsageOnError(cmd, c.Validate())
-		UsageOnError(cmd, c.Bazarr.Validate())
-
-		serveHttp(func(r prometheus.Registerer) {
-			r.MustRegister(
-				collector.NewBazarrCollector(c),
-			)
-		})
-		return nil
-	},
+	RunE: arrCommand{
+		apiVersion: "",
+		loadExtra: func(c *config.ArrConfig, flags *flag.FlagSet) error {
+			return c.LoadBazarrConfig(flags)
+		},
+		validateExtra: func(c *config.ArrConfig) error { return c.Bazarr.Validate() },
+		collectors: func(httpClient *client.Client, c *config.ArrConfig) []prometheus.Collector {
+			return []prometheus.Collector{collector.NewBazarrCollector(httpClient, c)}
+		},
+	}.runE,
 }
 
 var prowlarrCmd = &cobra.Command{
@@ -179,30 +146,23 @@ var prowlarrCmd = &cobra.Command{
 	Aliases: []string{"p"},
 	Short:   "Prometheus Exporter for Prowlarr",
 	Long:    "Prometheus Exporter for Prowlarr.",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		c, err := config.LoadArrConfig(*conf, cmd.PersistentFlags())
-		if err != nil {
-			return err
-		}
-		c.ApiVersion = "v1"
-		if err := c.LoadProwlarrConfig(cmd.PersistentFlags()); err != nil {
-			return err
-		}
-		if err := c.Prowlarr.Validate(); err != nil {
-			return err
-		}
-		UsageOnError(cmd, c.Validate())
-		UsageOnError(cmd, c.Prowlarr.Validate())
-
-		serveHttp(func(r prometheus.Registerer) {
-			r.MustRegister(
-				collector.NewProwlarrCollector(c),
-				collector.NewHistoryCollector(c),
-				collector.NewSystemStatusCollector(c),
-				collector.NewSystemHealthCollector(c,
+	RunE: arrCommand{
+		apiVersion: "v1",
+		loadExtra: func(c *config.ArrConfig, flags *flag.FlagSet) error {
+			return c.LoadProwlarrConfig(flags)
+		},
+		validateExtra: func(c *config.ArrConfig) error { return c.Prowlarr.Validate() },
+		collectors: func(httpClient *client.Client, c *config.ArrConfig) []prometheus.Collector {
+			out := []prometheus.Collector{
+				collector.NewProwlarrCollector(httpClient, c),
+				collector.NewSystemStatusCollector(httpClient, c),
+				collector.NewSystemHealthCollector(httpClient, c,
 					collector.NewUnavailableIndexerEmitter(c.URL)),
-			)
-		})
-		return nil
-	},
+			}
+			if !c.DisableHistoryMetrics {
+				out = append(out, collector.NewHistoryCollector(httpClient, c))
+			}
+			return out
+		},
+	}.runE,
 }

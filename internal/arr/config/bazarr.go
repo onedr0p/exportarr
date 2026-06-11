@@ -1,61 +1,40 @@
 package config
 
 import (
-	"fmt"
+	"errors"
 
-	"github.com/gookit/validate"
-	"github.com/knadh/koanf/providers/posflag"
-	"github.com/knadh/koanf/v2"
 	flag "github.com/spf13/pflag"
+
+	base_config "github.com/onedr0p/exportarr/internal/config"
 )
 
+// BazarrConfig holds bazarr-specific exporter options.
 type BazarrConfig struct {
-	SeriesBatchSize        int `koanf:"series-batch-size"`
-	SeriesBatchConcurrency int `koanf:"series-batch-concurrency"`
+	SeriesBatchSize        int `env:"SERIES_BATCH_SIZE" envDefault:"300"`
+	SeriesBatchConcurrency int `env:"SERIES_BATCH_CONCURRENCY" envDefault:"10"`
 }
 
+// RegisterBazarrFlags registers bazarr-specific flags on the given FlagSet.
 func RegisterBazarrFlags(flags *flag.FlagSet) {
 	flags.Int("series-batch-size", 300, "Number of Series to retrieve from Bazarr in each API Call")
 	flags.Int("series-batch-concurrency", 10, "Calls to make to Bazarrr Concurrently")
 }
 
+// Validate checks the bazarr configuration.
 func (b BazarrConfig) Validate() error {
-	v := validate.Struct(b)
-	if !v.Validate() {
-		return v.Errors
-	}
 	if b.SeriesBatchSize < 1 {
-		return fmt.Errorf("series-batch-size must be greater than zero")
+		return errors.New("series-batch-size must be greater than zero")
 	}
 	if b.SeriesBatchConcurrency < 1 {
-		return fmt.Errorf("series-batch-concurrency must be greater than zero")
+		return errors.New("series-batch-concurrency must be greater than zero")
 	}
 	return nil
 }
 
-func (b BazarrConfig) Translate() map[string]string {
-	return validate.MS{
-		"SeriesBatchSize":        "series-batch-size",
-		"SeriesBatchConcurrency": "series-batch-concurrency",
-	}
-}
-
+// LoadBazarrConfig overlays bazarr-specific flags onto the ArrConfig
+// (environment variables were already parsed by LoadArrConfig).
 func (c *ArrConfig) LoadBazarrConfig(flags *flag.FlagSet) error {
-	err := c.k.Load(posflag.Provider(flags, ".", c.k), nil, koanf.WithMergeFunc(func(src, dest map[string]interface{}) error {
-		dest["bazarr"] = src
-		return nil
-	}))
-	if err != nil {
-		return err
-	}
-
-	c.Bazarr = BazarrConfig{
-		SeriesBatchSize:        300,
-		SeriesBatchConcurrency: 10,
-	}
-	err = c.k.Unmarshal("bazarr", &c.Bazarr)
-	if err != nil {
-		return err
-	}
+	base_config.OverlayFlag(flags, "series-batch-size", flags.GetInt, &c.Bazarr.SeriesBatchSize)
+	base_config.OverlayFlag(flags, "series-batch-concurrency", flags.GetInt, &c.Bazarr.SeriesBatchConcurrency)
 	return nil
 }

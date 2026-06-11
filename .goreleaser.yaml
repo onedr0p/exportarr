@@ -1,0 +1,68 @@
+---
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+version: 2
+project_name: exportarr
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: exportarr
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }} -X main.revision={{ .Commit }} -X main.buildTime={{ .CommitTimestamp }}
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
+    main: ./cmd/exportarr/main.go
+    binary: exportarr
+
+archives:
+  - id: exportarr
+    ids:
+      - exportarr
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
+
+upx:
+  - enabled: true
+    compress: best
+    lzma: true
+
+checksum:
+  algorithm: sha256
+  split: true
+
+sboms:
+  - artifacts: archive
+    documents:
+      - "{{ .ArtifactName }}.sbom.json"
+
+signs:
+  - cmd: cosign
+    signature: ${artifact}.sigstore.json
+    args:
+      - sign-blob
+      - --bundle=${signature}
+      - --yes
+      - ${artifact}
+    artifacts: all
+    output: true
+
+# release-please creates the GitHub Release with the changelog; goreleaser
+# attaches binaries/sboms/sigs to it.
+release:
+  mode: keep-existing

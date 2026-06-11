@@ -1,54 +1,42 @@
 package collector
 
 import (
-	"fmt"
+	"log/slog"
 
 	"github.com/onedr0p/exportarr/internal/arr/client"
 	"github.com/onedr0p/exportarr/internal/arr/config"
 	"github.com/onedr0p/exportarr/internal/arr/model"
 	"github.com/prometheus/client_golang/prometheus"
-	"go.uber.org/zap"
 )
 
 type systemStatusCollector struct {
+	client       *client.Client
 	config       *config.ArrConfig // App configuration
 	systemStatus *prometheus.Desc  // Total number of system statuses
 	errorMetric  *prometheus.Desc  // Error Description for use with InvalidMetric
 }
 
-func NewSystemStatusCollector(c *config.ArrConfig) *systemStatusCollector {
+// NewSystemStatusCollector builds a collector for the system/status endpoint.
+func NewSystemStatusCollector(httpClient *client.Client, c *config.ArrConfig) prometheus.Collector {
 	return &systemStatusCollector{
-		config: c,
-		systemStatus: prometheus.NewDesc(
-			fmt.Sprintf("%s_system_status", c.App),
-			"System Status",
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
-		errorMetric: prometheus.NewDesc(
-			fmt.Sprintf("%s_status_collector_error", c.App),
-			"Error while collecting metrics",
-			nil,
-			prometheus.Labels{"url": c.URL},
-		),
+		client:       httpClient,
+		config:       c,
+		systemStatus: newDesc(c.App, "system_status", "System Status", nil, c.URL),
+		errorMetric:  newDesc(c.App, "status_collector_error", "Error while collecting metrics", nil, c.URL),
 	}
 }
 
 func (collector *systemStatusCollector) Describe(ch chan<- *prometheus.Desc) {
+	ch <- collector.errorMetric
 	ch <- collector.systemStatus
 }
 
 func (collector *systemStatusCollector) Collect(ch chan<- prometheus.Metric) {
-	log := zap.S().With("collector", "system_status")
-	c, err := client.NewClient(collector.config)
+	log := slog.With("collector", "system_status")
+	defer recoverCollect(log, ch, collector.errorMetric)
+	c := collector.client
+	systemStatus, err := client.Get[model.SystemStatus](c, "system/status")
 	if err != nil {
-		log.Errorw("Error creating client",
-			"error", err)
-		ch <- prometheus.NewInvalidMetric(collector.errorMetric, err)
-		return
-	}
-	systemStatus := model.SystemStatus{}
-	if err := c.DoRequest("system/status", &systemStatus); err != nil {
 		ch <- prometheus.MustNewConstMetric(collector.systemStatus, prometheus.GaugeValue, float64(0.0))
 	} else if (model.SystemStatus{}) == systemStatus {
 		ch <- prometheus.MustNewConstMetric(collector.systemStatus, prometheus.GaugeValue, float64(0.0))

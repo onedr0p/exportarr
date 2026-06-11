@@ -70,7 +70,7 @@ spec:
               value: "9707"
             - name: URL
               value: "http://lidarr.default.svc.cluster.local:8686"
-            - name: APIKEY
+            - name: API_KEY
               valueFrom:
                 secretKeyRef:
                   name: lidarr-exporter

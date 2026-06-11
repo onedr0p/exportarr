@@ -1,13 +1,13 @@
 package collector
 
 import (
+	"github.com/onedr0p/exportarr/internal/assert"
 	"strings"
 	"testing"
 
 	"github.com/onedr0p/exportarr/internal/arr/model"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
-	"github.com/stretchr/testify/require"
 )
 
 type testCollector struct {
@@ -26,12 +26,8 @@ func (c *testCollector) Collect(ch chan<- prometheus.Metric) {
 }
 
 func TestUnavailableIndexerEmitter(t *testing.T) {
-	emitter := UnavailableIndexerEmitter{
-		url: "http://localhost:9117",
-	}
-
-	require := require.New(t)
-	require.NotNil(emitter.Describe())
+	emitter := NewUnavailableIndexerEmitter("http://localhost:9117")
+	assert.NotNil(t, emitter.Describe())
 
 	msg := model.SystemHealthMessage{
 		Source:  "IndexerLongTermStatusCheck",
@@ -40,10 +36,10 @@ func TestUnavailableIndexerEmitter(t *testing.T) {
 		Message: "Indexers unavailable due to failures for more than 6 hours: Server1, ServerTwo, ServerTHREE, Server.four",
 	}
 	metrics := emitter.Emit(msg)
-	require.Len(metrics, 4)
+	assert.Len(t, metrics, 4)
 
 	testCol := &testCollector{
-		emitter: &emitter,
+		emitter: emitter,
 		msg:     msg,
 	}
 
@@ -56,5 +52,5 @@ func TestUnavailableIndexerEmitter(t *testing.T) {
 		prowlarr_indexer_unavailable{indexer="ServerTwo",url="http://localhost:9117"} 1
 		`)
 	err := testutil.CollectAndCompare(testCol, expected)
-	require.NoError(err)
+	assert.NoError(t, err)
 }

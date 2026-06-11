@@ -1,11 +1,10 @@
 package handlers
 
 import (
-	"fmt"
+	"log/slog"
 	"net/http"
+	"strconv"
 	"time"
-
-	"go.uber.org/zap"
 
 	"github.com/onedr0p/exportarr/internal/config"
 	"github.com/prometheus/client_golang/prometheus"
@@ -37,26 +36,27 @@ func (w *wrappedResponseWriter) Code() int {
 	return w.code
 }
 
-// Log internal request to stdout
+// LogHandler logs each request at debug level once it completes.
 func LogHandler(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ww := &wrappedResponseWriter{inner: w}
 		defer func() {
-			zap.S().Debugw("Request Received",
+			slog.Debug("Request Received",
 				"remote_addr", r.RemoteAddr,
 				"status", ww.Code(),
 				"method", r.Method,
 				"url", r.URL)
 		}()
-		handler.ServeHTTP(w, r)
+		handler.ServeHTTP(ww, r)
 	})
 }
 
+// RecoveryHandler recovers from panics in downstream handlers and returns a 500.
 func RecoveryHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				zap.S().Errorw("panic recovered", "error", err)
+				slog.Error("panic recovered", "error", err)
 				w.WriteHeader(http.StatusInternalServerError)
 			}
 		}()
@@ -64,13 +64,21 @@ func RecoveryHandler(next http.Handler) http.Handler {
 	})
 }
 
+// MetricsHandler records scrape duration and request-count metrics around the
+// wrapped handler.
 func MetricsHandler(conf *config.Config, reg *prometheus.Registry, next http.Handler) http.Handler {
 	var (
-		scrapDuration = promauto.With(reg).NewGauge(prometheus.GaugeOpts{
+		scrapeDuration = promauto.With(reg).NewHistogram(prometheus.HistogramOpts{
 			Namespace:   conf.App,
 			Name:        "scrape_duration_seconds",
-			Help:        "Duration of the last scrape of metrics from Exportarr.",
+			Help:        "Distribution of scrape durations.",
 			ConstLabels: prometheus.Labels{"url": conf.URL},
+			Buckets:     []float64{0.1, 0.25, 0.5, 1, 2.5, 5, 10, 30, 60},
+			// Also expose a sparse native histogram to scrapers that negotiate
+			// it; classic buckets above remain for everyone else.
+			NativeHistogramBucketFactor:     1.1,
+			NativeHistogramMaxBucketNumber:  100,
+			NativeHistogramMinResetDuration: time.Hour,
 		})
 		requestCount = promauto.With(reg).NewCounterVec(prometheus.CounterOpts{
 			Namespace:   conf.App,
@@ -83,8 +91,8 @@ func MetricsHandler(conf *config.Config, reg *prometheus.Registry, next http.Han
 		start := time.Now()
 		ww := &wrappedResponseWriter{inner: w}
 		defer func() {
-			scrapDuration.Set(time.Since(start).Seconds())
-			requestCount.WithLabelValues(fmt.Sprintf("%d", ww.Code())).Inc()
+			scrapeDuration.Observe(time.Since(start).Seconds())
+			requestCount.WithLabelValues(strconv.Itoa(ww.Code())).Inc()
 		}()
 		next.ServeHTTP(ww, r)
 	})
