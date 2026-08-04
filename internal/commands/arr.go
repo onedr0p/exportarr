@@ -14,6 +14,7 @@ import (
 func init() {
 	config.RegisterArrFlags(radarrCmd.PersistentFlags())
 	config.RegisterArrFlags(sonarrCmd.PersistentFlags())
+	config.RegisterArrFlags(sportarrCmd.PersistentFlags())
 	config.RegisterArrFlags(lidarrCmd.PersistentFlags())
 	config.RegisterArrFlags(prowlarrCmd.PersistentFlags())
 	config.RegisterArrFlags(bazarrCmd.PersistentFlags())
@@ -23,6 +24,7 @@ func init() {
 	rootCmd.AddCommand(
 		radarrCmd,
 		sonarrCmd,
+		sportarrCmd,
 		lidarrCmd,
 		bazarrCmd,
 		prowlarrCmd,
@@ -108,6 +110,18 @@ var sonarrCmd = &cobra.Command{
 		apiVersion: "v3",
 		collectors: func(httpClient *client.Client, c *config.ArrConfig) []prometheus.Collector {
 			return append(sharedArrCollectors(httpClient, c), collector.NewSonarrCollector(httpClient, c))
+		},
+	}.runE,
+}
+
+var sportarrCmd = &cobra.Command{
+	Use:   "sportarr",
+	Short: "Prometheus Exporter for Sportarr",
+	Long:  "Prometheus Exporter for Sportarr.",
+	RunE: arrCommand{
+		apiVersion: "v3",
+		collectors: func(httpClient *client.Client, c *config.ArrConfig) []prometheus.Collector {
+			return append(sharedArrCollectors(httpClient, c), collector.NewSportarrCollector(httpClient, c))
 		},
 	}.runE,
 }
