@@ -1,0 +1,17 @@
+[
+  {
+    "episodeFileId": 0,
+    "hasFile": false,
+    "monitored": false
+  },
+  {
+    "episodeFileId": 0,
+    "hasFile": false,
+    "monitored": true
+  },
+  {
+    "episodeFileId": 0,
+    "hasFile": true,
+    "monitored": true
+  }
+]
