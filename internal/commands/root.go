@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -108,7 +109,73 @@ func (promhttpLogger) Println(v ...any) {
 
 type registerFunc func(registry prometheus.Registerer)
 
-func serveHTTP(fn registerFunc) error {
+// metricsTarget is one app instance's metrics endpoint: register populates
+// its own Prometheus registry, mounted at /metrics (path == "", single-app
+// mode) or /metrics/<path> (multi-app "serve" mode). app namespaces its
+// metrics and url labels them, matching whatever register's collectors were
+// built against.
+type metricsTarget struct {
+	path     string
+	app      string
+	url      string
+	register registerFunc
+}
+
+// singleTarget builds the metricsTarget for single-app mode: cs is mounted
+// at the bare /metrics path, unchanged from exportarr's pre-multi-app
+// behavior.
+func singleTarget(app, url string, cs []prometheus.Collector) metricsTarget {
+	return metricsTarget{
+		app: app,
+		url: url,
+		register: func(r prometheus.Registerer) {
+			r.MustRegister(cs...)
+		},
+	}
+}
+
+// buildMux wires one /metrics route per target — each backed by its own
+// registry carrying the exporter's runtime collectors plus that target's
+// app-specific ones — alongside the shared / and /healthz routes.
+func buildMux(targets []metricsTarget) *http.ServeMux {
+	mux := http.NewServeMux()
+	paths := make([]string, 0, len(targets))
+	for _, t := range targets {
+		registry := prometheus.NewRegistry()
+		registerAppInfoMetric(registry)
+		// The exporter's own runtime health: go_* and process_* metrics make
+		// its CPU, memory, and GC behavior visible to the operator.
+		registry.MustRegister(
+			collectors.NewGoCollector(),
+			collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
+		)
+		t.register(registry)
+
+		// Serve partial metrics when a collector fails rather than failing
+		// the whole scrape; collectors surface failures via their
+		// *_collector_error gauges. Scrape bookkeeping wraps only the
+		// metrics route so health probes don't pollute it.
+		metricsHandler := promhttp.HandlerFor(registry, promhttp.HandlerOpts{
+			ErrorHandling: promhttp.ContinueOnError,
+			ErrorLog:      promhttpLogger{},
+		})
+		route := "/metrics"
+		if t.path != "" {
+			route += "/" + t.path
+		}
+		mux.Handle(route, handlers.MetricsHandler(t.app, t.url, registry, metricsHandler))
+		paths = append(paths, t.path)
+	}
+	mux.HandleFunc("/", handlers.IndexHandler(paths))
+	mux.HandleFunc("/healthz", handlers.HealthzHandler)
+	return mux
+}
+
+func serveHTTP(targets []metricsTarget) error {
+	if len(targets) == 0 {
+		return errors.New("no metrics targets configured")
+	}
+
 	srv := http.Server{
 		// Bound header reads so a stalled client cannot pin connections open.
 		ReadHeaderTimeout: 10 * time.Second,
@@ -132,28 +199,7 @@ func serveHTTP(fn registerFunc) error {
 		close(idleConnsClosed)
 	}()
 
-	registry := prometheus.NewRegistry()
-	registerAppInfoMetric(registry)
-	// The exporter's own runtime health: go_* and process_* metrics make its
-	// CPU, memory, and GC behavior visible to the operator.
-	registry.MustRegister(
-		collectors.NewGoCollector(),
-		collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
-	)
-	fn(registry)
-
-	// Serve partial metrics when a collector fails rather than failing the
-	// whole scrape; collectors surface failures via their *_collector_error
-	// gauges. Scrape bookkeeping wraps only /metrics so health probes don't
-	// pollute it.
-	metricsHandler := promhttp.HandlerFor(registry, promhttp.HandlerOpts{
-		ErrorHandling: promhttp.ContinueOnError,
-		ErrorLog:      promhttpLogger{},
-	})
-	mux := http.NewServeMux()
-	mux.Handle("/metrics", handlers.MetricsHandler(conf, registry, metricsHandler))
-	mux.HandleFunc("/", handlers.IndexHandler)
-	mux.HandleFunc("/healthz", handlers.HealthzHandler)
+	mux := buildMux(targets)
 
 	slog.Info("Starting HTTP Server",
 		"interface", conf.Interface,

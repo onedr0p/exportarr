@@ -2,7 +2,10 @@ package config
 
 import (
 	"github.com/onedr0p/exportarr/internal/assert"
+	"os"
+	"path/filepath"
 	"testing"
+	"time"
 
 	base_config "github.com/onedr0p/exportarr/internal/config"
 	"github.com/spf13/pflag"
@@ -131,6 +134,104 @@ func TestLoadConfig_Flags(t *testing.T) {
 
 	// defaults fall through
 	assert.Equal(t, config.APIVersion, "v3")
+}
+
+func TestLoadArrInstanceEnv_Unconfigured(t *testing.T) {
+	inst, err := LoadArrInstanceEnv("LIDARR__")
+	assert.NoError(t, err)
+	assert.False(t, inst.Configured())
+	assert.Empty(t, inst.URL)
+}
+
+func TestLoadArrInstanceEnv_Basic(t *testing.T) {
+	t.Setenv("RADARR__URL", "http://radarr.local:7878")
+	t.Setenv("RADARR__API_KEY", "abcdef0123456789abcdef0123456789")
+	t.Setenv("RADARR__AUTH_USERNAME", "user")
+	t.Setenv("RADARR__AUTH_PASSWORD", "pass")
+	t.Setenv("RADARR__FORM_AUTH", "true")
+	t.Setenv("RADARR__DISABLE_SSL_VERIFY", "true")
+	t.Setenv("RADARR__REQUEST_TIMEOUT", "5s")
+
+	inst, err := LoadArrInstanceEnv("RADARR__")
+	assert.NoError(t, err)
+	assert.True(t, inst.Configured())
+	assert.Equal(t, inst.URL, "http://radarr.local:7878")
+	assert.Equal(t, inst.APIKey, "abcdef0123456789abcdef0123456789")
+	assert.Equal(t, inst.AuthUsername, "user")
+	assert.Equal(t, inst.AuthPassword, "pass")
+	assert.True(t, inst.FormAuth)
+	assert.True(t, inst.DisableSSLVerify)
+	assert.Equal(t, inst.RequestTimeout, 5*time.Second)
+}
+
+func TestLoadArrInstanceEnv_RequestTimeoutDefault(t *testing.T) {
+	t.Setenv("RADARR__URL", "http://radarr.local:7878")
+	inst, err := LoadArrInstanceEnv("RADARR__")
+	assert.NoError(t, err)
+	assert.Equal(t, inst.RequestTimeout, 60*time.Second)
+}
+
+func TestLoadArrInstanceEnv_PrefixIsolation(t *testing.T) {
+	t.Setenv("RADARR__URL", "http://radarr.local")
+	t.Setenv("SONARR__URL", "http://sonarr.local")
+
+	radarr, err := LoadArrInstanceEnv("RADARR__")
+	assert.NoError(t, err)
+	sonarr, err := LoadArrInstanceEnv("SONARR__")
+	assert.NoError(t, err)
+	lidarr, err := LoadArrInstanceEnv("LIDARR__")
+	assert.NoError(t, err)
+
+	assert.Equal(t, radarr.URL, "http://radarr.local")
+	assert.Equal(t, sonarr.URL, "http://sonarr.local")
+	assert.False(t, lidarr.Configured())
+}
+
+func TestLoadArrInstanceEnv_APIKeyFileOverridesInline(t *testing.T) {
+	dir := t.TempDir()
+	keyFile := filepath.Join(dir, "radarr_api_key")
+	assert.NoError(t, os.WriteFile(keyFile, []byte("fromfile0123456789abcdef01234\n"), 0o600))
+
+	t.Setenv("RADARR__URL", "http://radarr.local")
+	t.Setenv("RADARR__API_KEY", "inlinekey0123456789abcdef012345")
+	t.Setenv("RADARR__API_KEY_FILE", keyFile)
+
+	inst, err := LoadArrInstanceEnv("RADARR__")
+	assert.NoError(t, err)
+	assert.Equal(t, inst.APIKey, "fromfile0123456789abcdef01234")
+}
+
+func TestNewArrConfigForInstance(t *testing.T) {
+	shared := ArrConfig{
+		DisableQualityMetrics: true,
+	}
+	shared.Bazarr.SeriesBatchSize = 500
+
+	inst := ArrInstanceEnv{
+		URL:              "http://radarr.local:7878",
+		APIKey:           "abcdef0123456789abcdef0123456789",
+		AuthUsername:     "user",
+		AuthPassword:     "pass",
+		FormAuth:         true,
+		DisableSSLVerify: true,
+		RequestTimeout:   5 * time.Second,
+	}
+
+	c := NewArrConfigForInstance(shared, "radarr", "v3", inst)
+
+	assert.Equal(t, c.App, "radarr")
+	assert.Equal(t, c.APIVersion, "v3")
+	assert.Equal(t, c.URL, "http://radarr.local:7878")
+	assert.Equal(t, c.APIKey, "abcdef0123456789abcdef0123456789")
+	assert.Equal(t, c.AuthUsername, "user")
+	assert.Equal(t, c.AuthPassword, "pass")
+	assert.True(t, c.FormAuth)
+	assert.True(t, c.DisableSSLVerify)
+	assert.Equal(t, c.RequestTimeout, 5*time.Second)
+
+	// process-wide settings carried through from shared, untouched
+	assert.True(t, c.DisableQualityMetrics)
+	assert.Equal(t, c.Bazarr.SeriesBatchSize, 500)
 }
 
 func TestValidate(t *testing.T) {
