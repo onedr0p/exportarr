@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/url"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/caarlos0/env/v11"
@@ -108,4 +109,60 @@ func (c *ArrConfig) Validate() error {
 		errs = append(errs, errors.New("auth-username/auth-password are only supported with form-auth (basic auth was removed)"))
 	}
 	return errors.Join(errs...)
+}
+
+// ArrInstanceEnv is the per-instance identity/auth configuration for one
+// *arr app in multi-app ("exportarr serve") mode, read from environment
+// variables under a per-app prefix such as "RADARR__". Settings that apply
+// uniformly across every app in the process (DISABLE_QUALITY_METRICS, the
+// Bazarr/Prowlarr sub-configs, ...) are not part of this type — they stay
+// process-wide, parsed once via the regular unprefixed ArrConfig fields.
+type ArrInstanceEnv struct {
+	URL              string        `env:"URL"`
+	APIKey           string        `env:"API_KEY,unset"`
+	APIKeyFromFile   string        `env:"API_KEY_FILE,file,unset"`
+	AuthUsername     string        `env:"AUTH_USERNAME"`
+	AuthPassword     string        `env:"AUTH_PASSWORD"`
+	FormAuth         bool          `env:"FORM_AUTH"`
+	DisableSSLVerify bool          `env:"DISABLE_SSL_VERIFY"`
+	RequestTimeout   time.Duration `env:"REQUEST_TIMEOUT" envDefault:"60s"`
+}
+
+// Configured reports whether this instance has a URL set — the signal used
+// to decide whether an app is enabled in multi-app mode.
+func (i *ArrInstanceEnv) Configured() bool {
+	return i.URL != ""
+}
+
+// LoadArrInstanceEnv parses the per-app environment variables under prefix
+// (e.g. "RADARR__") into an ArrInstanceEnv. A mounted secret file
+// (<PREFIX>API_KEY_FILE) wins over an inline <PREFIX>API_KEY, matching the
+// base configuration's API_KEY_FILE behavior.
+func LoadArrInstanceEnv(prefix string) (*ArrInstanceEnv, error) {
+	out := &ArrInstanceEnv{}
+	if err := env.ParseWithOptions(out, env.Options{Prefix: prefix}); err != nil {
+		return nil, err
+	}
+	if out.APIKeyFromFile != "" {
+		out.APIKey = strings.TrimSpace(out.APIKeyFromFile)
+	}
+	return out, nil
+}
+
+// NewArrConfigForInstance builds the ArrConfig for one multi-app instance:
+// shared carries the process-wide settings (already parsed once via
+// LoadArrConfig), overlaid with this instance's identity/auth fields and
+// app selection.
+func NewArrConfigForInstance(shared ArrConfig, app, apiVersion string, inst ArrInstanceEnv) *ArrConfig {
+	c := shared
+	c.App = app
+	c.APIVersion = apiVersion
+	c.URL = inst.URL
+	c.APIKey = inst.APIKey
+	c.AuthUsername = inst.AuthUsername
+	c.AuthPassword = inst.AuthPassword
+	c.FormAuth = inst.FormAuth
+	c.DisableSSLVerify = inst.DisableSSLVerify
+	c.RequestTimeout = inst.RequestTimeout
+	return &c
 }

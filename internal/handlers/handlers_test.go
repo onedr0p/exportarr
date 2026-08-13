@@ -8,7 +8,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/onedr0p/exportarr/internal/assert"
-	"github.com/onedr0p/exportarr/internal/config"
 )
 
 func TestHealthzHandler(t *testing.T) {
@@ -19,12 +18,21 @@ func TestHealthzHandler(t *testing.T) {
 	assert.Equal(t, rec.Body.String(), "OK")
 }
 
-func TestIndexHandler(t *testing.T) {
+func TestIndexHandler_SingleApp(t *testing.T) {
 	rec := httptest.NewRecorder()
-	IndexHandler(rec, httptest.NewRequest(http.MethodGet, "/", nil))
+	IndexHandler([]string{""}).ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/", nil))
 
 	assert.Equal(t, rec.Code, http.StatusOK)
-	assert.Contains(t, rec.Body.String(), "/metrics")
+	assert.Contains(t, rec.Body.String(), "href='/metrics'")
+}
+
+func TestIndexHandler_MultiApp(t *testing.T) {
+	rec := httptest.NewRecorder()
+	IndexHandler([]string{"radarr", "sonarr"}).ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/", nil))
+
+	assert.Equal(t, rec.Code, http.StatusOK)
+	assert.Contains(t, rec.Body.String(), "href='/metrics/radarr'")
+	assert.Contains(t, rec.Body.String(), "href='/metrics/sonarr'")
 }
 
 func TestRecoveryHandler(t *testing.T) {
@@ -73,9 +81,8 @@ func labelValue(t *testing.T, reg *prometheus.Registry, family, label string) st
 }
 
 func TestMetricsHandler_RecordsDurationAndStatusCode(t *testing.T) {
-	conf := &config.Config{App: "radarr", URL: "http://radarr:7878"}
 	reg := prometheus.NewRegistry()
-	h := MetricsHandler(conf, reg, http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+	h := MetricsHandler("radarr", "http://radarr:7878", reg, http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusTeapot)
 	}))
 
@@ -100,9 +107,8 @@ func TestMetricsHandler_RecordsDurationAndStatusCode(t *testing.T) {
 }
 
 func TestMetricsHandler_DefaultsToStatusOK(t *testing.T) {
-	conf := &config.Config{App: "sonarr", URL: "http://sonarr:8989"}
 	reg := prometheus.NewRegistry()
-	h := MetricsHandler(conf, reg, http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+	h := MetricsHandler("sonarr", "http://sonarr:8989", reg, http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		_, _ = w.Write([]byte("ok")) // no explicit WriteHeader
 	}))
 

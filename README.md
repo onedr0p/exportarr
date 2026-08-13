@@ -4,7 +4,10 @@ AIO Prometheus Exporter for Sonarr, Radarr, Lidarr, Prowlarr, Bazarr and Sabnzbd
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/onedr0p/exportarr)](https://goreportcard.com/report/github.com/onedr0p/exportarr)
 
-Note: This exporter will not gather metrics from all apps at once. You will need an `exportarr` instance for each app. Be sure to see the examples below for more information.
+Two ways to run it:
+
+- **One instance per app** (`exportarr radarr`, `exportarr sonarr`, ...) — each app gets its own container, port, and `/metrics` endpoint. This is the original, still-supported mode; see the examples below.
+- **One instance for every app** (`exportarr serve`) — a single container serves every configured app at `/metrics/<app>` (e.g. `/metrics/radarr`, `/metrics/sonarr`). See [Multi-app mode](#multi-app-mode-exportarr-serve) below.
 
 ![image](.github/images/dashboard-2.png)
 
@@ -50,6 +53,42 @@ _Replace `$app`, `$port` and `$apikey` with one of the supported apps, port and 
 ```
 
 Visit http://127.0.0.1:9707/metrics to see the app metrics
+
+## Multi-app mode (`exportarr serve`)
+
+Run one container that scrapes every configured app, each exposed at its own
+`/metrics/<app>` path instead of a shared endpoint — so Prometheus still gets
+independent scrape success/failure per app, and you can use a longer scrape
+interval for slow apps (Bazarr) without penalizing fast ones (SABnzbd).
+
+An app is enabled by setting its `<APP>__URL` and `<APP>__API_KEY` — any app
+whose `<APP>__URL` is unset is simply not started. Everything else from the
+[Configuration](#configuration) table below takes the same `<APP>__` prefix
+per instance (`RADARR__AUTH_USERNAME`, `SONARR__DISABLE_SSL_VERIFY`,
+`RADARR__API_KEY_FILE`, ...) — **except** the scrape-tuning flags
+(`DISABLE_QUALITY_METRICS`, `DISABLE_EPISODE_METRICS`, `PROWLARR__BACKFILL`,
+`BAZARR__SERIES_BATCH_SIZE`, ...), which stay unprefixed and apply to every
+app in the process, exactly as in single-app mode.
+
+```sh
+docker run --name exportarr \
+  -e PORT=9707 \
+  -e RADARR__URL="http://x.x.x.x:7878" \
+  -e RADARR__API_KEY="$radarr_apikey" \
+  -e SONARR__URL="http://x.x.x.x:8989" \
+  -e SONARR__API_KEY="$sonarr_apikey" \
+  -e SABNZBD__URL="http://x.x.x.x:8080" \
+  -e SABNZBD__API_KEY="$sabnzbd_apikey" \
+  --restart unless-stopped \
+  -p 9707:9707 \
+  -d ghcr.io/onedr0p/exportarr:latest serve
+```
+
+Visit `http://127.0.0.1:9707/metrics/radarr`, `.../sonarr`, `.../sabnzbd`, etc.
+— visiting `http://127.0.0.1:9707/` lists the links for whichever apps are
+configured. See [examples/compose/docker-compose.multi.yaml](./examples/compose/docker-compose.multi.yaml)
+for a full example. The one-container-per-app mode above is unaffected —
+pick whichever fits your setup, or mix both.
 
 ## Configuration
 

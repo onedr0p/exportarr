@@ -29,8 +29,6 @@ var sabnzbdCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		return serveHTTP(func(r prometheus.Registerer) {
-			r.MustRegister(collector)
-		})
+		return serveHTTP([]metricsTarget{singleTarget("sabnzbd", c.URL, []prometheus.Collector{collector})})
 	},
 }

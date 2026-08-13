@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/onedr0p/exportarr/internal/config"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
@@ -65,14 +64,15 @@ func RecoveryHandler(next http.Handler) http.Handler {
 }
 
 // MetricsHandler records scrape duration and request-count metrics around the
-// wrapped handler.
-func MetricsHandler(conf *config.Config, reg *prometheus.Registry, next http.Handler) http.Handler {
+// wrapped handler. app namespaces the metrics and url labels them — the same
+// pair used to build the wrapped registry's collectors.
+func MetricsHandler(app, url string, reg *prometheus.Registry, next http.Handler) http.Handler {
 	var (
 		scrapeDuration = promauto.With(reg).NewHistogram(prometheus.HistogramOpts{
-			Namespace:   conf.App,
+			Namespace:   app,
 			Name:        "scrape_duration_seconds",
 			Help:        "Distribution of scrape durations.",
-			ConstLabels: prometheus.Labels{"url": conf.URL},
+			ConstLabels: prometheus.Labels{"url": url},
 			Buckets:     []float64{0.1, 0.25, 0.5, 1, 2.5, 5, 10, 30, 60},
 			// Also expose a sparse native histogram to scrapers that negotiate
 			// it; classic buckets above remain for everyone else.
@@ -81,10 +81,10 @@ func MetricsHandler(conf *config.Config, reg *prometheus.Registry, next http.Han
 			NativeHistogramMinResetDuration: time.Hour,
 		})
 		requestCount = promauto.With(reg).NewCounterVec(prometheus.CounterOpts{
-			Namespace:   conf.App,
+			Namespace:   app,
 			Name:        "scrape_requests_total",
 			Help:        "Total number of HTTP requests made.",
-			ConstLabels: prometheus.Labels{"url": conf.URL},
+			ConstLabels: prometheus.Labels{"url": url},
 		}, []string{"code"})
 	)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

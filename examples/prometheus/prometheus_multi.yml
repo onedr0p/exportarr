@@ -1,0 +1,40 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # One `exportarr serve` container exposes every app at /metrics/<app> on
+  # the same host:port — only metrics_path changes between jobs. Add or
+  # drop jobs to match whichever apps you actually enabled via <APP>__URL.
+  - job_name: "exportarr_radarr"
+    metrics_path: /metrics/radarr
+    static_configs:
+      - targets: ["exportarr:9707"]
+
+  - job_name: "exportarr_sonarr"
+    metrics_path: /metrics/sonarr
+    static_configs:
+      - targets: ["exportarr:9707"]
+
+  - job_name: "exportarr_lidarr"
+    metrics_path: /metrics/lidarr
+    static_configs:
+      - targets: ["exportarr:9707"]
+
+  - job_name: "exportarr_bazarr"
+    metrics_path: /metrics/bazarr
+    static_configs:
+      - targets: ["exportarr:9707"]
+
+  - job_name: "exportarr_prowlarr"
+    metrics_path: /metrics/prowlarr
+    static_configs:
+      - targets: ["exportarr:9707"]
+
+  - job_name: "exportarr_sabnzbd"
+    metrics_path: /metrics/sabnzbd
+    static_configs:
+      - targets: ["exportarr:9707"]
