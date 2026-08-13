@@ -1,0 +1,45 @@
+---
+version: "3.7"
+# One exportarr container scraping every configured app, each exposed at its
+# own /metrics/<app> path (e.g. /metrics/radarr, /metrics/sonarr). An app is
+# enabled by setting its <APP>__URL and <APP>__API_KEY; omit the pair for any
+# app you don't want scraped. See the README's "Multi-app mode" section.
+#
+# To keep API keys out of this file, use Docker secrets instead of
+# <APP>__API_KEY, e.g.:
+#
+#   services:
+#     exportarr:
+#       environment:
+#         RADARR__API_KEY_FILE: /run/secrets/radarr_api_key
+#       secrets:
+#         - radarr_api_key
+#   secrets:
+#     radarr_api_key:
+#       file: ./radarr_api_key.txt
+
+services:
+  exportarr:
+    image: ghcr.io/onedr0p/exportarr:latest
+    container_name: exportarr
+    command: ["serve"]
+    environment:
+      PORT: 9707
+      RADARR__URL: "http://x.x.x.x:7878" # or; http://radarr:7878
+      RADARR__API_KEY: "xxx"
+      SONARR__URL: "http://x.x.x.x:8989" # or; http://sonarr:8989
+      SONARR__API_KEY: "xxx"
+      LIDARR__URL: "http://x.x.x.x:8686" # or; http://lidarr:8686
+      LIDARR__API_KEY: "xxx"
+      PROWLARR__URL: "http://x.x.x.x:9696" # or; http://prowlarr:9696
+      PROWLARR__API_KEY: "abc"
+      # PROWLARR__BACKFILL: true # optional, applies process-wide
+      BAZARR__URL: "http://x.x.x.x:6767" # or; http://bazarr:6767
+      BAZARR__API_KEY: "xxx"
+      SABNZBD__URL: "http://x.x.x.x:8080" # or; http://sabnzbd:8080
+      SABNZBD__API_KEY: "abc"
+    #    networks:
+    #    - your_custom_network # optional
+    ports:
+      - "9707:9707"
+    restart: unless-stopped
