@@ -3,10 +3,12 @@ package client
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/onedr0p/exportarr/internal/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
+
+	"github.com/onedr0p/exportarr/internal/assert"
 )
 
 func TestNewClient(t *testing.T) {
@@ -15,7 +17,23 @@ func TestNewClient(t *testing.T) {
 	assert.NoError(t, err, "NewClient should not return an error")
 	assert.NotNil(t, c, "NewClient should return a client")
 	assert.Equal(t, c.URL.String(), u, "NewClient should set the correct URL")
+	assert.Equal(t, c.httpClient.Timeout, defaultRequestTimeout, "NewClient should set the default timeout")
 	assert.True(t, c.httpClient.Transport.(*ExportarrTransport).inner.(*http.Transport).TLSClientConfig.InsecureSkipVerify)
+}
+
+func TestNewClient_DefaultTimeout(t *testing.T) {
+	c, err := NewClient("http://localhost", false, 0, nil)
+	assert.NoError(t, err, "NewClient should not return an error")
+	assert.NotNil(t, c, "NewClient should return a client")
+	assert.Equal(t, c.httpClient.Timeout, defaultRequestTimeout, "NewClient should configure default timeout when timeout <= 0")
+}
+
+func TestNewClient_CustomTimeout(t *testing.T) {
+	customTimeout := 15 * time.Second
+	c, err := NewClient("http://localhost", false, customTimeout, nil)
+	assert.NoError(t, err, "NewClient should not return an error")
+	assert.NotNil(t, c, "NewClient should return a client")
+	assert.Equal(t, c.httpClient.Timeout, customTimeout, "NewClient should configure specified timeout")
 }
 
 func TestDoRequest(t *testing.T) {
