@@ -15,10 +15,11 @@ import (
 	"time"
 )
 
-// defaultRequestTimeout caps each HTTP request so a hung instance cannot pin
+// DefaultRequestTimeout caps each HTTP request so a hung instance cannot pin
 // scrape goroutines forever; large bazarr/lidarr history payloads can take
 // tens of seconds, so the default is generous and overridable via config.
-const defaultRequestTimeout = 60 * time.Second
+const DefaultRequestTimeout = 60 * time.Second
+const defaultRequestTimeout = DefaultRequestTimeout
 
 // Client struct is an *Arr client.
 type Client struct {

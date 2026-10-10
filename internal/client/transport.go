@@ -78,16 +78,21 @@ func (t *ExportarrTransport) RoundTrip(req *http.Request) (*http.Response, error
 		backoff = defaultBackoff
 	}
 	resp, err := t.inner.RoundTrip(req)
-	for attempt := 1; (err != nil || resp.StatusCode >= 500) && attempt <= maxRetries; attempt++ {
+	for attempt := 1; (err != nil || (resp != nil && resp.StatusCode >= 500)) && attempt <= maxRetries; attempt++ {
 		drainBody(resp)
+		resp = nil
 		sleepContext(req.Context(), backoff(attempt))
 		if req.Context().Err() != nil {
-			break
+			return nil, fmt.Errorf("error sending HTTP Request: %w", req.Context().Err())
 		}
 		resp, err = t.inner.RoundTrip(req)
 	}
 	if err != nil {
+		drainBody(resp)
 		return nil, fmt.Errorf("error sending HTTP Request: %w", err)
+	}
+	if resp == nil {
+		return nil, fmt.Errorf("received nil response")
 	}
 	switch {
 	case resp.StatusCode >= 500:
