@@ -14,8 +14,9 @@ import (
 	base_config "github.com/onedr0p/exportarr/internal/config"
 )
 
-// apiKeyRegex matches the *arr API key format.
-var apiKeyRegex = regexp.MustCompile(`^[a-zA-Z0-9]{20,32}$`)
+// apiKeyRegex matches the *arr API key format. The apps generate 32
+// characters and warn below 20, but accept longer keys.
+var apiKeyRegex = regexp.MustCompile(`^[a-zA-Z0-9]{20,}$`)
 
 // RegisterArrFlags registers the *arr-specific flags on the given FlagSet.
 func RegisterArrFlags(flags *flag.FlagSet) {
@@ -97,7 +98,7 @@ func (c *ArrConfig) Validate() error {
 		errs = append(errs, fmt.Errorf("url must be a valid URL: %q", c.URL))
 	}
 	if !apiKeyRegex.MatchString(c.APIKey) {
-		errs = append(errs, errors.New("api-key must be a 20-32 character alphanumeric string"))
+		errs = append(errs, errors.New("api-key must be an alphanumeric string of at least 20 characters"))
 	}
 
 	if c.FormAuth {
