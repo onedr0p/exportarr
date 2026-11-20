@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -158,7 +160,7 @@ func serveHTTP(fn registerFunc) error {
 	slog.Info("Starting HTTP Server",
 		"interface", conf.Interface,
 		"port", conf.Port)
-	srv.Addr = fmt.Sprintf("%s:%d", conf.Interface, conf.Port)
+	srv.Addr = net.JoinHostPort(conf.Interface, strconv.Itoa(conf.Port))
 
 	wrappedMux := handlers.RecoveryHandler(mux)
 	wrappedMux = handlers.LogHandler(wrappedMux)
